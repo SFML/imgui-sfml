@@ -1,13 +1,17 @@
 ImGui + SFML
 =======
 
-How-to:
+Library which allows you to use [ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
+Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with some improvements / changes.
+
+How-to
+----
 
 - Download [imgui](https://github.com/ocornut/imgui) 
 - Add imgui folder to your include directories
 - Add `imgui.cpp` and `imgui_render.cpp` to your build/project
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file.
-- Add folder which contains imgui-SFML.h to your include directories
+- Add folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
 
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there
