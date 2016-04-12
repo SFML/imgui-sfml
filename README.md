@@ -7,6 +7,8 @@ Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with s
 How-to
 ----
 
+Setting up:
+
 - Download [imgui](https://github.com/ocornut/imgui) 
 - Add imgui folder to your include directories
 - Add `imgui.cpp` and `imgui_render.cpp` to your build/project
@@ -14,8 +16,10 @@ How-to
 - Add folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
 
+In your code:
+
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there
-- For each iteration of game loop:
+- For each iteration of a game loop:
     - Update:
         - Poll and process events:
             ```c++
@@ -28,7 +32,7 @@ How-to
         - Call `ImGui::SFML::Update()`
         - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
         - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
-    -Render:
+    - Render:
         - Call ImGui::Render()
 
 Example code
