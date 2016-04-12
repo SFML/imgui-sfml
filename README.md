@@ -20,22 +20,22 @@ In your code:
 
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there
 - For each iteration of a game loop:
-    - Update:
-        - Poll and process events:
-        
-            ```c++
-            sf::Event event;
-            while (window.pollEvent(event)) {
-                ImGui::SFML::ProcessEvent(event);
-                ...
-            }
-            ```
-            
-        - Call `ImGui::SFML::Update()`
-        - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
-        - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
-    - Render:
-        - Call `ImGui::Render()`
+    - Poll and process events:
+    
+        ```c++
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            ImGui::SFML::ProcessEvent(event);
+            ...
+        }
+        ```
+    
+    - Call `ImGui::SFML::Update()`
+    - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
+    - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
+    - Call `ImGui::Render()`
+
+- Call `ImGui::SFML::Shutdown()` at the end of your program
 
 Example code
 ----
