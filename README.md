@@ -79,7 +79,7 @@ int main()
 SFML related ImGui overloads / new widgets
 ---
 
-I've also added some overloads for convenience, so you can render sf::Texture inside ImGui windows like this:
+I've also added some overloads for convenience, so you can render `sf::Texture` inside ImGui windows like this:
 ```c++
 ImGui::Image(someTexture); // someTexture is sf::Texture
 ```
