@@ -9,11 +9,11 @@ How-to
 
 Setting up:
 
-- Download [imgui](https://github.com/ocornut/imgui) 
-- Add imgui folder to your include directories
+- Download [ImGui](https://github.com/ocornut/imgui) 
+- Add ImGui folder to your include directories
 - Add `imgui.cpp` and `imgui_render.cpp` to your build/project
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file.
-- Add folder which contains `imgui-SFML.h` to your include directories
+- Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
 
 In your code:
