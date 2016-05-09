@@ -126,6 +126,7 @@ void Update()
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = getDisplaySize();
     io.DeltaTime = s_deltaClock.restart().asSeconds(); // restart the clock and get delta
+    s_window->setMouseCursorVisible(!io.MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
 
     // update mouse
     assert(s_window);
