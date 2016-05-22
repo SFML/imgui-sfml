@@ -1,10 +1,12 @@
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Rect.hpp>
 
 namespace sf
 {
     class Event;
     class RenderTarget;
     class RenderWindow;
+    class Sprite;
     class Texture;
     class Window;
 }
@@ -25,5 +27,11 @@ namespace SFML
 
 // custom ImGui widgets for SFML stuff
     void Image(const sf::Texture& texture);
-    void Image(const sf::Texture& texture, const sf::Vector2u& size);
+    void Image(const sf::Texture& texture, const sf::Vector2f& size);
+    
+    void Image(const sf::Sprite& sprite);
+    void Image(const sf::Sprite& sprite, const sf::Vector2f& size); 
+
+    void Image_impl(const sf::Texture& texture, const sf::FloatRect& textureRect,
+        const sf::Vector2f& size);
 }

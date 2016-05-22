@@ -2,9 +2,10 @@
 #include <imgui.h>
 
 #include <SFML/OpenGL.hpp>
-#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
@@ -165,13 +166,37 @@ void SetRenderTarget(sf::RenderTarget& target)
 
 void Image(const sf::Texture& texture)
 {
-    Image(texture, texture.getSize());
+    Image(texture, static_cast<sf::Vector2f>(texture.getSize()));
 }
 
-void Image(const sf::Texture& texture, const sf::Vector2u& size)
+void Image(const sf::Texture& texture, const sf::Vector2f& size)
 {
-    ImGui::Image((void*)&texture, static_cast<sf::Vector2f>(size));
+    ImGui::Image((void*)&texture, size);
 }
+
+void Image(const sf::Sprite& sprite)
+{
+    auto textureRect = static_cast<sf::FloatRect>(sprite.getTextureRect());
+    Image(sprite, sf::Vector2f(textureRect.width, textureRect.height));
+}
+
+void Image(const sf::Sprite& sprite, const sf::Vector2f& size)
+{
+    auto texturePtr = sprite.getTexture();
+    if (!texturePtr) { return; } // sprite without texture cannot be drawn
+    Image_impl(*texturePtr, static_cast<sf::FloatRect>(sprite.getTextureRect()), size);
+}
+
+void Image_impl(const sf::Texture& texture, const sf::FloatRect& textureRect, const sf::Vector2f& size)
+{
+    auto textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
+        (textureRect.top + textureRect.height) / textureSize.y);
+
+    ImGui::Image((void*)&texture, size, uv0, uv1);
+}
+
 
 } // end of namespace ImGui
 
@@ -179,75 +204,76 @@ void Image(const sf::Texture& texture, const sf::Vector2u& size)
 
 namespace
 {
-    void RenderDrawLists(ImDrawData* draw_data)
-    {
-        assert(s_renderTarget);
-        if (draw_data->CmdListsCount == 0) {
-            return;
-        }
 
-        s_renderTarget->pushGLStates();
-
-        GLint last_texture;
-        glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-
-        glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_SCISSOR_TEST);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnable(GL_TEXTURE_2D);
-
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y, 0.0f, -1.0f, +1.0f);
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
-        for (int n = 0; n < draw_data->CmdListsCount; ++n) {
-            const ImDrawList* cmd_list = draw_data->CmdLists[n];
-            const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-            const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
-
-            glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + offsetof(ImDrawVert, pos)));
-            glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + offsetof(ImDrawVert, uv)));
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + offsetof(ImDrawVert, col)));
-
-            for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); ++cmd_i) {
-                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-                if (pcmd->UserCallback) {
-                    pcmd->UserCallback(cmd_list, pcmd);
-                } else {
-                    sf::Texture* texture = (sf::Texture*)pcmd->TextureId;
-                    sf::Vector2u win_size = s_renderTarget->getSize();
-                    sf::Texture::bind(texture);
-                    glScissor((int)pcmd->ClipRect.x, (int)(win_size.y - pcmd->ClipRect.w),
-                        (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
-                }
-                idx_buffer += pcmd->ElemCount;
-            }
-        }
-
-        // Restore modified state
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glBindTexture(GL_TEXTURE_2D, last_texture);
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glPopAttrib();
-
-        s_renderTarget->popGLStates();
-        s_renderTarget->resetGLStates();
+void RenderDrawLists(ImDrawData* draw_data)
+{
+    assert(s_renderTarget);
+    if (draw_data->CmdListsCount == 0) {
+        return;
     }
+
+    s_renderTarget->pushGLStates();
+
+    GLint last_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+
+    glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnable(GL_TEXTURE_2D);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y, 0.0f, -1.0f, +1.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    for (int n = 0; n < draw_data->CmdListsCount; ++n) {
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
+        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
+        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
+
+        glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + offsetof(ImDrawVert, pos)));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + offsetof(ImDrawVert, uv)));
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + offsetof(ImDrawVert, col)));
+
+        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); ++cmd_i) {
+            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+            if (pcmd->UserCallback) {
+                pcmd->UserCallback(cmd_list, pcmd);
+            } else {
+                sf::Texture* texture = (sf::Texture*)pcmd->TextureId;
+                sf::Vector2u win_size = s_renderTarget->getSize();
+                sf::Texture::bind(texture);
+                glScissor((int)pcmd->ClipRect.x, (int)(win_size.y - pcmd->ClipRect.w),
+                    (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
+            }
+            idx_buffer += pcmd->ElemCount;
+        }
+    }
+
+    // Restore modified state
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindTexture(GL_TEXTURE_2D, last_texture);
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glPopAttrib();
+
+    s_renderTarget->popGLStates();
+    s_renderTarget->resetGLStates();
+}
 
 } // end of anonymous namespace
