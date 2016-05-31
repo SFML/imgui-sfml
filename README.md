@@ -9,19 +9,32 @@ How-to
 
 Setting up:
 
-- Download [ImGui](https://github.com/ocornut/imgui) 
+- Download [ImGui](https://github.com/ocornut/imgui)
 - Add ImGui folder to your include directories
 - Add `imgui.cpp` and `imgui_draw.cpp` to your build/project
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast ImVec2 to sf::Vector2f and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
 
+CMake Builds:
+
+ - Checkout the repository as a submoudle
+ - Set IMGUI_ROOT 
+ - Modify your builds to copy imgui-SFML and dependencies (sfml) to your project
+```CMakeLists
+   add_subdirectory(repos/imgui-sfml)
+   include_directories("${IMGUI_SFML_INCLUDE_DIRS}")
+   add_executable(MY_PROJECT ${IMGUI_SOURCES} ${IMGUI_SFML_SOURCES} ${SRCS})
+   ...
+  target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
+```
+
 In your code:
 
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there
 - For each iteration of a game loop:
     - Poll and process events:
-    
+
         ```c++
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -29,7 +42,7 @@ In your code:
             ...
         }
         ```
-    
+
     - Call `ImGui::SFML::Update()`
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
@@ -40,42 +53,44 @@ In your code:
 Example code
 ----
 
+See example file [here](examples/main.cpp)
+
 ```c++
-#include "imgui.h"
-#include "imgui-sfml.h"
-
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/Event.hpp>
-
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode(800, 600), "ImGui + SFML = <3");
-    window.setFramerateLimit(60);
-    ImGui::SFML::Init(window);
-
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            ImGui::SFML::ProcessEvent(event);
-
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-        }
-
-        ImGui::SFML::Update();
-
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
-        ImGui::End();
-
-        window.clear();
-        ImGui::Render();
-        window.display();
-    }
-
-    ImGui::SFML::Shutdown();
-}
+ #include "imgui.h"
+ #include "imgui-SFML.h"
+ 
+ #include <SFML/Graphics/RenderWindow.hpp>
+ #include <SFML/Window/Event.hpp>
+ 
+ int main()
+ {
+     sf::RenderWindow window(sf::VideoMode(800, 600), "ImGui + SFML = <3");
+     window.setFramerateLimit(60);
+     ImGui::SFML::Init(window);
+ 
+     while (window.isOpen()) {
+         sf::Event event;
+         while (window.pollEvent(event)) {
+             ImGui::SFML::ProcessEvent(event);
+ 
+             if (event.type == sf::Event::Closed) {
+                 window.close();
+             }
+         }
+ 
+         ImGui::SFML::Update();
+ 
+         ImGui::Begin("Hello, world!");
+         ImGui::Button("Look at this pretty button");
+         ImGui::End();
+ 
+         window.clear();
+         ImGui::Render();
+         window.display();
+     }
+ 
+     ImGui::SFML::Shutdown();
+ }
 ```
 
 SFML related ImGui overloads / new widgets
