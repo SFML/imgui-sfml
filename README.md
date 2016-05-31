@@ -11,7 +11,7 @@ Setting up:
 
 - Download [ImGui](https://github.com/ocornut/imgui) 
 - Add ImGui folder to your include directories
-- Add `imgui.cpp` and `imgui_render.cpp` to your build/project
+- Add `imgui.cpp` and `imgui_draw.cpp` to your build/project
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast ImVec2 to sf::Vector2f and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
@@ -81,10 +81,12 @@ int main()
 SFML related ImGui overloads / new widgets
 ---
 
-I've also added some useful overloads for SFML objects:
+There are some useful overloads implemented for SFML objects (see header for overloads):
 ```c++
 ImGui::Image(const sf::Sprite& sprite);
 ImGui::Image(const sf::Texture& texture);
+ImGui::ImageButton(const sf::Sprite& sprite);
+ImGui::ImageButton(const sf::Texture& texture);
 ```
 
 License
