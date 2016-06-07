@@ -7,6 +7,8 @@ Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with s
 How-to
 ----
 
+[**Detailed tutorial on my blog**](https://eliasdaler.wordpress.com/2016/05/31/imgui-sfml-tutorial-part-1/)
+
 Setting up:
 
 - Download [ImGui](https://github.com/ocornut/imgui)
@@ -15,19 +17,6 @@ Setting up:
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast ImVec2 to sf::Vector2f and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
-
-CMake Builds:
-
- - Checkout the repository as a submoudle
- - Set IMGUI_ROOT 
- - Modify your builds to copy imgui-SFML and dependencies (sfml) to your project
-```CMakeLists
-   add_subdirectory(repos/imgui-sfml)
-   include_directories("${IMGUI_SFML_INCLUDE_DIRS}")
-   add_executable(MY_PROJECT ${IMGUI_SOURCES} ${IMGUI_SFML_SOURCES} ${SRCS})
-   ...
-  target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
-```
 
 In your code:
 
@@ -56,41 +45,54 @@ Example code
 See example file [here](examples/main.cpp)
 
 ```c++
- #include "imgui.h"
- #include "imgui-SFML.h"
+#include "imgui.h"
+#include "imgui-SFML.h"
  
- #include <SFML/Graphics/RenderWindow.hpp>
- #include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
  
- int main()
- {
-     sf::RenderWindow window(sf::VideoMode(800, 600), "ImGui + SFML = <3");
-     window.setFramerateLimit(60);
-     ImGui::SFML::Init(window);
- 
-     while (window.isOpen()) {
-         sf::Event event;
-         while (window.pollEvent(event)) {
-             ImGui::SFML::ProcessEvent(event);
- 
-             if (event.type == sf::Event::Closed) {
-                 window.close();
-             }
-         }
- 
-         ImGui::SFML::Update();
- 
-         ImGui::Begin("Hello, world!");
-         ImGui::Button("Look at this pretty button");
-         ImGui::End();
- 
-         window.clear();
-         ImGui::Render();
-         window.display();
-     }
- 
-     ImGui::SFML::Shutdown();
- }
+int main()
+{
+    sf::RenderWindow window(sf::VideoMode(800, 600), "ImGui + SFML = <3");
+    window.setFramerateLimit(60);
+    ImGui::SFML::Init(window);
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            ImGui::SFML::ProcessEvent(event);
+
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+        }
+
+        ImGui::SFML::Update();
+
+        ImGui::Begin("Hello, world!");
+        ImGui::Button("Look at this pretty button");
+        ImGui::End();
+
+        window.clear();
+        ImGui::Render();
+        window.display();
+    }
+
+    ImGui::SFML::Shutdown();
+}
+```
+
+CMake how-to
+---
+ - Checkout the repository as a submoudle
+ - Set IMGUI_ROOT 
+ - Modify your builds to copy imgui-SFML and dependencies (sfml) to your project
+```CMakeLists
+add_subdirectory(repos/imgui-sfml)
+include_directories("${IMGUI_SFML_INCLUDE_DIRS}")
+add_executable(MY_PROJECT ${IMGUI_SOURCES} ${IMGUI_SFML_SOURCES} ${SRCS})
+...
+target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
 ```
 
 SFML related ImGui overloads / new widgets
