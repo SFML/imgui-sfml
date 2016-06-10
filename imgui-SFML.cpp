@@ -181,19 +181,19 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size)
 
 void Image(const sf::Sprite& sprite)
 {
-    auto bounds = sprite.getGlobalBounds();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
     Image(sprite, sf::Vector2f(bounds.width, bounds.height));
 }
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size)
 {
-    auto texturePtr = sprite.getTexture();
+    const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr)
         return;
 
-    auto textureSize = static_cast<sf::Vector2f>(texturePtr->getSize());
-    auto textureRect = sprite.getTextureRect();
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texturePtr->getSize());
+    sf::IntRect textureRect = sprite.getTextureRect();
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
@@ -208,19 +208,19 @@ bool ImageButton(const sf::Texture& texture, const int framePadding, const sf::C
 
 bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
-    auto textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
     return ::imageButtonImpl(texture, sf::FloatRect(0.f, 0.f, textureSize.x, textureSize.y), size, framePadding, bgColor, tintColor);
 }
 
 bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
-    auto spriteSize = sprite.getGlobalBounds();
+    sf::FloatRect spriteSize = sprite.getGlobalBounds();
     return ImageButton(sprite, sf::Vector2f(spriteSize.width, spriteSize.height), framePadding, bgColor, tintColor);
 }
 
 bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
-    auto texturePtr = sprite.getTexture();
+    const sf::Texture* texturePtr = sprite.getTexture();
     if (!texturePtr)
         return false;
     return ::imageButtonImpl(*texturePtr, static_cast<sf::FloatRect>(sprite.getTextureRect()), size, framePadding, bgColor, tintColor);
@@ -319,7 +319,7 @@ void RenderDrawLists(ImDrawData* draw_data)
 bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRect, const sf::Vector2f& size, const int framePadding,
                      const sf::Color& bgColor, const sf::Color& tintColor)
 {
-    auto textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
 
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width)  / textureSize.x,
