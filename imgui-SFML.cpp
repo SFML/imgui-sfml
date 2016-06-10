@@ -7,7 +7,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
 
@@ -18,7 +17,6 @@ static sf::RenderTarget* s_renderTarget = nullptr;
 static sf::Texture* s_fontTexture = nullptr;
 static bool s_windowHasFocus = true;
 
-static sf::Clock s_deltaClock;
 static bool s_mousePressed[5] = { false, false, false, false, false };
 
 namespace
@@ -68,8 +66,6 @@ void Init(sf::Window& window, sf::RenderTarget& target)
     io.KeyMap[ImGuiKey_X] = sf::Keyboard::X;
     io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
     io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
-
-    s_deltaClock.restart();
 
     // init rendering
     s_renderTarget = &target;
@@ -140,11 +136,11 @@ void ProcessEvent(const sf::Event& event)
     }
 }
 
-void Update()
+void Update(sf::Time dt)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = getDisplaySize();
-    io.DeltaTime = s_deltaClock.restart().asSeconds(); // restart the clock and get delta
+    io.DeltaTime = dt.asSeconds();
     s_window->setMouseCursorVisible(!io.MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
 
     // update mouse

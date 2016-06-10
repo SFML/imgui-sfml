@@ -1,6 +1,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Time.hpp>
 
 namespace sf
 {
@@ -19,7 +20,7 @@ namespace SFML
     void Init(sf::Window& window, sf::RenderTarget& target);
     void Init(sf::RenderWindow& window); // for convenience
     void ProcessEvent(const sf::Event& event);
-    void Update();
+    void Update(sf::Time dt);
     void Shutdown();
 
     void SetRenderTarget(sf::RenderTarget& target);

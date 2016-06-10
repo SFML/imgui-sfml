@@ -3,6 +3,7 @@
 #include "imgui-SFML.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
 int main()
@@ -11,6 +12,7 @@ int main()
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
+    sf::Clock deltaClock;
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -21,7 +23,7 @@ int main()
             }
         }
 
-        ImGui::SFML::Update();
+        ImGui::SFML::Update(deltaClock.restart());
 
         ImGui::Begin("Hello, world!");
         ImGui::Button("Look at this pretty button");

@@ -32,7 +32,7 @@ In your code:
         }
         ```
 
-    - Call `ImGui::SFML::Update()`
+    - Call `ImGui::SFML::Update(deltaTime)` where deltaTime is sf::Time
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
     - Call `ImGui::Render()`
@@ -49,6 +49,7 @@ See example file [here](examples/main.cpp)
 #include "imgui-SFML.h"
  
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
  
 int main()
@@ -57,6 +58,7 @@ int main()
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
+    sf::Clock deltaClock;
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -67,7 +69,7 @@ int main()
             }
         }
 
-        ImGui::SFML::Update();
+        ImGui::SFML::Update(deltaClock.restart());
 
         ImGui::Begin("Hello, world!");
         ImGui::Button("Look at this pretty button");
