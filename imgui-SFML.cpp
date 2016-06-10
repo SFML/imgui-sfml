@@ -203,8 +203,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size)
 {
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
-    if (!texturePtr)
-        return;
+    if (!texturePtr) { return; }
 
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texturePtr->getSize());
     sf::IntRect textureRect = sprite.getTextureRect();
@@ -235,8 +234,7 @@ bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Col
 bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
     const sf::Texture* texturePtr = sprite.getTexture();
-    if (!texturePtr)
-        return false;
+    if (!texturePtr) { return false; }
     return ::imageButtonImpl(*texturePtr, static_cast<sf::FloatRect>(sprite.getTextureRect()), size, framePadding, bgColor, tintColor);
 }
 
