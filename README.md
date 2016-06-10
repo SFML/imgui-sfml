@@ -14,7 +14,7 @@ Setting up:
 - Download [ImGui](https://github.com/ocornut/imgui)
 - Add ImGui folder to your include directories
 - Add `imgui.cpp` and `imgui_draw.cpp` to your build/project
-- Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast ImVec2 to sf::Vector2f and vice versa)
+- Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast `ImVec2` to `sf::Vector2f` and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
 
@@ -32,7 +32,7 @@ In your code:
         }
         ```
 
-    - Call `ImGui::SFML::Update(deltaTime)` where deltaTime is sf::Time
+    - Call `ImGui::SFML::Update(deltaTime)` where `deltaTime` is `sf::Time`
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
     - Call `ImGui::Render()`
