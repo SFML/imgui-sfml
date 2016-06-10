@@ -16,6 +16,7 @@
 static sf::Window* s_window = nullptr;
 static sf::RenderTarget* s_renderTarget = nullptr;
 static sf::Texture* s_fontTexture = nullptr;
+static bool s_windowHasFocus = true;
 
 static sf::Clock s_deltaClock;
 static bool s_mousePressed[5] = { false, false, false, false, false };
@@ -101,26 +102,38 @@ void Init(sf::RenderWindow& window)
 void ProcessEvent(const sf::Event& event)
 {
     ImGuiIO& io = ImGui::GetIO();
-    switch (event.type)
+    if (s_windowHasFocus) {
+        switch (event.type)
+        {
+            case sf::Event::MouseButtonPressed: // fall-through
+            case sf::Event::MouseButtonReleased:
+                s_mousePressed[event.mouseButton.button] = (event.type == sf::Event::MouseButtonPressed);
+                break;
+            case sf::Event::MouseWheelMoved:
+                io.MouseWheel += static_cast<float>(event.mouseWheel.delta);
+                break;
+            case sf::Event::KeyPressed: // fall-through
+            case sf::Event::KeyReleased:
+                io.KeysDown[event.key.code] = (event.type == sf::Event::KeyPressed);
+                io.KeyCtrl = event.key.control;
+                io.KeyShift = event.key.shift;
+                io.KeyAlt = event.key.alt;
+                break;
+            case sf::Event::TextEntered:
+                if (event.text.unicode > 0 && event.text.unicode < 0x10000) {
+                    io.AddInputCharacter(event.text.unicode);
+                }
+                break;
+        }
+    }
+
+    switch (event.type) 
     {
-        case sf::Event::MouseButtonPressed: // fall-through
-        case sf::Event::MouseButtonReleased:
-            s_mousePressed[event.mouseButton.button] = (event.type == sf::Event::MouseButtonPressed);
+        case sf::Event::LostFocus:
+            s_windowHasFocus = false;
             break;
-        case sf::Event::MouseWheelMoved:
-            io.MouseWheel += (float)event.mouseWheel.delta;
-            break;
-        case sf::Event::KeyPressed: // fall-through
-        case sf::Event::KeyReleased:
-            io.KeysDown[event.key.code] = (event.type == sf::Event::KeyPressed);
-            io.KeyCtrl = event.key.control;
-            io.KeyShift = event.key.shift;
-            io.KeyAlt = event.key.alt;
-            break;
-        case sf::Event::TextEntered:
-            if (event.text.unicode > 0 && event.text.unicode < 0x10000) {
-                io.AddInputCharacter(event.text.unicode);
-            }
+        case sf::Event::GainedFocus:
+            s_windowHasFocus = true;
             break;
         default:
             break;
@@ -136,12 +149,13 @@ void Update()
 
     // update mouse
     assert(s_window);
-    sf::Vector2f mousePos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*s_window));
-    io.MousePos = ImVec2(mousePos.x, mousePos.y);
-    io.MouseDown[0] = s_mousePressed[0] || sf::Mouse::isButtonPressed(sf::Mouse::Left);
-    io.MouseDown[1] = s_mousePressed[1] || sf::Mouse::isButtonPressed(sf::Mouse::Right);
-    io.MouseDown[2] = s_mousePressed[2] || sf::Mouse::isButtonPressed(sf::Mouse::Middle);
-    s_mousePressed[0] = s_mousePressed[1] = s_mousePressed[2] = false;
+    if (s_windowHasFocus) {
+        io.MousePos = sf::Mouse::getPosition(*s_window);
+        io.MouseDown[0] = s_mousePressed[0] || sf::Mouse::isButtonPressed(sf::Mouse::Left);
+        io.MouseDown[1] = s_mousePressed[1] || sf::Mouse::isButtonPressed(sf::Mouse::Right);
+        io.MouseDown[2] = s_mousePressed[2] || sf::Mouse::isButtonPressed(sf::Mouse::Middle);
+        s_mousePressed[0] = s_mousePressed[1] = s_mousePressed[2] = false;
+    }
 
     ImGui::NewFrame();
 }
@@ -242,8 +256,8 @@ void RenderDrawLists(ImDrawData* draw_data)
 
     // scale stuff (needed for proper handling of window resize)
     ImGuiIO& io = ImGui::GetIO();
-    int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
-    int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
+    int fb_width = static_cast<int>(io.DisplaySize.x * io.DisplayFramebufferScale.x);
+    int fb_height = static_cast<int>(io.DisplaySize.y * io.DisplayFramebufferScale.y);
     if (fb_width == 0 || fb_height == 0) { return; }
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
@@ -325,8 +339,7 @@ bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRec
     ImVec2 uv1((textureRect.left + textureRect.width)  / textureSize.x,
                (textureRect.top  + textureRect.height) / textureSize.y);
 
-    return ImGui::ImageButton((void*)&texture, size, uv0, uv1, framePadding, ImVec4(bgColor.r, bgColor.g, bgColor.b, bgColor.a),
-                       ImVec4(tintColor.r, tintColor.g, tintColor.b, tintColor.a));
+    return ImGui::ImageButton((void*)&texture, size, uv0, uv1, framePadding, bgColor, tintColor);
 }
 
 } // end of anonymous namespace
