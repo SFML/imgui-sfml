@@ -2,6 +2,13 @@
 
 #include <SFML/System/Vector2.hpp>
 
-#define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const sf::Vector2f& v) { x = v.x; y = v.y; }                 \
-        operator sf::Vector2f() const { return sf::Vector2f(x, y); }
+#define IM_VEC2_CLASS_EXTRA												\
+	template <typename T>												\
+	ImVec2(const sf::Vector2<T>& v) {									\
+		x = static_cast<float>(v.x);									\
+		y = static_cast<float>(v.y);									\
+	}																	\
+	template <typename T>												\
+	operator sf::Vector2<T>() const {									\
+		return sf::Vector2<T>{sf::Vector2f{x, y}};						\
+	}
