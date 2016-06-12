@@ -120,10 +120,12 @@ void ProcessEvent(const sf::Event& event)
                     io.AddInputCharacter(event.text.unicode);
                 }
                 break;
+            default:
+                break;
         }
     }
 
-    switch (event.type) 
+    switch (event.type)
     {
         case sf::Event::LostFocus:
             s_windowHasFocus = false;
