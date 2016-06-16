@@ -16,13 +16,12 @@
     }
 
 #define IM_VEC4_CLASS_EXTRA                                             \
-    ImVec4(const sf::Color& c)                                          \
-        : ImVec4(static_cast<float>(c.r), static_cast<float>(c.g),      \
-                 static_cast<float>(c.b), static_cast<float>(c.a))      \
-    { }                                                                 \
-                                                                        \
+    ImVec4(const sf::Color & c)                                         \
+        : ImVec4(c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f) {  \
+    }                                                                   \
     operator sf::Color() const {                                        \
-        return sf::Color(static_cast<sf::Uint8>(x),                     \
-            static_cast<sf::Uint8>(y), static_cast<sf::Uint8>(z),       \
-            static_cast<sf::Uint8>(w));                                 \
+        return sf::Color(static_cast<sf::Uint8>(x * 255.f),             \
+            static_cast<sf::Uint8>(y * 255.f),                          \
+            static_cast<sf::Uint8>(z * 255.f),                          \
+            static_cast<sf::Uint8>(w * 255.f));                         \
     }
