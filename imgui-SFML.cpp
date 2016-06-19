@@ -10,11 +10,11 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
 
-#include <cstddef> // offsetof
+#include <cstddef> // offsetof, NULL
 
-static sf::Window* s_window = nullptr;
-static sf::RenderTarget* s_renderTarget = nullptr;
-static sf::Texture* s_fontTexture = nullptr;
+static sf::Window* s_window = NULL;
+static sf::RenderTarget* s_renderTarget = NULL;
+static sf::Texture* s_fontTexture = NULL;
 static bool s_windowHasFocus = true;
 
 static bool s_mousePressed[5] = { false, false, false, false, false };
@@ -82,6 +82,7 @@ void Init(sf::Window& window, sf::RenderTarget& target)
 
     if (s_fontTexture) { // was already created, delete it
         delete s_fontTexture;
+        s_fontTexture = NULL;
     }
 
     s_fontTexture = new sf::Texture;
@@ -164,11 +165,12 @@ void Update(sf::Time dt)
 void Shutdown()
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->TexID = nullptr;
+    io.Fonts->TexID = NULL;
     delete s_fontTexture;
+    s_fontTexture = NULL;
 
-    s_renderTarget = nullptr;
-    s_window = nullptr;
+    s_renderTarget = NULL;
+    s_window = NULL;
     ImGui::Shutdown(); // need to specify namespace here, because compiler will call ImGui::SFML::Shutdown here!
 }
 
