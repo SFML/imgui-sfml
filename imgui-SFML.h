@@ -28,12 +28,29 @@ namespace SFML
 }
 
 // custom ImGui widgets for SFML stuff
-    void Image(const sf::Texture& texture);
-    void Image(const sf::Texture& texture, const sf::Vector2f& size);
 
-    void Image(const sf::Sprite& sprite);
-    void Image(const sf::Sprite& sprite, const sf::Vector2f& size);
+// Image overloads
+    void Image(const sf::Texture& texture,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
+    void Image(const sf::Texture& texture, const sf::Vector2f& size,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
+    void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
+    void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
 
+    void Image(const sf::Sprite& sprite,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
+    void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
+
+// ImageButton overloads
     bool ImageButton(const sf::Texture& texture, const int framePadding = -1,
                      const sf::Color& bgColor = sf::Color::Transparent,
                      const sf::Color& tintColor = sf::Color::White);
@@ -46,4 +63,9 @@ namespace SFML
     bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding = -1,
                      const sf::Color& bgColor = sf::Color::Transparent,
                      const sf::Color& tintColor = sf::Color::White);
+
+// Draw_list overloads. All positions are in relative coordinates (relative to top-left of the current window)
+    void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Color& col, float thickness = 1.0f);
+    void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F, float thickness = 1.0f);
+    void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F);
 }

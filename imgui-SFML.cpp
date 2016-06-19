@@ -29,6 +29,9 @@ ImVec2 getDisplaySize()
     return ImVec2(size);
 }
 
+ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
+ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
+
 void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prototype
 
 // Implementation of ImageButton overload
@@ -166,7 +169,7 @@ void Shutdown()
 
     s_renderTarget = nullptr;
     s_window = nullptr;
-    ImGui::Shutdown();
+    ImGui::Shutdown(); // need to specify namespace here, because compiler will call ImGui::SFML::Shutdown here!
 }
 
 void SetWindow(sf::Window& window)
@@ -181,68 +184,130 @@ void SetRenderTarget(sf::RenderTarget& target)
 
 } // end of namespace SFML
 
-void Image(const sf::Texture& texture)
+
+/////////////// Image Overloads
+
+void Image(const sf::Texture& texture,
+    const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    Image(texture, static_cast<sf::Vector2f>(texture.getSize()));
+    Image(texture, static_cast<sf::Vector2f>(texture.getSize()), tintColor, borderColor);
 }
 
-void Image(const sf::Texture& texture, const sf::Vector2f& size)
+void Image(const sf::Texture& texture, const sf::Vector2f& size,
+    const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    ImGui::Image((void*)&texture, size);
+    ImGui::Image((void*)&texture, size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite)
+void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
+    const sf::Color& tintColor, const sf::Color& borderColor)
+{
+    Image(texture, sf::Vector2f(textureRect.width, textureRect.height), textureRect, tintColor, borderColor);
+}
+
+void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect,
+    const sf::Color& tintColor, const sf::Color& borderColor)
+{
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
+        (textureRect.top + textureRect.height) / textureSize.y);
+    ImGui::Image((void*)&texture, ImVec2(textureRect.width, textureRect.height), uv0, uv1, tintColor, borderColor);
+}
+
+void Image(const sf::Sprite& sprite,
+    const sf::Color& tintColor, const sf::Color& borderColor)
 {
     sf::FloatRect bounds = sprite.getGlobalBounds();
-    Image(sprite, sf::Vector2f(bounds.width, bounds.height));
+    Image(sprite, sf::Vector2f(bounds.width, bounds.height), tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite, const sf::Vector2f& size)
+void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
+    const sf::Color& tintColor, const sf::Color& borderColor)
 {
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) { return; }
 
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texturePtr->getSize());
-    sf::IntRect textureRect = sprite.getTextureRect();
-    ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
-    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
-               (textureRect.top + textureRect.height) / textureSize.y);
-
-    ImGui::Image((void*)texturePtr, size, uv0, uv1);
+    Image(*texturePtr, size, tintColor, borderColor);
 }
 
-bool ImageButton(const sf::Texture& texture, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
+/////////////// Image Button Overloads
+
+bool ImageButton(const sf::Texture& texture,
+    const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
     return ImageButton(texture, static_cast<sf::Vector2f>(texture.getSize()), framePadding, bgColor, tintColor);
 }
 
-bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
+bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size,
+    const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
     return ::imageButtonImpl(texture, sf::FloatRect(0.f, 0.f, textureSize.x, textureSize.y), size, framePadding, bgColor, tintColor);
 }
 
-bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
+bool ImageButton(const sf::Sprite& sprite,
+    const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
     sf::FloatRect spriteSize = sprite.getGlobalBounds();
     return ImageButton(sprite, sf::Vector2f(spriteSize.width, spriteSize.height), framePadding, bgColor, tintColor);
 }
 
-bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
+bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
+    const int framePadding, const sf::Color& bgColor, const sf::Color& tintColor)
 {
     const sf::Texture* texturePtr = sprite.getTexture();
     if (!texturePtr) { return false; }
     return ::imageButtonImpl(*texturePtr, static_cast<sf::FloatRect>(sprite.getTextureRect()), size, framePadding, bgColor, tintColor);
 }
 
-} // end of namespace ImGui
+/////////////// Draw_list Overloads
 
-// Rendering callback
+void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Color& color,
+    float thickness)
+{
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    sf::Vector2f pos = ImGui::GetCursorScreenPos();
+    draw_list->AddLine(a + pos, b + pos, ColorConvertFloat4ToU32(color), thickness);
+}
+
+void DrawRect(const sf::FloatRect& rect, const sf::Color& color,
+    float rounding, int rounding_corners, float thickness)
+{
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRect(
+        getTopLeftAbsolute(rect),
+        getDownRightAbsolute(rect),
+        ColorConvertFloat4ToU32(color), rounding, rounding_corners, thickness);
+}
+
+void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
+    float rounding, int rounding_corners)
+{
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRect(
+        getTopLeftAbsolute(rect),
+        getDownRightAbsolute(rect),
+        ColorConvertFloat4ToU32(color), rounding, rounding_corners);
+}
+
+} // end of namespace ImGui
 
 namespace
 {
+ImVec2 getTopLeftAbsolute(const sf::FloatRect & rect)
+{
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    return ImVec2(rect.left + pos.x, rect.top + pos.y);
+}
+ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
+{
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    return ImVec2(rect.left + rect.width + pos.x, rect.top + rect.height + pos.y);
+}
 
+// Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
     assert(s_renderTarget);
