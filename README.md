@@ -7,7 +7,7 @@ Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with s
 How-to
 ----
 
-[**Detailed tutorial on my blog**](https://eliasdaler.wordpress.com/2016/05/31/imgui-sfml-tutorial-part-1/)
+[**Detailed tutorial on my blog**](https://eliasdaler.github.io/using-imgui-with-sfml-pt1)
 
 Setting up:
 
