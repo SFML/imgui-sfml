@@ -57,6 +57,8 @@ void Init(sf::Window& window, sf::RenderTarget& target)
     io.KeyMap[ImGuiKey_RightArrow] = sf::Keyboard::Right;
     io.KeyMap[ImGuiKey_UpArrow] = sf::Keyboard::Up;
     io.KeyMap[ImGuiKey_DownArrow] = sf::Keyboard::Down;
+    io.KeyMap[ImGuiKey_PageUp] = sf::Keyboard::PageUp;
+    io.KeyMap[ImGuiKey_PageDown] = sf::Keyboard::PageDown;
     io.KeyMap[ImGuiKey_Home] = sf::Keyboard::Home;
     io.KeyMap[ImGuiKey_End] = sf::Keyboard::End;
     io.KeyMap[ImGuiKey_Delete] = sf::Keyboard::Delete;
@@ -75,20 +77,20 @@ void Init(sf::Window& window, sf::RenderTarget& target)
     io.DisplaySize = getDisplaySize();
     io.RenderDrawListsFn = RenderDrawLists; // set render callback
 
+    if (s_fontTexture) { // font texture was already created, delete it
+        delete s_fontTexture;
+        s_fontTexture = NULL;
+    }
+
     // create font texture
     unsigned char* pixels;
     int width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    if (s_fontTexture) { // was already created, delete it
-        delete s_fontTexture;
-        s_fontTexture = NULL;
-    }
-
     s_fontTexture = new sf::Texture;
     s_fontTexture->create(width, height);
     s_fontTexture->update(pixels);
-    io.Fonts->TexID = (void*)s_fontTexture;
+    io.Fonts->TexID = (void*)s_fontTexture->getNativeHandle();
 
     io.Fonts->ClearInputData();
     io.Fonts->ClearTexData();
@@ -121,7 +123,7 @@ void ProcessEvent(const sf::Event& event)
                 break;
             case sf::Event::TextEntered:
                 if (event.text.unicode > 0 && event.text.unicode < 0x10000) {
-                    io.AddInputCharacter(event.text.unicode);
+                    io.AddInputCharacter(static_cast<ImWchar>(event.text.unicode));
                 }
                 break;
             default:
@@ -198,7 +200,7 @@ void Image(const sf::Texture& texture,
 void Image(const sf::Texture& texture, const sf::Vector2f& size,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    ImGui::Image((void*)&texture, size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
+    ImGui::Image((void*)texture.getNativeHandle(), size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -214,7 +216,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Float
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
         (textureRect.top + textureRect.height) / textureSize.y);
-    ImGui::Image((void*)&texture, size, uv0, uv1, tintColor, borderColor);
+    ImGui::Image((void*)texture.getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite,
@@ -366,10 +368,8 @@ void RenderDrawLists(ImDrawData* draw_data)
             if (pcmd->UserCallback) {
                 pcmd->UserCallback(cmd_list, pcmd);
             } else {
-                sf::Texture* texture = (sf::Texture*)pcmd->TextureId;
-                sf::Vector2u win_size = s_renderTarget->getSize();
-                sf::Texture::bind(texture);
-                glScissor((int)pcmd->ClipRect.x, (int)(win_size.y - pcmd->ClipRect.w),
+                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w),
                     (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
             }
