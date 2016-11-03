@@ -2,7 +2,8 @@ ImGui + SFML
 =======
 
 Library which allows you to use [ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
-Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with some improvements / changes.
+
+Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with big improvements and changes.
 
 How-to
 ----
