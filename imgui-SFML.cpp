@@ -21,7 +21,7 @@
 #endif
 
 static bool s_windowHasFocus = true;
-static bool s_mousePressed[3] = { false };
+static bool s_mousePressed[3] = { false, false, false };
 static sf::Texture* s_fontTexture = NULL; // owning pointer to internal font atlas which is used if user doesn't set custom sf::Texture.
 namespace
 {
