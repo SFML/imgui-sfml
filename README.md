@@ -20,7 +20,7 @@ Setting up:
 
 In your code:
 
-- Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there
+- Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there. You can create your font atlas and pass the pointer in Init too, otherwise the default internal font atlas will be created for you.
 - For each iteration of a game loop:
     - Poll and process events:
 
@@ -32,12 +32,14 @@ In your code:
         }
         ```
 
-    - Call `ImGui::SFML::Update(deltaTime)` where `deltaTime` is `sf::Time`
+    - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`. You can also pass mousePosition and displaySize yourself instead of passing the window.
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
     - Call `ImGui::Render()`
 
 - Call `ImGui::SFML::Shutdown()` at the end of your program
+
+**If you only draw ImGui widgets without any SFML stuff, then you'll have to call window.resetGLStates() before rendering anything. You only need to do it once.**
 
 Example code
 ----
@@ -47,16 +49,20 @@ See example file [here](examples/main.cpp)
 ```c++
 #include "imgui.h"
 #include "imgui-SFML.h"
- 
+
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
- 
+#include <SFML/Graphics/CircleShape.hpp>
+
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "ImGui + SFML = <3");
+    sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
+
+    sf::CircleShape shape(100.f);
+    shape.setFillColor(sf::Color::Green);
 
     sf::Clock deltaClock;
     while (window.isOpen()) {
@@ -69,13 +75,14 @@ int main()
             }
         }
 
-        ImGui::SFML::Update(deltaClock.restart());
+        ImGui::SFML::Update(window, deltaClock.restart());
 
         ImGui::Begin("Hello, world!");
         ImGui::Button("Look at this pretty button");
         ImGui::End();
 
         window.clear();
+        window.draw(shape);
         ImGui::Render();
         window.display();
     }

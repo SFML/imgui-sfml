@@ -17,14 +17,18 @@ namespace ImGui
 {
 namespace SFML
 {
-    void Init(sf::Window& window, sf::RenderTarget& target);
-    void Init(sf::RenderWindow& window); // for convenience
+    void Init(sf::RenderTarget& target, sf::Texture* fontTexture = NULL);
+
     void ProcessEvent(const sf::Event& event);
-    void Update(sf::Time dt);
+
+    void Update(sf::RenderWindow& window, sf::Time dt);
+    void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt);
+    void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt);
+
     void Shutdown();
 
-    void SetRenderTarget(sf::RenderTarget& target);
-    void SetWindow(sf::Window& window);
+    void createFontTexture(sf::Texture& texture);
+    void setFontTexture(sf::Texture& texture);
 }
 
 // custom ImGui widgets for SFML stuff

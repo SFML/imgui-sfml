@@ -11,6 +11,7 @@
 #include <SFML/Window/Window.hpp>
 
 #include <cstddef> // offsetof, NULL
+#include <cassert>
 
 // Supress warnings caused by converting from uint to void* in pCmd->TextureID
 #ifdef __clang__
@@ -19,22 +20,11 @@
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"      // warning: cast to pointer from integer of different size
 #endif
 
-static sf::Window* s_window = NULL;
-static sf::RenderTarget* s_renderTarget = NULL;
-static sf::Texture* s_fontTexture = NULL;
 static bool s_windowHasFocus = true;
-
-static bool s_mousePressed[5] = { false, false, false, false, false };
-
+static bool s_mousePressed[3] = { false };
+static sf::Texture* s_fontTexture = NULL; // owning pointer to internal font atlas which is used if user doesn't set custom sf::Texture.
 namespace
 {
-
-ImVec2 getDisplaySize()
-{
-    assert(s_renderTarget);
-    sf::Vector2f size = static_cast<sf::Vector2f>(s_renderTarget->getSize());
-    return ImVec2(size);
-}
 
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
@@ -52,10 +42,8 @@ namespace ImGui
 namespace SFML
 {
 
-void Init(sf::Window& window, sf::RenderTarget& target)
+void Init(sf::RenderTarget& target, sf::Texture* fontTexture)
 {
-    s_window = &window;
-
     ImGuiIO& io = ImGui::GetIO();
 
     // init keyboard mapping
@@ -80,32 +68,20 @@ void Init(sf::Window& window, sf::RenderTarget& target)
     io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
 
     // init rendering
-    s_renderTarget = &target;
-    io.DisplaySize = getDisplaySize();
+    io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
     io.RenderDrawListsFn = RenderDrawLists; // set render callback
 
-    if (s_fontTexture) { // font texture was already created, delete it
-        delete s_fontTexture;
-        s_fontTexture = NULL;
+    if (fontTexture == NULL) {
+        if (s_fontTexture) { // delete previously created texture
+            delete s_fontTexture;
+        }
+
+        s_fontTexture = new sf::Texture;
+        createFontTexture(*s_fontTexture);
+        setFontTexture(*s_fontTexture);
+    } else {
+        setFontTexture(*fontTexture);
     }
-
-    // create font texture
-    unsigned char* pixels;
-    int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-
-    s_fontTexture = new sf::Texture;
-    s_fontTexture->create(width, height);
-    s_fontTexture->update(pixels);
-    io.Fonts->TexID = (void*)s_fontTexture->getNativeHandle();
-
-    io.Fonts->ClearInputData();
-    io.Fonts->ClearTexData();
-}
-
-void Init(sf::RenderWindow& window)
-{
-    Init(window, window);
 }
 
 void ProcessEvent(const sf::Event& event)
@@ -116,7 +92,13 @@ void ProcessEvent(const sf::Event& event)
         {
             case sf::Event::MouseButtonPressed: // fall-through
             case sf::Event::MouseButtonReleased:
-                s_mousePressed[event.mouseButton.button] = (event.type == sf::Event::MouseButtonPressed);
+                {
+                    int button = event.mouseButton.button;
+                    if (event.type == sf::Event::MouseButtonPressed &&
+                        button >= 0 && button < 3) {
+                        s_mousePressed[event.mouseButton.button] = true;
+                    }
+                }
                 break;
             case sf::Event::MouseWheelMoved:
                 io.MouseWheel += static_cast<float>(event.mouseWheel.delta);
@@ -151,46 +133,69 @@ void ProcessEvent(const sf::Event& event)
     }
 }
 
-void Update(sf::Time dt)
+void Update(sf::RenderWindow& window, sf::Time dt)
+{
+    Update(window, window, dt);
+}
+
+void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
+{
+    Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+    window.setMouseCursorVisible(!ImGui::GetIO().MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
+}
+
+void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt)
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = getDisplaySize();
+    io.DisplaySize = displaySize;
     io.DeltaTime = dt.asSeconds();
-    s_window->setMouseCursorVisible(!io.MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
 
-    // update mouse
-    assert(s_window);
     if (s_windowHasFocus) {
-        io.MousePos = sf::Mouse::getPosition(*s_window);
-        io.MouseDown[0] = s_mousePressed[0] || sf::Mouse::isButtonPressed(sf::Mouse::Left);
-        io.MouseDown[1] = s_mousePressed[1] || sf::Mouse::isButtonPressed(sf::Mouse::Right);
-        io.MouseDown[2] = s_mousePressed[2] || sf::Mouse::isButtonPressed(sf::Mouse::Middle);
-        s_mousePressed[0] = s_mousePressed[1] = s_mousePressed[2] = false;
+        io.MousePos = mousePos;
+        for (int i = 0; i < 3; ++i) {
+            io.MouseDown[i] = s_mousePressed[i] || sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
+            s_mousePressed[i] = false;
+        }
     }
 
+    assert(io.Fonts->Fonts.Size > 0); // You forgot to create and set up font atlas (see createFontTexture)
     ImGui::NewFrame();
 }
 
 void Shutdown()
 {
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->TexID = NULL;
-    delete s_fontTexture;
-    s_fontTexture = NULL;
+    ImGui::GetIO().Fonts->TexID = NULL;
 
-    s_renderTarget = NULL;
-    s_window = NULL;
+    if (s_fontTexture) { // if internal texture was created, we delete it
+        delete s_fontTexture;
+        s_fontTexture = NULL;
+    }
+
     ImGui::Shutdown(); // need to specify namespace here, otherwise ImGui::SFML::Shutdown would be called
 }
 
-void SetWindow(sf::Window& window)
+void createFontTexture(sf::Texture& texture)
 {
-    s_window = &window;
+    unsigned char* pixels;
+    int width, height;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+    texture.create(width, height);
+    texture.update(pixels);
+
+    io.Fonts->ClearInputData();
+    io.Fonts->ClearTexData();
 }
 
-void SetRenderTarget(sf::RenderTarget& target)
+void setFontTexture(sf::Texture& texture)
 {
-    s_renderTarget = &target;
+    ImGui::GetIO().Fonts->TexID = (void*)texture.getNativeHandle();
+    if (&texture != s_fontTexture) { // internal texture is not needed anymore
+        delete s_fontTexture;
+        s_fontTexture = NULL;
+    }
 }
 
 } // end of namespace SFML
@@ -321,13 +326,15 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
-    assert(s_renderTarget);
     if (draw_data->CmdListsCount == 0) {
         return;
     }
 
-    // scale stuff (needed for proper handling of window resize)
+
     ImGuiIO& io = ImGui::GetIO();
+    assert(io.Fonts->TexID != NULL); // You forgot to create and set font texture
+
+    // scale stuff (needed for proper handling of window resize)
     int fb_width = static_cast<int>(io.DisplaySize.x * io.DisplayFramebufferScale.x);
     int fb_height = static_cast<int>(io.DisplaySize.y * io.DisplayFramebufferScale.y);
     if (fb_width == 0 || fb_height == 0) { return; }
