@@ -352,6 +352,10 @@ void RenderDrawLists(ImDrawData* draw_data)
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_SCISSOR_TEST);
     glEnable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
 
@@ -382,7 +386,9 @@ void RenderDrawLists(ImDrawData* draw_data)
             if (pcmd->UserCallback) {
                 pcmd->UserCallback(cmd_list, pcmd);
             } else {
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(unsigned int)pcmd->TextureId);
+                // Casting 64bit ImTextureId { aka void* } back to 32bit unsigned int 
+                GLuint tex_id = (GLuint)*((unsigned int*)&pcmd->TextureId);
+                glBindTexture(GL_TEXTURE_2D, tex_id);
                 glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w),
                     (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
