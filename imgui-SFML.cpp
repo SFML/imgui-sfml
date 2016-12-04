@@ -330,7 +330,6 @@ void RenderDrawLists(ImDrawData* draw_data)
         return;
     }
 
-
     ImGuiIO& io = ImGui::GetIO();
     assert(io.Fonts->TexID != NULL); // You forgot to create and set font texture
 
