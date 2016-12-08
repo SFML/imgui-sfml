@@ -51,6 +51,7 @@ if(IMGUI_ROOT)
     else()
         file(GLOB IMGUI_FILES
             "${IMGUI_INCLUDE_DIR}/imgui_draw.cpp"
+            "${IMGUI_INCLUDE_DIR}/imgui_demo.cpp"
             "${IMGUI_INCLUDE_DIR}/imgui.cpp" )
         message("Found imgui.cpp in ${IMGUI_INCLUDE_DIR}")
         # Rename that pesky imconfig.h file for the user.
