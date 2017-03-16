@@ -1,5 +1,4 @@
 #include "imgui.h"
-#include "imgui_demo.h"
 #include "imgui-SFML.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
