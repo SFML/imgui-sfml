@@ -41,4 +41,6 @@ int main()
     }
 
     ImGui::SFML::Shutdown();
+
+    return EXIT_SUCCESS; // :D
 }
