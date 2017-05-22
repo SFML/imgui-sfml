@@ -84,7 +84,7 @@ int main()
 
         window.clear();
         window.draw(shape);
-        ImGui::Render();
+        ImGui::SFML::Render(window);
         window.display();
     }
 
