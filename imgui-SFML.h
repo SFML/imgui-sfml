@@ -25,6 +25,8 @@ namespace SFML
     void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt);
     void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt);
 
+    void Render(sf::RenderTarget& target);
+
     void Shutdown();
 
     void createFontTexture(sf::Texture& texture);
