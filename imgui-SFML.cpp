@@ -224,7 +224,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    Image(texture, sf::Vector2f(textureRect.width, textureRect.height), textureRect, tintColor, borderColor);
+    Image(texture, sf::Vector2f(std::abs(textureRect.width), std::abs(textureRect.height)), textureRect, tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect,
