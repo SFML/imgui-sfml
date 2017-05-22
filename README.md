@@ -36,7 +36,7 @@ In your code:
     - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`. You can also pass mousePosition and displaySize yourself instead of passing the window.
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
-    - Call `ImGui::Render()`
+    - Call `ImGui::SFML::Render(window)`
 
 - Call `ImGui::SFML::Shutdown()` at the end of your program
 
@@ -84,7 +84,7 @@ int main()
 
         window.clear();
         window.draw(shape);
-        ImGui::Render();
+        ImGui::SFML::Render(window);
         window.display();
     }
 
