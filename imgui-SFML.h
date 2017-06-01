@@ -17,7 +17,7 @@ namespace ImGui
 {
 namespace SFML
 {
-    void Init(sf::RenderTarget& target, sf::Texture* fontTexture = NULL);
+    void Init(sf::RenderTarget& target, bool loadDefaultFont = true);
 
     void ProcessEvent(const sf::Event& event);
 
@@ -29,8 +29,8 @@ namespace SFML
 
     void Shutdown();
 
-    void createFontTexture(sf::Texture& texture);
-    void setFontTexture(sf::Texture& texture);
+    void UpdateFontTexture();
+    sf::Texture& GetFontTexture();
 }
 
 // custom ImGui widgets for SFML stuff

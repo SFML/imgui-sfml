@@ -9,6 +9,8 @@ How-to
 ----
 
 [**Detailed tutorial on my blog**](https://eliasdaler.github.io/using-imgui-with-sfml-pt1)
+[**Using ImGui with modern C++ and STL**](https://eliasdaler.github.io/using-imgui-with-sfml-pt2/)
+[**Thread on SFML forums**](https://en.sfml-dev.org/forums/index.php?topic=20137.0). Feel free to ask your questions here.
 
 Setting up:
 
@@ -91,6 +93,36 @@ int main()
     ImGui::SFML::Shutdown();
 }
 ```
+
+Fonts how-to
+---
+
+Default font is loaded if you don't pass false in `ImGui::SFML::Init`. Call `ImGui::SFML::Init(window, false);` if you don't want default font to be loaded.
+
+* Load your fonts like this:
+
+```c++
+IO.Fonts->Clear(); // clear fonts if you loaded some before (even if only default one was loaded)
+// IO.Fonts->AddFontDefault(); // this will load default font as well
+IO.Fonts->AddFontFromFileTTF("font1.ttf", 8.f);
+IO.Fonts->AddFontFromFileTTF("font2.ttf", 12.f);
+
+ImGui::SFML::UpdateFontTexture(); // important call: updates font texture
+```
+
+* And use them like this:
+
+```c++
+ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+ImGui::Button("Look at this pretty button");
+ImGui::PopFont();
+
+ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+ImGui::TextUnformatted("IT WORKS!");
+ImGui::PopFont();
+```
+
+The first loaded font is treated as the default one and doesn't need to be pushed with `ImGui::PushFont`.
 
 CMake how-to
 ---

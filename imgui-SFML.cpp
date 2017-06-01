@@ -42,7 +42,7 @@ namespace ImGui
 namespace SFML
 {
 
-void Init(sf::RenderTarget& target, sf::Texture* fontTexture)
+void Init(sf::RenderTarget& target, bool loadDefaultFont)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -71,16 +71,15 @@ void Init(sf::RenderTarget& target, sf::Texture* fontTexture)
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
     io.RenderDrawListsFn = RenderDrawLists; // set render callback
 
-    if (fontTexture == NULL) {
-        if (s_fontTexture) { // delete previously created texture
-            delete s_fontTexture;
-        }
+    if (s_fontTexture) { // delete previously created texture
+        delete s_fontTexture;
+    }
+    s_fontTexture = new sf::Texture;
 
-        s_fontTexture = new sf::Texture;
-        createFontTexture(*s_fontTexture);
-        setFontTexture(*s_fontTexture);
-    } else {
-        setFontTexture(*fontTexture);
+    if (loadDefaultFont) { 
+        // this will load default font automatically
+        // No need to call AddDefaultFont
+        UpdateFontTexture();
     }
 }
 
@@ -180,28 +179,28 @@ void Shutdown()
     ImGui::Shutdown(); // need to specify namespace here, otherwise ImGui::SFML::Shutdown would be called
 }
 
-void createFontTexture(sf::Texture& texture)
+void UpdateFontTexture()
 {
+    sf::Texture& texture = *s_fontTexture;
+
+    ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
 
-    ImGuiIO& io = ImGui::GetIO();
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     texture.create(width, height);
     texture.update(pixels);
 
+    io.Fonts->TexID = (void*)texture.getNativeHandle();
+
     io.Fonts->ClearInputData();
     io.Fonts->ClearTexData();
 }
 
-void setFontTexture(sf::Texture& texture)
+sf::Texture& getFontTexture()
 {
-    ImGui::GetIO().Fonts->TexID = (void*)texture.getNativeHandle();
-    if (&texture != s_fontTexture) { // internal texture is not needed anymore
-        delete s_fontTexture;
-        s_fontTexture = NULL;
-    }
+    return *s_fontTexture;
 }
 
 } // end of namespace SFML
@@ -318,6 +317,7 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
 
 namespace
 {
+
 ImVec2 getTopLeftAbsolute(const sf::FloatRect & rect)
 {
     ImVec2 pos = ImGui::GetCursorScreenPos();
