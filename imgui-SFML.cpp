@@ -10,6 +10,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
 
+#include <cmath> // abs
 #include <cstddef> // offsetof, NULL
 #include <cassert>
 
