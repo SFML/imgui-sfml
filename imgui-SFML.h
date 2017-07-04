@@ -1,3 +1,6 @@
+#ifndef IMGUI_SFML_H
+#define IMGUI_SFML_H
+
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -75,3 +78,5 @@ namespace SFML
     void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F, float thickness = 1.0f);
     void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F);
 }
+
+#endif //# IMGUI_SFML_H
