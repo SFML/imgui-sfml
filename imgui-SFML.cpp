@@ -346,17 +346,7 @@ void RenderDrawLists(ImDrawData* draw_data)
     if (fb_width == 0 || fb_height == 0) { return; }
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
-
-
-#ifdef ANDROID
-            GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
-            glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-            glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-            glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
-#else
-        glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-#endif
-
+    glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
@@ -375,12 +365,7 @@ void RenderDrawLists(ImDrawData* draw_data)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-
-#ifdef ANDROID
-    glOrthof(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-#else
     glOrtho(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-#endif
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -408,14 +393,8 @@ void RenderDrawLists(ImDrawData* draw_data)
             idx_buffer += pcmd->ElemCount;
         }
     }
-#ifdef ANDROID
-            glBindTexture(GL_TEXTURE_2D, last_texture);
-            glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
-            glDisable(GL_SCISSOR_TEST);
-#else
-        glPopAttrib();
-#endif
+
+    glPopAttrib();
 }
 
 bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRect, const sf::Vector2f& size, const int framePadding,
