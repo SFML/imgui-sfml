@@ -1,5 +1,5 @@
 #include "imgui-SFML.h"
-#include <imgui.h>
+#include "imgui.h"
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -77,7 +77,7 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
     }
     s_fontTexture = new sf::Texture;
 
-    if (loadDefaultFont) { 
+    if (loadDefaultFont) {
         // this will load default font automatically
         // No need to call AddDefaultFont
         UpdateFontTexture();
@@ -333,6 +333,7 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
+
     if (draw_data->CmdListsCount == 0) {
         return;
     }
@@ -348,7 +349,7 @@ void RenderDrawLists(ImDrawData* draw_data)
 
 
 
-#ifdef ANDROID
+#ifdef GL_VERSION_ES_CL_1_1
             GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
             glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
             glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
@@ -376,10 +377,10 @@ void RenderDrawLists(ImDrawData* draw_data)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-#ifdef ANDROID
-    glOrthof(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+#ifdef GL_VERSION_ES_CL_1_1
+        glOrthof(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
 #else
-    glOrtho(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+        glOrtho(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
 #endif
 
     glMatrixMode(GL_MODELVIEW);
@@ -408,8 +409,8 @@ void RenderDrawLists(ImDrawData* draw_data)
             idx_buffer += pcmd->ElemCount;
         }
     }
-#ifdef ANDROID
-            glBindTexture(GL_TEXTURE_2D, last_texture);
+#ifdef GL_VERSION_ES_CL_1_1
+        glBindTexture(GL_TEXTURE_2D, last_texture);
             glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
             glDisable(GL_SCISSOR_TEST);
