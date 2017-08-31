@@ -13,6 +13,7 @@
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
 #include <cassert>
+#include <SFML/Window/Touch.hpp>
 
 // Supress warnings caused by converting from uint to void* in pCmd->TextureID
 #ifdef __clang__
@@ -23,6 +24,9 @@
 
 static bool s_windowHasFocus = true;
 static bool s_mousePressed[3] = { false, false, false };
+static bool s_touchDown[3] = { false, false, false };
+static bool s_mouseMoved = false;
+static sf::Vector2i s_touchPos;
 static sf::Texture* s_fontTexture = NULL; // owning pointer to internal font atlas which is used if user doesn't set custom sf::Texture.
 namespace
 {
@@ -90,6 +94,9 @@ void ProcessEvent(const sf::Event& event)
     if (s_windowHasFocus) {
         switch (event.type)
         {
+            case sf::Event::MouseMoved:
+                s_mouseMoved = true;
+                break;
             case sf::Event::MouseButtonPressed: // fall-through
             case sf::Event::MouseButtonReleased:
                 {
@@ -97,6 +104,17 @@ void ProcessEvent(const sf::Event& event)
                     if (event.type == sf::Event::MouseButtonPressed &&
                         button >= 0 && button < 3) {
                         s_mousePressed[event.mouseButton.button] = true;
+                    }
+                }
+                break;
+            case sf::Event::TouchBegan: // fall-through
+            case sf::Event::TouchEnded:
+                {
+                    s_mouseMoved = false;
+                    int button = event.touch.finger;
+                    if (event.type == sf::Event::TouchBegan &&
+                        button >= 0 && button < 3) {
+                        s_touchDown[event.touch.finger] = true;
                     }
                 }
                 break;
@@ -140,7 +158,16 @@ void Update(sf::RenderWindow& window, sf::Time dt)
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 {
-    Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+
+    if (!s_mouseMoved)
+    {
+        if (sf::Touch::isDown(0))
+            s_touchPos = sf::Touch::getPosition(0, window);
+
+        Update(s_touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
+    } else {
+        Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+    }
     window.setMouseCursorVisible(!ImGui::GetIO().MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
 }
 
@@ -152,9 +179,10 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
 
     if (s_windowHasFocus) {
         io.MousePos = mousePos;
-        for (int i = 0; i < 3; ++i) {
-            io.MouseDown[i] = s_mousePressed[i] || sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
+        for (unsigned int i = 0; i < 3; i++) {
+            io.MouseDown[i] =  s_touchDown[i] || sf::Touch::isDown(i) || s_mousePressed[i] || sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
             s_mousePressed[i] = false;
+            s_touchDown[i] = false;
         }
     }
 
