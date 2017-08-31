@@ -15,6 +15,98 @@
 #include <cassert>
 #include <SFML/Window/Touch.hpp>
 
+#ifdef ANDROID
+#ifdef USE_JNI
+
+#include <jni.h>
+#include <android/native_activity.h>
+#include <SFML/System/NativeActivity.hpp>
+
+static bool s_wantTextInput = false;
+
+int openKeyboardIME()
+{
+    ANativeActivity *activity = sf::getNativeActivity();
+    JavaVM* vm = activity->vm;
+    JNIEnv* env = activity->env;
+    JavaVMAttachArgs attachargs;
+    attachargs.version = JNI_VERSION_1_6;
+    attachargs.name = "NativeThread";
+    attachargs.group = NULL;
+    jint res = vm->AttachCurrentThread(&env, &attachargs);
+    if (res == JNI_ERR)
+        return EXIT_FAILURE;
+
+    jclass natact = env->FindClass("android/app/NativeActivity");
+    jclass context = env->FindClass("android/content/Context");
+
+    jfieldID fid = env->GetStaticFieldID(context, "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
+    jobject svcstr = env->GetStaticObjectField(context, fid);
+
+
+    jmethodID getss = env->GetMethodID(natact, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+    jobject imm_obj = env->CallObjectMethod(activity->clazz, getss, svcstr);
+
+    jclass imm_cls = env->GetObjectClass(imm_obj);
+    jmethodID toggleSoftInput = env->GetMethodID(imm_cls, "toggleSoftInput", "(II)V");
+
+    env->CallVoidMethod(imm_obj, toggleSoftInput, 2, 0);
+
+    env->DeleteLocalRef(imm_obj);
+    env->DeleteLocalRef(imm_cls);
+    env->DeleteLocalRef(svcstr);
+    env->DeleteLocalRef(context);
+    env->DeleteLocalRef(natact);
+
+    vm->DetachCurrentThread();
+
+    return EXIT_SUCCESS;
+
+}
+
+int closeKeyboardIME()
+{
+    ANativeActivity *activity = sf::getNativeActivity();
+    JavaVM* vm = activity->vm;
+    JNIEnv* env = activity->env;
+    JavaVMAttachArgs attachargs;
+    attachargs.version = JNI_VERSION_1_6;
+    attachargs.name = "NativeThread";
+    attachargs.group = NULL;
+    jint res = vm->AttachCurrentThread(&env, &attachargs);
+    if (res == JNI_ERR)
+        return EXIT_FAILURE;
+
+    jclass natact = env->FindClass("android/app/NativeActivity");
+    jclass context = env->FindClass("android/content/Context");
+
+    jfieldID fid = env->GetStaticFieldID(context, "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
+    jobject svcstr = env->GetStaticObjectField(context, fid);
+
+
+    jmethodID getss = env->GetMethodID(natact, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+    jobject imm_obj = env->CallObjectMethod(activity->clazz, getss, svcstr);
+
+    jclass imm_cls = env->GetObjectClass(imm_obj);
+    jmethodID toggleSoftInput = env->GetMethodID(imm_cls, "toggleSoftInput", "(II)V");
+
+    env->CallVoidMethod(imm_obj, toggleSoftInput, 1, 0);
+
+    env->DeleteLocalRef(imm_obj);
+    env->DeleteLocalRef(imm_cls);
+    env->DeleteLocalRef(svcstr);
+    env->DeleteLocalRef(context);
+    env->DeleteLocalRef(natact);
+
+    vm->DetachCurrentThread();
+
+    return EXIT_SUCCESS;
+
+}
+
+#endif
+#endif
+
 // Supress warnings caused by converting from uint to void* in pCmd->TextureID
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wint-to-void-pointer-cast" // warning : cast to 'void *' from smaller integer type 'int'
@@ -185,6 +277,21 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
             s_touchDown[i] = false;
         }
     }
+
+#ifdef ANDROID
+#ifdef USE_JNI
+        if (io.WantTextInput && !s_wantTextInput)
+        {
+            openKeyboardIME();
+            s_wantTextInput = true;
+        }
+        if (!io.WantTextInput && s_wantTextInput)
+        {
+            closeKeyboardIME();
+            s_wantTextInput = false;
+        }
+#endif
+#endif
 
     assert(io.Fonts->Fonts.Size > 0); // You forgot to create and set up font atlas (see createFontTexture)
     ImGui::NewFrame();
