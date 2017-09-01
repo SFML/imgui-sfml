@@ -153,8 +153,12 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
     io.KeyMap[ImGuiKey_PageDown] = sf::Keyboard::PageDown;
     io.KeyMap[ImGuiKey_Home] = sf::Keyboard::Home;
     io.KeyMap[ImGuiKey_End] = sf::Keyboard::End;
+#ifdef ANDROID
+    io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::Delete;
+#else
     io.KeyMap[ImGuiKey_Delete] = sf::Keyboard::Delete;
     io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::BackSpace;
+#endif
     io.KeyMap[ImGuiKey_Enter] = sf::Keyboard::Return;
     io.KeyMap[ImGuiKey_Escape] = sf::Keyboard::Escape;
     io.KeyMap[ImGuiKey_A] = sf::Keyboard::A;
