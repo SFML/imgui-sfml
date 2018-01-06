@@ -338,7 +338,7 @@ void UpdateFontTexture()
     io.Fonts->ClearTexData();
 }
 
-sf::Texture& getFontTexture()
+sf::Texture& GetFontTexture()
 {
     return *s_fontTexture;
 }
