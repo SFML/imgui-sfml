@@ -447,7 +447,7 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
     float rounding, int rounding_corners)
 {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    draw_list->AddRect(
+    draw_list->AddRectFilled(
         getTopLeftAbsolute(rect),
         getDownRightAbsolute(rect),
         ColorConvertFloat4ToU32(color), rounding, rounding_corners);
