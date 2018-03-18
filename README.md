@@ -3,6 +3,8 @@ ImGui + SFML
 
 Library which allows you to use [ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
 
+> Use [ImGui-SFML's v1.0](https://github.com/eliasdaler/imgui-sfml/releases/tag/v.1.0) if you're using ImGui's stable release (v.1.53)! This repo's master will be kept up to date with breaking changes in ImGui's master.
+
 ![screenshot](https://i2.wp.com/i.imgur.com/iQibpSk.gif)
 
 Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with big improvements and changes.
