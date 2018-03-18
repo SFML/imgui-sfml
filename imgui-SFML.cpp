@@ -141,7 +141,7 @@ namespace SFML
 
 void Init(sf::RenderTarget& target, bool loadDefaultFont)
 {
-	ImGui::CreateContext();
+    ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
     // init keyboard mapping
@@ -317,7 +317,7 @@ void Shutdown()
         s_fontTexture = NULL;
     }
 
-	ImGui::DestroyContext();
+    ImGui::DestroyContext();
 }
 
 void UpdateFontTexture()
