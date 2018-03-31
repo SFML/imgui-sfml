@@ -120,6 +120,8 @@ static bool s_touchDown[3] = { false, false, false };
 static bool s_mouseMoved = false;
 static sf::Vector2i s_touchPos;
 static sf::Texture* s_fontTexture = NULL; // owning pointer to internal font atlas which is used if user doesn't set custom sf::Texture.
+static ImGuiContext* imgui_context = NULL;
+
 namespace
 {
 
@@ -141,7 +143,7 @@ namespace SFML
 
 void Init(sf::RenderTarget& target, bool loadDefaultFont)
 {
-    ImGui::CreateContext();
+    imgui_context = ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
     // init keyboard mapping
@@ -317,7 +319,7 @@ void Shutdown()
         s_fontTexture = NULL;
     }
 
-    ImGui::DestroyContext();
+    ImGui::DestroyContext(imgui_context);
 }
 
 void UpdateFontTexture()
