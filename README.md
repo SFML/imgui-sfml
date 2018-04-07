@@ -24,6 +24,7 @@ Setting up:
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast `ImVec2` to `sf::Vector2f` and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
+- Link OpenGL if you get linking errors
 
 In your code:
 
