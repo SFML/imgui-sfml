@@ -153,6 +153,13 @@ ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
 ```
 
+High DPI screens
+----
+
+As SFML is not currently DPI aware, your window/gui may show at the incorrect scale. This is particularly noticeable on Apple systems with Retina displays.
+
+To fix this on macOS, you can create an app bundle (as opposed to just the exe) then modify the info.plist so that "High Resolution Capable" is set to "NO"
+
 License
 ---
 
