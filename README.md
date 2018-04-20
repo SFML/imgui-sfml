@@ -153,9 +153,9 @@ ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
 ```
 
-Gamepad navigation
+Keyboard/Gamepad navigation
 ---
-Starting with ImGui 1.60, there's a feature to control ImGui with keyboard and gamepad. To use keyboard navigation, you just need to do this:
+Starting with [ImGui 1.60](https://github.com/ocornut/imgui/releases/tag/v1.60), there's a feature to control ImGui with keyboard and gamepad. To use keyboard navigation, you just need to do this:
 
 ```c++
 ImGuiIO& io = ImGui::GetIO();
