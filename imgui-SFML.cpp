@@ -715,6 +715,9 @@ void initDefaultJoystickMapping()
 
     ImGui::SFML::SetLStickXAxis(sf::Joystick::X);
     ImGui::SFML::SetLStickYAxis(sf::Joystick::Y);
+
+    ImGui::SFML::SetJoytickDPadThreshold(5.f);
+    ImGui::SFML::SetJoytickLStickThreshold(5.f);
 }
 
 void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action)
