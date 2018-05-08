@@ -153,6 +153,26 @@ ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
 ```
 
+Keyboard/Gamepad navigation
+---
+Starting with [ImGui 1.60](https://github.com/ocornut/imgui/releases/tag/v1.60), there's a feature to control ImGui with keyboard and gamepad. To use keyboard navigation, you just need to do this:
+
+```c++
+ImGuiIO& io = ImGui::GetIO();
+io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+```
+
+Gamepad navigation requires more work, unless you have XInput gamepad, in which case the mapping is automatically set for you. But you can still set it up for your own gamepad easily, just take a look how it's done for the default mapping [here](https://github.com/eliasdaler/imgui-sfml/blob/navigation/imgui-SFML.cpp#L697). And then you need to do this:
+
+```c++
+ImGuiIO& io = ImGui::GetIO();
+io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+```
+By default, the first active joystick is used for navigation, but you can set joystick id explicitly like this:
+```c++
+ImGui::SFML::SetActiveJoystickId(5);
+```
+
 High DPI screens
 ----
 
