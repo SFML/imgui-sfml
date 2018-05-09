@@ -390,21 +390,17 @@ void Shutdown()
 
 void UpdateFontTexture()
 {
-    sf::Texture& texture = *s_fontTexture;
-
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
+    sf::Texture& texture = *s_fontTexture;
     texture.create(width, height);
     texture.update(pixels);
 
     io.Fonts->TexID = (void*)texture.getNativeHandle();
-
-    io.Fonts->ClearInputData();
-    io.Fonts->ClearTexData();
 }
 
 sf::Texture& GetFontTexture()
