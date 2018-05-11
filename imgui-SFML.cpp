@@ -9,6 +9,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/Clipboard.hpp>
 
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
@@ -162,6 +163,12 @@ unsigned int getConnectedJoystickId();
 void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickLStickState(ImGuiIO& io);
+
+// clipboard functions
+void setClipboardText(void* userData, const char* text);
+const char* getClipboadText(void* userData);
+std::string s_clipboardText;
+
 }
 
 namespace ImGui
@@ -213,6 +220,10 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
     // init rendering
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
     io.RenderDrawListsFn = RenderDrawLists; // set render callback
+
+    // clipboard
+    io.SetClipboardTextFn = setClipboardText;
+    io.GetClipboardTextFn = getClipboadText;
 
     if (s_fontTexture) { // delete previously created texture
         delete s_fontTexture;
@@ -761,6 +772,17 @@ void updateJoystickLStickState(ImGuiIO& io)
     if (lStickYPos > s_lStickInfo.threshold) {
         io.NavInputs[ImGuiNavInput_LStickDown] = lStickYPos / 100.f;
     }
+}
+
+void setClipboardText(void* /*userData*/, const char* text)
+{
+    sf::Clipboard::setString(text);
+}
+
+const char* getClipboadText(void* /*userData*/)
+{
+    s_clipboardText = sf::Clipboard::getString().toAnsiString();
+    return s_clipboardText.c_str();
 }
 
 } // end of anonymous namespace
