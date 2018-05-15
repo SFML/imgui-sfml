@@ -117,7 +117,7 @@ int closeKeyboardIME()
 namespace
 {
 // data
-static bool s_windowHasFocus = true;
+static bool s_windowHasFocus = false;
 static bool s_mousePressed[3] = { false, false, false };
 static bool s_touchDown[3] = { false, false, false };
 static bool s_mouseMoved = false;
@@ -169,7 +169,12 @@ namespace ImGui
 namespace SFML
 {
 
-void Init(sf::RenderTarget& target, bool loadDefaultFont)
+void Init(sf::RenderWindow& window, bool loadDefaultFont)
+{
+    Init(window, window, loadDefaultFont);
+}
+
+void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
 {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -225,6 +230,8 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
         // No need to call AddDefaultFont
         UpdateFontTexture();
     }
+
+    s_windowHasFocus = window.hasFocus();
 }
 
 void ProcessEvent(const sf::Event& event)
