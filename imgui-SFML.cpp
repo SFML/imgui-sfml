@@ -214,7 +214,6 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
 
     // init rendering
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
-    io.RenderDrawListsFn = RenderDrawLists; // set render callback
 
     if (s_fontTexture) { // delete previously created texture
         delete s_fontTexture;
@@ -380,6 +379,7 @@ void Render(sf::RenderTarget& target)
 {
     target.resetGLStates();
     ImGui::Render();
+    RenderDrawLists(ImGui::GetDrawData());
 }
 
 void Shutdown()
@@ -593,6 +593,7 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
+    ImGui::GetDrawData();
     if (draw_data->CmdListsCount == 0) {
         return;
     }
