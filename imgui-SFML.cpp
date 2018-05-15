@@ -174,6 +174,8 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
+    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+
     // init keyboard mapping
     io.KeyMap[ImGuiKey_Tab] = sf::Keyboard::Tab;
     io.KeyMap[ImGuiKey_LeftArrow] = sf::Keyboard::Left;
@@ -324,7 +326,11 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     io.DeltaTime = dt.asSeconds();
 
     if (s_windowHasFocus) {
-        io.MousePos = mousePos;
+        if (io.WantSetMousePos) {
+            sf::Mouse::setPosition(static_cast<sf::Vector2i>(io.MousePos));
+        } else {
+            io.MousePos = mousePos;
+        }
         for (unsigned int i = 0; i < 3; i++) {
             io.MouseDown[i] =  s_touchDown[i] || sf::Touch::isDown(i) || s_mousePressed[i] || sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
             s_mousePressed[i] = false;
