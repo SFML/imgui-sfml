@@ -132,7 +132,7 @@ The first loaded font is treated as the default one and doesn't need to be pushe
 CMake how-to
 ---
  - Checkout the repository as a submoudle
- - Set IMGUI_ROOT 
+ - Set IMGUI_ROOT
  - Modify your builds to copy imgui-SFML and dependencies (sfml) to your project
 ```CMakeLists
 add_subdirectory(repos/imgui-sfml)
@@ -151,6 +151,21 @@ ImGui::Image(const sf::Sprite& sprite);
 ImGui::Image(const sf::Texture& texture);
 ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
+```
+
+Mouse cursors
+---
+You can change your cursors in ImGui like this:
+
+```c++
+ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+```
+
+By default, your system cursor will change and will be rendered by your system. If you want SFML to draw your cursor with default ImGui cursors (the system cursor will be hidden), do this:
+
+```c++
+ImGuiIO& io = ImGui::GetIO();
+io.MouseDrawCursor = true;
 ```
 
 Keyboard/Gamepad navigation

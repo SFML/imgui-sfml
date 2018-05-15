@@ -169,6 +169,13 @@ void setClipboardText(void* userData, const char* text);
 const char* getClipboadText(void* userData);
 std::string s_clipboardText;
 
+// mouse cursors
+void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
+void updateMouseCursor(sf::Window& window);
+
+sf::Cursor s_mouseCursors[ImGuiMouseCursor_COUNT];
+bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
+
 }
 
 namespace ImGui
@@ -180,6 +187,10 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
 {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    // tell ImGui which features we support
+    io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 
     // init keyboard mapping
     io.KeyMap[ImGuiKey_Tab] = sf::Keyboard::Tab;
@@ -208,7 +219,6 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
     io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
     io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
 
-    io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     s_joystickId = getConnectedJoystickId();
 
     for (unsigned int i = 0; i < ImGuiNavInput_COUNT; i++) {
@@ -224,6 +234,19 @@ void Init(sf::RenderTarget& target, bool loadDefaultFont)
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
     io.GetClipboardTextFn = getClipboadText;
+
+    // load mouse cursors
+    for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
+        s_mouseCursorLoaded[i] = false;
+    }
+
+    loadMouseCursor(ImGuiMouseCursor_Arrow,      sf::Cursor::Arrow);
+    loadMouseCursor(ImGuiMouseCursor_TextInput,  sf::Cursor::Text);
+    loadMouseCursor(ImGuiMouseCursor_ResizeAll,  sf::Cursor::SizeAll);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNS,   sf::Cursor::SizeVertical);
+    loadMouseCursor(ImGuiMouseCursor_ResizeEW,   sf::Cursor::SizeHorizontal);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::SizeBottomLeftTopRight);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::SizeTopLeftBottomRight);
 
     if (s_fontTexture) { // delete previously created texture
         delete s_fontTexture;
@@ -316,6 +339,9 @@ void Update(sf::RenderWindow& window, sf::Time dt)
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 {
+    // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
+    updateMouseCursor(window);
+
     if (!s_mouseMoved) {
         if (sf::Touch::isDown(0))
             s_touchPos = sf::Touch::getPosition(0, window);
@@ -324,8 +350,6 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
     } else {
         Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
     }
-
-    window.setMouseCursorVisible(!ImGui::GetIO().MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
 }
 
 void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt)
@@ -783,6 +807,28 @@ const char* getClipboadText(void* /*userData*/)
 {
     s_clipboardText = sf::Clipboard::getString().toAnsiString();
     return s_clipboardText.c_str();
+}
+
+void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
+{
+    s_mouseCursorLoaded[imguiCursorType] = s_mouseCursors[imguiCursorType].loadFromSystem(sfmlCursorType);
+}
+
+void updateMouseCursor(sf::Window& window)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0) {
+        ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+        if (io.MouseDrawCursor || cursor == ImGuiMouseCursor_None) {
+            window.setMouseCursorVisible(false);
+        } else {
+            window.setMouseCursorVisible(true);
+
+            sf::Cursor& c = s_mouseCursorLoaded[cursor] ? s_mouseCursors[cursor] :
+                                                          s_mouseCursors[ImGuiMouseCursor_Arrow];
+            window.setMouseCursor(c);
+        }
+    }
 }
 
 } // end of anonymous namespace
