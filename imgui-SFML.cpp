@@ -13,7 +13,6 @@
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
 #include <cassert>
-#include <SFML/Window/Touch.hpp>
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -21,6 +20,7 @@
 #include <jni.h>
 #include <android/native_activity.h>
 #include <SFML/System/NativeActivity.hpp>
+#include <SFML/Window/Touch.hpp>
 
 static bool s_wantTextInput = false;
 
@@ -61,7 +61,6 @@ int openKeyboardIME()
     vm->DetachCurrentThread();
 
     return EXIT_SUCCESS;
-
 }
 
 int closeKeyboardIME()
@@ -101,7 +100,6 @@ int closeKeyboardIME()
     vm->DetachCurrentThread();
 
     return EXIT_SUCCESS;
-
 }
 
 #endif
@@ -346,13 +344,12 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
 
 #ifdef ANDROID
 #ifdef USE_JNI
-    if (io.WantTextInput && !s_wantTextInput)
-    {
+    if (io.WantTextInput && !s_wantTextInput) {
         openKeyboardIME();
         s_wantTextInput = true;
     }
-    if (!io.WantTextInput && s_wantTextInput)
-    {
+
+    if (!io.WantTextInput && s_wantTextInput) {
         closeKeyboardIME();
         s_wantTextInput = false;
     }
