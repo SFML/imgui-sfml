@@ -32,7 +32,7 @@ In your code:
 - For each iteration of a game loop:
     - Poll and process events:
 
-        ```c++
+        ```cpp
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
@@ -54,7 +54,7 @@ Example code
 
 See example file [here](examples/main.cpp)
 
-```c++
+```cpp
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -106,7 +106,7 @@ Default font is loaded if you don't pass false in `ImGui::SFML::Init`. Call `ImG
 
 * Load your fonts like this:
 
-```c++
+```cpp
 IO.Fonts->Clear(); // clear fonts if you loaded some before (even if only default one was loaded)
 // IO.Fonts->AddFontDefault(); // this will load default font as well
 IO.Fonts->AddFontFromFileTTF("font1.ttf", 8.f);
@@ -117,7 +117,7 @@ ImGui::SFML::UpdateFontTexture(); // important call: updates font texture
 
 * And use them like this:
 
-```c++
+```cpp
 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
 ImGui::Button("Look at this pretty button");
 ImGui::PopFont();
@@ -146,7 +146,7 @@ SFML related ImGui overloads / new widgets
 ---
 
 There are some useful overloads implemented for SFML objects (see header for overloads):
-```c++
+```cpp
 ImGui::Image(const sf::Sprite& sprite);
 ImGui::Image(const sf::Texture& texture);
 ImGui::ImageButton(const sf::Sprite& sprite);
@@ -157,13 +157,13 @@ Mouse cursors
 ---
 You can change your cursors in ImGui like this:
 
-```c++
+```cpp
 ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
 ```
 
 By default, your system cursor will change and will be rendered by your system. If you want SFML to draw your cursor with default ImGui cursors (the system cursor will be hidden), do this:
 
-```c++
+```cpp
 ImGuiIO& io = ImGui::GetIO();
 io.MouseDrawCursor = true;
 ```
@@ -172,19 +172,19 @@ Keyboard/Gamepad navigation
 ---
 Starting with [ImGui 1.60](https://github.com/ocornut/imgui/releases/tag/v1.60), there's a feature to control ImGui with keyboard and gamepad. To use keyboard navigation, you just need to do this:
 
-```c++
+```cpp
 ImGuiIO& io = ImGui::GetIO();
 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 ```
 
 Gamepad navigation requires more work, unless you have XInput gamepad, in which case the mapping is automatically set for you. But you can still set it up for your own gamepad easily, just take a look how it's done for the default mapping [here](https://github.com/eliasdaler/imgui-sfml/blob/navigation/imgui-SFML.cpp#L697). And then you need to do this:
 
-```c++
+```cpp
 ImGuiIO& io = ImGui::GetIO();
 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 ```
 By default, the first active joystick is used for navigation, but you can set joystick id explicitly like this:
-```c++
+```cpp
 ImGui::SFML::SetActiveJoystickId(5);
 ```
 
