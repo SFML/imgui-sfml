@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Touch.hpp>
 #include <SFML/Window/Window.hpp>
 
 #include <cmath> // abs
@@ -20,7 +21,6 @@
 #include <jni.h>
 #include <android/native_activity.h>
 #include <SFML/System/NativeActivity.hpp>
-#include <SFML/Window/Touch.hpp>
 
 static bool s_wantTextInput = false;
 
