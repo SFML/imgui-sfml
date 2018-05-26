@@ -42,7 +42,7 @@ In your code:
 
     - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`. You can also pass mousePosition and displaySize yourself instead of passing the window.
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
-    - Call `ImGui::EndFrame` if you update more than once before rendering (you'll need to include `imgui_internal.h` for that)
+    - Call `ImGui::EndFrame` after the last `ImGui::End` in your update function, if you update more than once before rendering. (e.g. fixed delta game loops)
     - Call `ImGui::SFML::Render(window)`
 
 - Call `ImGui::SFML::Shutdown()` at the end of your program
