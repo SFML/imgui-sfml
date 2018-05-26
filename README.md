@@ -102,7 +102,7 @@ int main()
 Fonts how-to
 ---
 
-Default font is loaded if you don't pass false in `ImGui::SFML::Init`. Call `ImGui::SFML::Init(window, false);` if you don't want default font to be loaded.
+Default font is loaded if you don't pass `false` in `ImGui::SFML::Init`. Call `ImGui::SFML::Init(window, false);` if you don't want default font to be loaded.
 
 * Load your fonts like this:
 
