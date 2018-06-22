@@ -320,7 +320,10 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
         Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
     }
 
-    window.setMouseCursorVisible(!ImGui::GetIO().MouseDrawCursor); // don't draw mouse cursor if ImGui draws it
+    if (ImGui::GetIO().MouseDrawCursor) {
+        // Hide OS mouse cursor if imgui is drawing it
+        window.setMouseCursorVisible(false);
+    }
 }
 
 void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt)
