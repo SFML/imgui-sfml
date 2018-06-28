@@ -10,6 +10,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Touch.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/Cursor.hpp>
 
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
@@ -141,6 +142,8 @@ struct StickInfo {
 StickInfo s_dPadInfo;
 StickInfo s_lStickInfo;
 
+static sf::Cursor cursors[ImGuiMouseCursor_Count_]; // local cursors
+
 // various helper functions
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
@@ -214,6 +217,19 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     }
 
     initDefaultJoystickMapping();
+
+	// load mouse cursors
+	// TODO fallback on platforms which don't support some cursors, something other than just arrow?
+	cursors[ImGuiMouseCursor_Arrow].loadFromSystem(sf::Cursor::Arrow);
+	cursors[ImGuiMouseCursor_TextInput].loadFromSystem(sf::Cursor::Text);
+	cursors[ImGuiMouseCursor_ResizeNS].loadFromSystem(sf::Cursor::SizeVertical);
+	cursors[ImGuiMouseCursor_ResizeEW].loadFromSystem(sf::Cursor::SizeHorizontal);
+	if (!cursors[ImGuiMouseCursor_ResizeAll].loadFromSystem(sf::Cursor::SizeAll))
+		cursors[ImGuiMouseCursor_ResizeNESW].loadFromSystem(sf::Cursor::Arrow);
+	if (!cursors[ImGuiMouseCursor_ResizeNESW].loadFromSystem(sf::Cursor::SizeBottomLeftTopRight))
+		cursors[ImGuiMouseCursor_ResizeNESW].loadFromSystem(sf::Cursor::Arrow);
+	if (!cursors[ImGuiMouseCursor_ResizeNWSE].loadFromSystem(sf::Cursor::SizeTopLeftBottomRight))
+		cursors[ImGuiMouseCursor_ResizeNESW].loadFromSystem(sf::Cursor::Arrow);
 
     // init rendering
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
@@ -311,6 +327,8 @@ void Update(sf::RenderWindow& window, sf::Time dt)
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 {
+	window.setMouseCursor(cursors[ImGui::GetMouseCursor()]); // set the window cursor
+
     if (!s_mouseMoved) {
         if (sf::Touch::isDown(0))
             s_touchPos = sf::Touch::getPosition(0, window);
