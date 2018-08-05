@@ -1,20 +1,3 @@
-# Only tested in 3.1, may work in older versions.
-# .
-# Install SFML or set SFML_ROOT and set IMGUI_ROOT prior to running cmake
-# .
-# Provides the follow variables:
-# IMGUI_SFML_INCLUDE_DIRS - imgui and imgui_sfml include paths
-# IMGUI_SOURCES - imgui.cpp source path to link with your binary
-# IMGUI_SFML_SOURCES - imgui_sfml.cpp source path to link with your binary
-# IMGUI_SFML_DEPENDENCIES - found dependencies to link with your library (sfml)
-# .
-# Sample usage:
-#   add_subdirectory(repos/imgui-sfml)
-#   include_directories("${IMGUI_SFML_INCLUDE_DIRS}")
-#   add_executable(MY_PROJECT ${IMGUI_SOURCES} ${IMGUI_SFML_SOURCES} ${SRCS})
-#   ...
-#   target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
-# .
 cmake_minimum_required(VERSION 3.1)
 
 project(imgui_sfml)
@@ -22,63 +5,51 @@ project(imgui_sfml)
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" ON)
 
 # Find required libraries
-find_package(SFML 2.2 COMPONENTS graphics window system)
-message(status "** SFML Include: ${SFML_INCLUDE_DIR}")
-message(status "** SFML Libraries: ${SFML_LIBRARIES}")
+find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+
 if(NOT SFML_FOUND)
     set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
-    message("---> SFML 2 directory not found. Set SFML_ROOT to SFML's top-level path (containing \"include\" and \"lib\" directories).\n")
+    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_ROOT to SFML's top-level path (containing \"include\" and \"lib\" directories).\n")
 endif()
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # ImGui does not provide native support for CMakeLists, workaround for now to have
 # users specify IMGUI_ROOT. See:
 #    https://github.com/ocornut/imgui/pull/255
 if(NOT IMGUI_ROOT)
     set(IMGUI_ROOT "" CACHE PATH "imgui top-level directory")
-    message("---> ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
+    message(FATAL_ERROR "ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
 
-# Do a pseudo find files for ImGui once IMGUI_ROOT is set
-if(IMGUI_ROOT)
-    set(IMGUI_SERACH_PATH
-        ${IMGUI_ROOT}
-        $ENV{IMGUI_ROOT}
-        )
-    find_path(IMGUI_INCLUDE_DIR imgui.cpp
-              PATHS ${IMGUI_SERACH_PATH})
-    if(NOT IMGUI_INCLUDE_DIR)
-        message(FATAL_ERROR "---> IMGUI imgui.cpp not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
-    else()
-        file(GLOB IMGUI_FILES
-            "${IMGUI_INCLUDE_DIR}/imgui_draw.cpp"
-            "${IMGUI_INCLUDE_DIR}/imgui_demo.cpp"
-            "${IMGUI_INCLUDE_DIR}/imgui.cpp" )
-        message("Found imgui.cpp in ${IMGUI_INCLUDE_DIR}")
-        # Rename that pesky imconfig.h file for the user.
-        install(FILES ${IMGUI_INCLUDE_DIR}/imconfig.h DESTINATION include RENAME imconfig-sample.h)
-    endif()
-endif()
+find_package(ImGui REQUIRED)
 
-# Glob up both source and headers as sources for VS users.
-file(GLOB IMGUI_SFML_FILES "${PROJECT_SOURCE_DIR}/*.cpp" "${PROJECT_SOURCE_DIR}/*.h")
+file(COPY
+    ${IMGUI_INCLUDE_DIR}/imconfig.h
+    ${IMGUI_INCLUDE_DIR}/imgui.h
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-# Set these for users to use
-set(IMGUI_SFML_INCLUDE_DIRS
-    ${PROJECT_SOURCE_DIR}
-    ${IMGUI_INCLUDE_DIR}
-    ${SFML_INCLUDE_DIR})
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/imconfig-SFML.h IMGUI_SFML_IMCONFIG_CONTENTS)
 
-set(IMGUI_SOURCES
-    ${IMGUI_FILES})
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/imconfig.h "${IMGUI_SFML_IMCONFIG_CONTENTS}")
 
-set(IMGUI_SFML_SOURCES
-    ${IMGUI_SFML_FILES})
+find_package(OpenGL REQUIRED)
 
-set(IMGUI_SFML_DEPENDENCIES
-    ${SFML_DEPENDENCIES}
-    ${SFML_LIBRARIES})
+add_library(ImGui-SFML
+    ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.cpp)
 
-if(IMGUI_SFML_BUILD_EXAMPLES)
-  # Build examples
-  add_subdirectory(examples)
-endif(IMGUI_SFML_BUILD_EXAMPLES)
+target_link_libraries(ImGui-SFML
+    PUBLIC
+    ImGui::ImGui
+    ImGui::Demo
+    sfml-graphics
+    OpenGL::GL
+    )
+
+target_include_directories(ImGui-SFML
+    PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}
+    )
+
+add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
