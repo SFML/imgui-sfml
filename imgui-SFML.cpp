@@ -171,7 +171,7 @@ std::string s_clipboardText;
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
 void updateMouseCursor(sf::Window& window);
 
-sf::Cursor s_mouseCursors[ImGuiMouseCursor_COUNT];
+sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
 bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
 
 }
@@ -433,6 +433,15 @@ void Shutdown()
     if (s_fontTexture) { // if internal texture was created, we delete it
         delete s_fontTexture;
         s_fontTexture = NULL;
+    }
+
+    for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
+        if (s_mouseCursorLoaded[i]) {
+            delete s_mouseCursors[i];
+            s_mouseCursors[i] = NULL;
+
+            s_mouseCursorLoaded[i] = false;
+        }
     }
 
     ImGui::DestroyContext();
@@ -827,7 +836,8 @@ const char* getClipboadText(void* /*userData*/)
 
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
 {
-    s_mouseCursorLoaded[imguiCursorType] = s_mouseCursors[imguiCursorType].loadFromSystem(sfmlCursorType);
+    s_mouseCursors[imguiCursorType] = new sf::Cursor();
+    s_mouseCursorLoaded[imguiCursorType] = s_mouseCursors[imguiCursorType]->loadFromSystem(sfmlCursorType);
 }
 
 void updateMouseCursor(sf::Window& window)
@@ -840,8 +850,8 @@ void updateMouseCursor(sf::Window& window)
         } else {
             window.setMouseCursorVisible(true);
 
-            sf::Cursor& c = s_mouseCursorLoaded[cursor] ? s_mouseCursors[cursor] :
-                                                          s_mouseCursors[ImGuiMouseCursor_Arrow];
+            sf::Cursor& c = s_mouseCursorLoaded[cursor] ? *s_mouseCursors[cursor] :
+                                                          *s_mouseCursors[ImGuiMouseCursor_Arrow];
             window.setMouseCursor(c);
         }
     }
