@@ -27,6 +27,8 @@ find_package(ImGui REQUIRED)
 file(COPY
     ${IMGUI_INCLUDE_DIR}/imconfig.h
     ${IMGUI_INCLUDE_DIR}/imgui.h
+    ${IMGUI_INCLUDE_DIR}/imgui_internal.h
+    ${IMGUI_INCLUDE_DIR}/stb_textedit.h # needed for imgui_internal.h
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/imconfig-SFML.h IMGUI_SFML_IMCONFIG_CONTENTS)
@@ -40,16 +42,16 @@ add_library(ImGui-SFML
 
 target_link_libraries(ImGui-SFML
     PUBLIC
-    ImGui::ImGui
-    ImGui::Demo
-    sfml-graphics
-    OpenGL::GL
-    )
+        ImGui::ImGui
+        ImGui::Demo
+        sfml-graphics
+        OpenGL::GL
+)
 
 target_include_directories(ImGui-SFML
     PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_LIST_DIR}
-    )
+)
 
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
