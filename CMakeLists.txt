@@ -5,7 +5,7 @@ project(imgui_sfml)
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" ON)
 
 # Find required libraries
-find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(SFML 2.5 COMPONENTS graphics)
 
 if(NOT SFML_FOUND)
     set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
