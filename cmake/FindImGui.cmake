@@ -5,10 +5,8 @@
 # This will define the following variables
 # IMGUI_FOUND
 # IMGUI_INCLUDE_DIRS
-#
-# and the following imported targets
-#
-# ImGui::ImGui - ImGui core library
+# IMGUI_SOURCES
+# IMGUI_DEMO_SOURCES
 
 list(APPEND IMGUI_SEARCH_PATH
     ${IMGUI_ROOT}
@@ -26,15 +24,9 @@ endif()
 message(STATUS "Found imgui.cpp in ${IMGUI_INCLUDE_DIR}")
 set(IMGUI_FOUND TRUE)
 
-add_library(ImGui
-    ${IMGUI_INCLUDE_DIR}/imgui.cpp
+set(IMGUI_SOURCES
+	${IMGUI_INCLUDE_DIR}/imgui.cpp
     ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp)
 
-add_library(ImGui_Demo
+set(IMGUI_DEMO_SOURCES
     ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp)
-
-target_link_libraries(ImGui_Demo
-    PUBLIC ImGui)
-
-add_library(ImGui::ImGui ALIAS ImGui)
-add_library(ImGui::Demo ALIAS ImGui_Demo)

@@ -38,14 +38,13 @@ file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/imconfig.h "${IMGUI_SFML_IMCONFIG_CONTEN
 find_package(OpenGL REQUIRED)
 
 add_library(ImGui-SFML
-    ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.cpp
+	${IMGUI_SOURCES})
 
 target_link_libraries(ImGui-SFML
     PUBLIC
-        ImGui::ImGui
-        ImGui::Demo
         sfml-graphics
-        OpenGL::GL
+        ${OPENGL_LIBRARIES}
 )
 
 target_include_directories(ImGui-SFML
