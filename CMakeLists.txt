@@ -3,13 +3,16 @@ cmake_minimum_required(VERSION 3.1)
 project(imgui_sfml)
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" ON)
+option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 
 # Find required libraries
-find_package(SFML 2.5 COMPONENTS graphics)
+if (IMGUI_SFML_FIND_SFML)
+	find_package(SFML 2.5 COMPONENTS graphics)
 
-if(NOT SFML_FOUND)
-    set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
-    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_ROOT to SFML's top-level path (containing \"include\" and \"lib\" directories).\n")
+	if(NOT SFML_FOUND)
+		set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
+		message(FATAL_ERROR "SFML 2 directory not found. Set SFML_ROOT to SFML's top-level path (containing \"include\" and \"lib\" directories).\n")
+	endif()
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -40,6 +43,10 @@ find_package(OpenGL REQUIRED)
 add_library(ImGui-SFML
     ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.cpp
 	${IMGUI_SOURCES})
+
+set_target_properties(ImGui-SFML PROPERTIES
+  DEFINE_SYMBOL "IMGUI_SFML_EXPORTS"
+)
 
 target_link_libraries(ImGui-SFML
     PUBLIC
