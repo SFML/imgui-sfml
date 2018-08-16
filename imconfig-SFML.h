@@ -26,3 +26,13 @@
             static_cast<sf::Uint8>(z * 255.f),                          \
             static_cast<sf::Uint8>(w * 255.f));                         \
     }
+
+#if IMGUI_SFML_DLL
+#ifdef IMGUI_SFML_EXPORTS
+#define IMGUI_API __declspec( dllexport )
+#else
+#define IMGUI_API __declspec( dllimport )
+#endif
+#else
+#define IMGUI_API
+#endif
