@@ -519,7 +519,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
     // sprite without texture cannot be drawn
     if (!texturePtr) { return; }
 
-    Image(*texturePtr, size, tintColor, borderColor);
+    Image(*texturePtr, size, static_cast<sf::FloatRect>(sprite.getTextureRect()), tintColor, borderColor);
 }
 
 /////////////// Image Button Overloads
