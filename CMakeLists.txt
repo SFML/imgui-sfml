@@ -15,14 +15,16 @@
 #   ...
 #   target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
 # .
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.0.2)
 
 project(imgui_sfml)
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" ON)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 # Find required libraries
-find_package(SFML 2.2 COMPONENTS graphics window system)
+find_package(SFML 2.3 COMPONENTS graphics window system)
 message(status "** SFML Include: ${SFML_INCLUDE_DIR}")
 message(status "** SFML Libraries: ${SFML_LIBRARIES}")
 if(NOT SFML_FOUND)

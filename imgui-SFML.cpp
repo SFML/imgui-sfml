@@ -1,6 +1,7 @@
 #include "imgui-SFML.h"
 #include <imgui.h>
 
+#include <SFML/Config.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -10,7 +11,14 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Touch.hpp>
 #include <SFML/Window/Window.hpp>
+
+// clipboard and cursor support was added in SFML 2.5
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
+
 #include <SFML/Window/Clipboard.hpp>
+#include <SFML/Window/Cursor.hpp>
+
+#endif
 
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
@@ -162,6 +170,9 @@ void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickLStickState(ImGuiIO& io);
 
+// clipboard and cursor support was added in SFML 2.5
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
+
 // clipboard functions
 void setClipboardText(void* userData, const char* text);
 const char* getClipboadText(void* userData);
@@ -173,6 +184,8 @@ void updateMouseCursor(sf::Window& window);
 
 sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
 bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
+
+#endif
 
 }
 
@@ -234,6 +247,7 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     // init rendering
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
 
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
     io.GetClipboardTextFn = getClipboadText;
@@ -250,6 +264,7 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     loadMouseCursor(ImGuiMouseCursor_ResizeEW,   sf::Cursor::SizeHorizontal);
     loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::SizeBottomLeftTopRight);
     loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::SizeTopLeftBottomRight);
+#endif
 
     if (s_fontTexture) { // delete previously created texture
         delete s_fontTexture;
@@ -344,8 +359,10 @@ void Update(sf::RenderWindow& window, sf::Time dt)
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 {
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
     // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
     updateMouseCursor(window);
+#endif
 
     if (!s_mouseMoved) {
         if (sf::Touch::isDown(0))
@@ -435,6 +452,7 @@ void Shutdown()
         s_fontTexture = NULL;
     }
 
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
         if (s_mouseCursorLoaded[i]) {
             delete s_mouseCursors[i];
@@ -443,6 +461,7 @@ void Shutdown()
             s_mouseCursorLoaded[i] = false;
         }
     }
+#endif
 
     ImGui::DestroyContext();
 }
@@ -823,6 +842,8 @@ void updateJoystickLStickState(ImGuiIO& io)
     }
 }
 
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
+
 void setClipboardText(void* /*userData*/, const char* text)
 {
     sf::Clipboard::setString(text);
@@ -856,5 +877,7 @@ void updateMouseCursor(sf::Window& window)
         }
     }
 }
+
+#endif
 
 } // end of anonymous namespace
