@@ -36,3 +36,5 @@
 #else
 #define IMGUI_API
 #endif
+
+#define ImTextureID unsigned int
