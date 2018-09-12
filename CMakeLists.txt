@@ -31,7 +31,7 @@ file(COPY
     ${IMGUI_INCLUDE_DIR}/imconfig.h
     ${IMGUI_INCLUDE_DIR}/imgui.h
     ${IMGUI_INCLUDE_DIR}/imgui_internal.h
-    ${IMGUI_INCLUDE_DIR}/stb_textedit.h # needed for imgui_internal.h
+    ${IMGUI_INCLUDE_DIR}/imstb_textedit.h # needed for imgui_internal.h
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/imconfig-SFML.h IMGUI_SFML_IMCONFIG_CONTENTS)
