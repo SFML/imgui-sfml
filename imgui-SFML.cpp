@@ -428,7 +428,7 @@ void Render(sf::RenderTarget& target)
 
 void Shutdown()
 {
-    ImGui::GetIO().Fonts->TexID = NULL;
+    ImGui::GetIO().Fonts->TexID = (ImTextureID)NULL;
 
     if (s_fontTexture) { // if internal texture was created, we delete it
         delete s_fontTexture;
@@ -652,7 +652,7 @@ void RenderDrawLists(ImDrawData* draw_data)
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    assert(io.Fonts->TexID != NULL); // You forgot to create and set font texture
+    assert(io.Fonts->TexID != (ImTextureID)NULL); // You forgot to create and set font texture
 
     // scale stuff (needed for proper handling of window resize)
     int fb_width = static_cast<int>(io.DisplaySize.x * io.DisplayFramebufferScale.x);
