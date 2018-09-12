@@ -25,7 +25,7 @@ message(STATUS "Found imgui.cpp in ${IMGUI_INCLUDE_DIR}")
 set(IMGUI_FOUND TRUE)
 
 set(IMGUI_SOURCES
-	${IMGUI_INCLUDE_DIR}/imgui.cpp
+  ${IMGUI_INCLUDE_DIR}/imgui.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
 )
