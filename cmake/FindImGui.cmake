@@ -26,7 +26,9 @@ set(IMGUI_FOUND TRUE)
 
 set(IMGUI_SOURCES
 	${IMGUI_INCLUDE_DIR}/imgui.cpp
-    ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp)
+  ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
+  ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
+)
 
 set(IMGUI_DEMO_SOURCES
     ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp)
