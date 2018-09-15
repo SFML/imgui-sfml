@@ -14,7 +14,7 @@ list(APPEND IMGUI_SEARCH_PATH
     )
 
 find_path(IMGUI_INCLUDE_DIR
-      NAMES imgui.cpp imgui_draw.cpp imgui_demo.cpp
+      NAMES imgui.h
       PATHS ${IMGUI_SEARCH_PATH})
 
 if(NOT IMGUI_INCLUDE_DIR)
@@ -28,6 +28,7 @@ set(IMGUI_SOURCES
   ${IMGUI_INCLUDE_DIR}/imgui.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
+  ${IMGUI_INCLUDE_DIR}/misc/stl/imgui_stl.cpp
 )
 
 set(IMGUI_DEMO_SOURCES
