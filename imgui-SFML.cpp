@@ -115,7 +115,10 @@ int closeKeyboardIME()
 #endif
 
 // Supress warnings caused by converting from uint to void* in pCmd->TextureID
-#ifdef __clang__
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4312)
+#elif __clang__
 #pragma clang diagnostic ignored "-Wint-to-void-pointer-cast" // warning : cast to 'void *' from smaller integer type 'int'
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"      // warning: cast to pointer from integer of different size
@@ -881,3 +884,7 @@ void updateMouseCursor(sf::Window& window)
 #endif
 
 } // end of anonymous namespace
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
