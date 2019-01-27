@@ -23,6 +23,7 @@
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
 #include <cassert>
+#include <cstring> // memcpy
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -114,15 +115,7 @@ int closeKeyboardIME()
 #endif
 #endif
 
-// Supress warnings caused by converting from uint to void* in pCmd->TextureID
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4312)
-#elif __clang__
-#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast" // warning : cast to 'void *' from smaller integer type 'int'
-#elif defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"      // warning: cast to pointer from integer of different size
-#endif
+static_assert(sizeof(GLuint) <= sizeof(ImTextureID), "ImTextureID is not large enough to fit GLuint.");
 
 namespace
 {
@@ -481,7 +474,8 @@ void UpdateFontTexture()
     texture.create(width, height);
     texture.update(pixels);
 
-    io.Fonts->TexID = (void*)texture.getNativeHandle();
+    GLuint nativeHandle = texture.getNativeHandle();
+    std::memcpy(&io.Fonts->TexID, &nativeHandle, sizeof(GLuint));
 }
 
 sf::Texture& GetFontTexture()
@@ -553,7 +547,11 @@ void Image(const sf::Texture& texture,
 void Image(const sf::Texture& texture, const sf::Vector2f& size,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    ImGui::Image((void*)texture.getNativeHandle(), size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
+    GLuint nativeHandle = texture.getNativeHandle();
+    ImTextureID textureID;
+    std::memcpy(&textureID, &nativeHandle, sizeof(GLuint));
+
+    ImGui::Image(textureID, size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -569,7 +567,12 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Float
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
         (textureRect.top + textureRect.height) / textureSize.y);
-    ImGui::Image((void*)texture.getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
+
+    GLuint nativeHandle = texture.getNativeHandle();
+    ImTextureID textureID;
+    std::memcpy(&textureID, &nativeHandle, sizeof(GLuint));
+
+    ImGui::Image(textureID, size, uv0, uv1, tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite,
@@ -733,7 +736,8 @@ void RenderDrawLists(ImDrawData* draw_data)
             if (pcmd->UserCallback) {
                 pcmd->UserCallback(cmd_list, pcmd);
             } else {
-                GLuint tex_id = (GLuint)*((unsigned int*)&pcmd->TextureId);
+                GLuint tex_id;
+                std::memcpy(&tex_id, &pcmd->TextureId, sizeof(GLuint));
                 glBindTexture(GL_TEXTURE_2D, tex_id);
                 glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w),
                     (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
@@ -761,7 +765,11 @@ bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRec
     ImVec2 uv1((textureRect.left + textureRect.width)  / textureSize.x,
                (textureRect.top  + textureRect.height) / textureSize.y);
 
-    return ImGui::ImageButton((void*)texture.getNativeHandle(), size, uv0, uv1, framePadding, bgColor, tintColor);
+    GLuint nativeHandle = texture.getNativeHandle();
+    ImTextureID textureID;
+    std::memcpy(&textureID, &nativeHandle, sizeof(GLuint));
+
+    return ImGui::ImageButton(textureID, size, uv0, uv1, framePadding, bgColor, tintColor);
 }
 
 unsigned int getConnectedJoystickId()
