@@ -23,6 +23,7 @@
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
 #include <cassert>
+#include <cstring> // memcpy
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -114,14 +115,8 @@ int closeKeyboardIME()
 #endif
 #endif
 
-// Supress warnings caused by converting from uint to void* in pCmd->TextureID
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4312)
-#elif __clang__
-#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast" // warning : cast to 'void *' from smaller integer type 'int'
-#elif defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"      // warning: cast to pointer from integer of different size
+#if __cplusplus >= 201103L // C++11 and above
+static_assert(sizeof(GLuint) <= sizeof(ImTextureID), "ImTextureID is not large enough to fit GLuint.");
 #endif
 
 namespace
@@ -156,6 +151,9 @@ StickInfo s_lStickInfo;
 // various helper functions
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
+
+ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
+GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
 
 void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prototype
 
@@ -204,6 +202,10 @@ void Init(sf::RenderWindow& window, bool loadDefaultFont)
 
 void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
 {
+#if __cplusplus < 201103L // runtime assert when using earlier than C++11 as no static_assert support
+    assert(sizeof(GLuint) <= sizeof(ImTextureID)); // ImTextureID is not large enough to fit GLuint.
+#endif
+
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
@@ -481,7 +483,7 @@ void UpdateFontTexture()
     texture.create(width, height);
     texture.update(pixels);
 
-    io.Fonts->TexID = (void*)texture.getNativeHandle();
+    io.Fonts->TexID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 }
 
 sf::Texture& GetFontTexture()
@@ -553,7 +555,8 @@ void Image(const sf::Texture& texture,
 void Image(const sf::Texture& texture, const sf::Vector2f& size,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    ImGui::Image((void*)texture.getNativeHandle(), size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImGui::Image(textureID, size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -569,7 +572,9 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Float
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
         (textureRect.top + textureRect.height) / textureSize.y);
-    ImGui::Image((void*)texture.getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
+
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImGui::Image(textureID, size, uv0, uv1, tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite,
@@ -665,6 +670,19 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
     return ImVec2(rect.left + rect.width + pos.x, rect.top + rect.height + pos.y);
 }
 
+ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle)
+{
+    ImTextureID textureID = NULL;
+    std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
+    return textureID;
+}
+GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID)
+{
+    GLuint glTextureHandle;
+    std::memcpy(&glTextureHandle, &textureID, sizeof(GLuint));
+    return glTextureHandle;
+}
+
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
@@ -733,8 +751,8 @@ void RenderDrawLists(ImDrawData* draw_data)
             if (pcmd->UserCallback) {
                 pcmd->UserCallback(cmd_list, pcmd);
             } else {
-                GLuint tex_id = (GLuint)*((unsigned int*)&pcmd->TextureId);
-                glBindTexture(GL_TEXTURE_2D, tex_id);
+                GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->TextureId);
+                glBindTexture(GL_TEXTURE_2D, textureHandle);
                 glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w),
                     (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
@@ -761,7 +779,8 @@ bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRec
     ImVec2 uv1((textureRect.left + textureRect.width)  / textureSize.x,
                (textureRect.top  + textureRect.height) / textureSize.y);
 
-    return ImGui::ImageButton((void*)texture.getNativeHandle(), size, uv0, uv1, framePadding, bgColor, tintColor);
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    return ImGui::ImageButton(textureID, size, uv0, uv1, framePadding, bgColor, tintColor);
 }
 
 unsigned int getConnectedJoystickId()
@@ -884,7 +903,3 @@ void updateMouseCursor(sf::Window& window)
 #endif
 
 } // end of anonymous namespace
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
