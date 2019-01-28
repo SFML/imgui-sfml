@@ -669,7 +669,7 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle)
 {
-    ImTextureID textureID;
+    ImTextureID textureID = NULL;
     std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
     return textureID;
 }
