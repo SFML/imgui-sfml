@@ -10,6 +10,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Touch.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/Clipboard.hpp>
 
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
@@ -160,6 +161,19 @@ unsigned int getConnectedJoystickId();
 void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickLStickState(ImGuiIO& io);
+
+// clipboard functions
+void setClipboardText(void* userData, const char* text);
+const char* getClipboadText(void* userData);
+std::string s_clipboardText;
+
+// mouse cursors
+void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
+void updateMouseCursor(sf::Window& window);
+
+sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
+bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
+
 }
 
 namespace ImGui
@@ -177,6 +191,9 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
+    // tell ImGui which features we support
+    io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
     // init keyboard mapping
@@ -206,7 +223,6 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
     io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
 
-    io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     s_joystickId = getConnectedJoystickId();
 
     for (unsigned int i = 0; i < ImGuiNavInput_COUNT; i++) {
@@ -217,6 +233,23 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
 
     // init rendering
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
+
+    // clipboard
+    io.SetClipboardTextFn = setClipboardText;
+    io.GetClipboardTextFn = getClipboadText;
+
+    // load mouse cursors
+    for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
+        s_mouseCursorLoaded[i] = false;
+    }
+
+    loadMouseCursor(ImGuiMouseCursor_Arrow,      sf::Cursor::Arrow);
+    loadMouseCursor(ImGuiMouseCursor_TextInput,  sf::Cursor::Text);
+    loadMouseCursor(ImGuiMouseCursor_ResizeAll,  sf::Cursor::SizeAll);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNS,   sf::Cursor::SizeVertical);
+    loadMouseCursor(ImGuiMouseCursor_ResizeEW,   sf::Cursor::SizeHorizontal);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::SizeBottomLeftTopRight);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::SizeTopLeftBottomRight);
 
     if (s_fontTexture) { // delete previously created texture
         delete s_fontTexture;
@@ -311,6 +344,9 @@ void Update(sf::RenderWindow& window, sf::Time dt)
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 {
+    // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
+    updateMouseCursor(window);
+
     if (!s_mouseMoved) {
         if (sf::Touch::isDown(0))
             s_touchPos = sf::Touch::getPosition(0, window);
@@ -392,11 +428,20 @@ void Render(sf::RenderTarget& target)
 
 void Shutdown()
 {
-    ImGui::GetIO().Fonts->TexID = NULL;
+    ImGui::GetIO().Fonts->TexID = (ImTextureID)NULL;
 
     if (s_fontTexture) { // if internal texture was created, we delete it
         delete s_fontTexture;
         s_fontTexture = NULL;
+    }
+
+    for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
+        if (s_mouseCursorLoaded[i]) {
+            delete s_mouseCursors[i];
+            s_mouseCursors[i] = NULL;
+
+            s_mouseCursorLoaded[i] = false;
+        }
     }
 
     ImGui::DestroyContext();
@@ -414,7 +459,7 @@ void UpdateFontTexture()
     texture.create(width, height);
     texture.update(pixels);
 
-    io.Fonts->TexID = (void*)texture.getNativeHandle();
+    io.Fonts->TexID = texture.getNativeHandle();
 }
 
 sf::Texture& GetFontTexture()
@@ -486,7 +531,7 @@ void Image(const sf::Texture& texture,
 void Image(const sf::Texture& texture, const sf::Vector2f& size,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    ImGui::Image((void*)texture.getNativeHandle(), size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
+    ImGui::Image(texture.getNativeHandle(), size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -502,7 +547,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Float
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
         (textureRect.top + textureRect.height) / textureSize.y);
-    ImGui::Image((void*)texture.getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
+    ImGui::Image(texture.getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite,
@@ -607,7 +652,7 @@ void RenderDrawLists(ImDrawData* draw_data)
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    assert(io.Fonts->TexID != NULL); // You forgot to create and set font texture
+    assert(io.Fonts->TexID != (ImTextureID)NULL); // You forgot to create and set font texture
 
     // scale stuff (needed for proper handling of window resize)
     int fb_width = static_cast<int>(io.DisplaySize.x * io.DisplayFramebufferScale.x);
@@ -694,7 +739,7 @@ bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRec
     ImVec2 uv1((textureRect.left + textureRect.width)  / textureSize.x,
                (textureRect.top  + textureRect.height) / textureSize.y);
 
-    return ImGui::ImageButton((void*)texture.getNativeHandle(), size, uv0, uv1, framePadding, bgColor, tintColor);
+    return ImGui::ImageButton(texture.getNativeHandle(), size, uv0, uv1, framePadding, bgColor, tintColor);
 }
 
 unsigned int getConnectedJoystickId()
@@ -775,6 +820,40 @@ void updateJoystickLStickState(ImGuiIO& io)
 
     if (lStickYPos > s_lStickInfo.threshold) {
         io.NavInputs[ImGuiNavInput_LStickDown] = lStickYPos / 100.f;
+    }
+}
+
+void setClipboardText(void* /*userData*/, const char* text)
+{
+    sf::Clipboard::setString(text);
+}
+
+const char* getClipboadText(void* /*userData*/)
+{
+    s_clipboardText = sf::Clipboard::getString().toAnsiString();
+    return s_clipboardText.c_str();
+}
+
+void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
+{
+    s_mouseCursors[imguiCursorType] = new sf::Cursor();
+    s_mouseCursorLoaded[imguiCursorType] = s_mouseCursors[imguiCursorType]->loadFromSystem(sfmlCursorType);
+}
+
+void updateMouseCursor(sf::Window& window)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0) {
+        ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+        if (io.MouseDrawCursor || cursor == ImGuiMouseCursor_None) {
+            window.setMouseCursorVisible(false);
+        } else {
+            window.setMouseCursorVisible(true);
+
+            sf::Cursor& c = s_mouseCursorLoaded[cursor] ? *s_mouseCursors[cursor] :
+                                                          *s_mouseCursors[ImGuiMouseCursor_Arrow];
+            window.setMouseCursor(c);
+        }
     }
 }
 
