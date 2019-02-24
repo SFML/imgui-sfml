@@ -16,8 +16,32 @@ How-to
 - [**Using ImGui with modern C++ and STL**](https://eliasdaler.github.io/using-imgui-with-sfml-pt2/)
 - [**Thread on SFML forums**](https://en.sfml-dev.org/forums/index.php?topic=20137.0). Feel free to ask your questions there.
 
-Setting up:
+Building and integrating into your CMake project
+---
 
+```sh
+cmake <ImGui-SFML repo folder> -DIMGUI_ROOT=<ImGui repo folder>
+```
+
+You can also specify `BUILD_SHARED_LIBS=ON` to build ImGui-SFML as a shared library. To build ImGui-SFML examples, set `IMGUI_SFML_BUILD_EXAMPLES=ON`.
+
+After the building, you can install the library on your system by running:
+```sh
+cmake --build . --target install
+```
+
+If you set `CMAKE_INSTALL_PREFIX` during configuration, you can install ImGui-SFML locally.
+
+Integrating into your project is simple.
+```cmake
+find_package(ImGui-SFML REQUIRED)
+target_link_libraries(my_target PRIVATE ImGui-SFML::ImGui-SFML)
+```
+
+If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_DIR` before calling `find_package`.
+
+Integrating into your project manually
+---
 - Download [ImGui](https://github.com/ocornut/imgui)
 - Add ImGui folder to your include directories
 - Add `imgui.cpp` and `imgui_draw.cpp` to your build/project
@@ -26,7 +50,8 @@ Setting up:
 - Add `imgui-SFML.cpp` to your build/project
 - Link OpenGL if you get linking errors
 
-In your code:
+Using ImGui-SFML in your code
+---
 
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there. You can create your font atlas and pass the pointer in Init too, otherwise the default internal font atlas will be created for you.
 - For each iteration of a game loop:
@@ -128,19 +153,6 @@ ImGui::PopFont();
 ```
 
 The first loaded font is treated as the default one and doesn't need to be pushed with `ImGui::PushFont`.
-
-CMake how-to
----
- - Checkout the repository as a submoudle
- - Set IMGUI_ROOT
- - Modify your builds to copy imgui-SFML and dependencies (sfml) to your project
-```CMakeLists
-add_subdirectory(repos/imgui-sfml)
-include_directories("${IMGUI_SFML_INCLUDE_DIRS}")
-add_executable(MY_PROJECT ${IMGUI_SOURCES} ${IMGUI_SFML_SOURCES} ${SRCS})
-...
-target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
-```
 
 SFML related ImGui overloads / new widgets
 ---
