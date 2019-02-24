@@ -7,22 +7,21 @@
 # IMGUI_INCLUDE_DIRS
 # IMGUI_SOURCES
 # IMGUI_DEMO_SOURCES
+# IMGUI_VERSION
 
 list(APPEND IMGUI_SEARCH_PATH
-    ${IMGUI_ROOT}
-    $ENV{IMGUI_ROOT}
-    )
+  ${IMGUI_ROOT}
+  $ENV{IMGUI_ROOT}
+)
 
 find_path(IMGUI_INCLUDE_DIR
-      NAMES imgui.h
-      PATHS ${IMGUI_SEARCH_PATH})
+  NAMES imgui.h
+  PATHS ${IMGUI_SEARCH_PATH}
+)
 
 if(NOT IMGUI_INCLUDE_DIR)
-    message(FATAL_ERROR "IMGUI imgui.cpp not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
+  message(FATAL_ERROR "IMGUI imgui.cpp not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
-
-message(STATUS "Found imgui.cpp in ${IMGUI_INCLUDE_DIR}")
-set(IMGUI_FOUND TRUE)
 
 set(IMGUI_SOURCES
   ${IMGUI_INCLUDE_DIR}/imgui.cpp
@@ -32,4 +31,28 @@ set(IMGUI_SOURCES
 )
 
 set(IMGUI_DEMO_SOURCES
-    ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp)
+  ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp
+)
+
+# Extract version from header
+file(
+	STRINGS
+  ${IMGUI_INCLUDE_DIR}/imgui.h
+  IMGUI_VERSION
+  REGEX "#define IMGUI_VERSION "
+)
+
+if(NOT IMGUI_VERSION)
+  message(SEND_ERROR "Can't find version number in ${IMGUI_INCLUDE_DIR}/imgui.h.")
+endif()
+# Transform '#define IMGUI_VERSION "X.Y"' into 'X.Y'
+string(REGEX REPLACE ".*\"(.*)\".*" "\\1" IMGUI_VERSION "${IMGUI_VERSION}")
+
+# Check required version
+if(${IMGUI_VERSION} VERSION_LESS ${ImGui_FIND_VERSION})
+  set(IMGUI_FOUND FALSE)
+  message(FATAL_ERROR "ImGui at with at least v${ImGui_FIND_VERSION} was requested, but only v${IMGUI_VERSION} was found")
+else()
+  set(IMGUI_FOUND TRUE)
+  message(STATUS "Found ImGui v${IMGUI_VERSION} in ${IMGUI_INCLUDE_DIR}")
+endif()

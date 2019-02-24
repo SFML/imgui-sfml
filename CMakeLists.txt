@@ -34,7 +34,8 @@ if(NOT IMGUI_ROOT)
   message(FATAL_ERROR "ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing 'imgui.h' and other files).\n")
 endif()
 
-find_package(ImGui REQUIRED)
+# This uses FindImGui.cmake provided in ImGui-SFML repo for now
+find_package(ImGui 1.68 REQUIRED)
 
 if (POLICY CMP0074)
   cmake_policy(POP)
