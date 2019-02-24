@@ -28,7 +28,7 @@ set(IMGUI_SOURCES
   ${IMGUI_INCLUDE_DIR}/imgui.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
-  ${IMGUI_INCLUDE_DIR}/misc/stl/imgui_stl.cpp
+  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.cpp
 )
 
 set(IMGUI_DEMO_SOURCES

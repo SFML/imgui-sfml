@@ -30,6 +30,16 @@ endif()
 
 find_package(ImGui REQUIRED)
 
+# these headers will be installed alongside ImGui-SFML
+set(IMGUI_PUBLIC_HEADERS
+  ${IMGUI_INCLUDE_DIR}/imgui.h
+  ${IMGUI_INCLUDE_DIR}/imgui_internal.h # not actually public, but users might need it
+  ${IMGUI_INCLUDE_DIR}/imstb_rectpack.h
+  ${IMGUI_INCLUDE_DIR}/imstb_textedit.h
+  ${IMGUI_INCLUDE_DIR}/imstb_truetype.h
+  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
+)
+
 # CMake 3.11 and later prefer to choose GLVND, but we choose legacy OpenGL just because it's safer
 # (unless the OpenGL_GL_PREFERENCE was explicitly set)
 # See CMP0072 for more details (cmake --help-policy CMP0072)
@@ -43,6 +53,9 @@ add_library(ImGui-SFML
   imgui-SFML.cpp
 	${IMGUI_SOURCES}
 )
+
+# Add pretty alias
+add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 
 # TODO: this might not be needed as CMake sets target_name_EXPORTS with some subsitutions
 # So we need to test if compiling as shared library works
@@ -60,20 +73,43 @@ target_link_libraries(ImGui-SFML
 
 target_include_directories(ImGui-SFML
   PUBLIC
-    ${IMGUI_INCLUDE_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}
+    $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_definitions(ImGui-SFML
   PUBLIC
     IMGUI_USER_CONFIG="imconfig-SFML.h"
-    IMGUI_DISABLE_INCLUDE_IMCONFIG_H)
+    IMGUI_DISABLE_INCLUDE_IMCONFIG_H
+)
 
-# Add pretty alias
-add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
+set(IMGUI_SFML_PUBLIC_HEADERS
+  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h
+  ${CMAKE_CURRENT_LIST_DIR}/imconfig-SFML.h
+)
+list(APPEND IMGUI_SFML_PUBLIC_HEADERS "${IMGUI_PUBLIC_HEADERS}")
+
+set_target_properties(ImGui-SFML PROPERTIES
+  PUBLIC_HEADER "${IMGUI_SFML_PUBLIC_HEADERS}"
+)
 
 if(IMGUI_SFML_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-# TODO: add install rules
+# installation rules
+include(GNUInstallDirs)
+install(TARGETS ImGui-SFML
+  EXPORT ImGui-SFML
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT ImGui-SFML
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ImGui-SFML
+  NAMESPACE ImGui-SFML::
+  FILE ImGui-SFMLConfig.cmake
+)

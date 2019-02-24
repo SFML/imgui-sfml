@@ -7,8 +7,4 @@ add_executable(imgui_sfml_example
   ${IMGUI_DEMO_SOURCES}
 )
 
-set_target_properties(imgui_sfml_example PROPERTIES DEBUG_POSTFIX _d)
-
 target_link_libraries(imgui_sfml_example PRIVATE ImGui-SFML::ImGui-SFML)
-
-# TODO: add install rules
