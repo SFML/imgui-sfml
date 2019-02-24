@@ -1,6 +1,7 @@
 #include "imgui-SFML.h"
 #include <imgui.h>
 
+#include <SFML/Config.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -10,11 +11,19 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Touch.hpp>
 #include <SFML/Window/Window.hpp>
+
+// clipboard and cursor support was added in SFML 2.5
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
+
 #include <SFML/Window/Clipboard.hpp>
+#include <SFML/Window/Cursor.hpp>
+
+#endif
 
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL
 #include <cassert>
+#include <cstring> // memcpy
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -106,11 +115,8 @@ int closeKeyboardIME()
 #endif
 #endif
 
-// Supress warnings caused by converting from uint to void* in pCmd->TextureID
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast" // warning : cast to 'void *' from smaller integer type 'int'
-#elif defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"      // warning: cast to pointer from integer of different size
+#if __cplusplus >= 201103L // C++11 and above
+static_assert(sizeof(GLuint) <= sizeof(ImTextureID), "ImTextureID is not large enough to fit GLuint.");
 #endif
 
 namespace
@@ -146,6 +152,9 @@ StickInfo s_lStickInfo;
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
 
+ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
+GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
+
 void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prototype
 
 // Implementation of ImageButton overload
@@ -162,6 +171,9 @@ void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickLStickState(ImGuiIO& io);
 
+// clipboard and cursor support was added in SFML 2.5
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
+
 // clipboard functions
 void setClipboardText(void* userData, const char* text);
 const char* getClipboadText(void* userData);
@@ -173,6 +185,8 @@ void updateMouseCursor(sf::Window& window);
 
 sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
 bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
+
+#endif
 
 }
 
@@ -188,6 +202,10 @@ void Init(sf::RenderWindow& window, bool loadDefaultFont)
 
 void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
 {
+#if __cplusplus < 201103L // runtime assert when using earlier than C++11 as no static_assert support
+    assert(sizeof(GLuint) <= sizeof(ImTextureID)); // ImTextureID is not large enough to fit GLuint.
+#endif
+
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
@@ -234,6 +252,7 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     // init rendering
     io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
 
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
     io.GetClipboardTextFn = getClipboadText;
@@ -250,6 +269,7 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
     loadMouseCursor(ImGuiMouseCursor_ResizeEW,   sf::Cursor::SizeHorizontal);
     loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::SizeBottomLeftTopRight);
     loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::SizeTopLeftBottomRight);
+#endif
 
     if (s_fontTexture) { // delete previously created texture
         delete s_fontTexture;
@@ -344,8 +364,10 @@ void Update(sf::RenderWindow& window, sf::Time dt)
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 {
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
     // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
     updateMouseCursor(window);
+#endif
 
     if (!s_mouseMoved) {
         if (sf::Touch::isDown(0))
@@ -435,6 +457,7 @@ void Shutdown()
         s_fontTexture = NULL;
     }
 
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
         if (s_mouseCursorLoaded[i]) {
             delete s_mouseCursors[i];
@@ -443,6 +466,7 @@ void Shutdown()
             s_mouseCursorLoaded[i] = false;
         }
     }
+#endif
 
     ImGui::DestroyContext();
 }
@@ -459,7 +483,7 @@ void UpdateFontTexture()
     texture.create(width, height);
     texture.update(pixels);
 
-    io.Fonts->TexID = texture.getNativeHandle();
+    io.Fonts->TexID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 }
 
 sf::Texture& GetFontTexture()
@@ -531,7 +555,8 @@ void Image(const sf::Texture& texture,
 void Image(const sf::Texture& texture, const sf::Vector2f& size,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    ImGui::Image(texture.getNativeHandle(), size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImGui::Image(textureID, size, ImVec2(0, 0), ImVec2(1, 1), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -547,7 +572,9 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Float
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
         (textureRect.top + textureRect.height) / textureSize.y);
-    ImGui::Image(texture.getNativeHandle(), size, uv0, uv1, tintColor, borderColor);
+
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImGui::Image(textureID, size, uv0, uv1, tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite,
@@ -643,6 +670,19 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect & rect)
     return ImVec2(rect.left + rect.width + pos.x, rect.top + rect.height + pos.y);
 }
 
+ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle)
+{
+    ImTextureID textureID = NULL;
+    std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
+    return textureID;
+}
+GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID)
+{
+    GLuint glTextureHandle;
+    std::memcpy(&glTextureHandle, &textureID, sizeof(GLuint));
+    return glTextureHandle;
+}
+
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
@@ -711,8 +751,8 @@ void RenderDrawLists(ImDrawData* draw_data)
             if (pcmd->UserCallback) {
                 pcmd->UserCallback(cmd_list, pcmd);
             } else {
-                GLuint tex_id = (GLuint)*((unsigned int*)&pcmd->TextureId);
-                glBindTexture(GL_TEXTURE_2D, tex_id);
+                GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->TextureId);
+                glBindTexture(GL_TEXTURE_2D, textureHandle);
                 glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w),
                     (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
@@ -739,7 +779,8 @@ bool imageButtonImpl(const sf::Texture& texture, const sf::FloatRect& textureRec
     ImVec2 uv1((textureRect.left + textureRect.width)  / textureSize.x,
                (textureRect.top  + textureRect.height) / textureSize.y);
 
-    return ImGui::ImageButton(texture.getNativeHandle(), size, uv0, uv1, framePadding, bgColor, tintColor);
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    return ImGui::ImageButton(textureID, size, uv0, uv1, framePadding, bgColor, tintColor);
 }
 
 unsigned int getConnectedJoystickId()
@@ -823,6 +864,8 @@ void updateJoystickLStickState(ImGuiIO& io)
     }
 }
 
+#if SFML_VERSION_MAJOR == 2 && SFML_VERSION_MINOR >= 5
+
 void setClipboardText(void* /*userData*/, const char* text)
 {
     sf::Clipboard::setString(text);
@@ -856,5 +899,7 @@ void updateMouseCursor(sf::Window& window)
         }
     }
 }
+
+#endif
 
 } // end of anonymous namespace
