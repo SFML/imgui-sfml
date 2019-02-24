@@ -20,7 +20,7 @@ if (POLICY CMP0074)
 endif()
 
 if (IMGUI_SFML_FIND_SFML)
-	find_package(SFML 2.3 COMPONENTS graphics system window)
+	find_package(SFML 2.5 COMPONENTS graphics system window)
 
 	if(NOT SFML_FOUND)
 		set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
@@ -84,6 +84,8 @@ target_link_libraries(ImGui-SFML
     ${OPENGL_LIBRARIES}
 )
 
+include(GNUInstallDirs)
+
 target_include_directories(ImGui-SFML
   PUBLIC
     $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
@@ -112,7 +114,6 @@ if(IMGUI_SFML_BUILD_EXAMPLES)
 endif()
 
 # installation rules
-include(GNUInstallDirs)
 install(TARGETS ImGui-SFML
   EXPORT ImGui-SFML
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
