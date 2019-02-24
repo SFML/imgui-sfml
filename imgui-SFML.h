@@ -1,8 +1,8 @@
 #ifndef IMGUI_SFML_H
 #define IMGUI_SFML_H
 
-#if IMGUI_SFML_DLL
-#ifdef IMGUI_SFML_EXPORTS
+#if _WIN32
+#ifdef ImGui_SFML_EXPORTS
 #define IMGUI_SFML_API __declspec( dllexport )
 #else
 #define IMGUI_SFML_API __declspec( dllimport )

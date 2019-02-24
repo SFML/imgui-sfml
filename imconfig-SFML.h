@@ -27,8 +27,8 @@
             static_cast<sf::Uint8>(w * 255.f));                         \
     }
 
-#if IMGUI_SFML_DLL
-#ifdef IMGUI_SFML_EXPORTS
+#if _WIN32
+#ifdef ImGui_SFML_EXPORTS
 #define IMGUI_API __declspec( dllexport )
 #else
 #define IMGUI_API __declspec( dllimport )

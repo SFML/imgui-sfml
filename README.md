@@ -42,9 +42,7 @@ find_package(ImGui-SFML REQUIRED)
 target_link_libraries(my_target PRIVATE ImGui-SFML::ImGui-SFML)
 ```
 
-If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_DIR` before calling `find_package`.
-
-> Note that `ImGui-SFML_DIR` should be a directory which contains generated `ImGui-SFMLConfig.cmake` file!
+If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_ROOT` before calling `find_package`.
 
 Integrating into your project manually
 ---
