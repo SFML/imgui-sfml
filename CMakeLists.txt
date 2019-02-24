@@ -11,6 +11,12 @@ option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 # Find required libraries
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+# This policy searches in *_ROOT in find_package
+if (POLICY CMP0074)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 if (IMGUI_SFML_FIND_SFML)
 	find_package(SFML 2.3 COMPONENTS graphics system window)
 
@@ -29,6 +35,10 @@ if(NOT IMGUI_ROOT)
 endif()
 
 find_package(ImGui REQUIRED)
+
+if (POLICY CMP0074)
+  cmake_policy(POP)
+endif()
 
 # these headers will be installed alongside ImGui-SFML
 set(IMGUI_PUBLIC_HEADERS
