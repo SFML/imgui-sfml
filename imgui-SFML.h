@@ -1,21 +1,13 @@
 #ifndef IMGUI_SFML_H
 #define IMGUI_SFML_H
 
-#if _WIN32
-#ifdef ImGui_SFML_EXPORTS
-#define IMGUI_SFML_API __declspec( dllexport )
-#else
-#define IMGUI_SFML_API __declspec( dllimport )
-#endif
-#else
-#define IMGUI_SFML_API
-#endif
-
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/Window/Joystick.hpp>
+
+#include "imgui-SFML_export.h"
 
 namespace sf
 {
