@@ -24,8 +24,11 @@ Building and integrating into your CMake project
 ---
 
 ```sh
-cmake <ImGui-SFML repo folder> -DIMGUI_ROOT=<ImGui repo folder>
+cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path with built SFML>
 ```
+
+If you have SFML installed on your system, you don't need to set SFML_DIR during
+configuration.
 
 You can also specify `BUILD_SHARED_LIBS=ON` to build ImGui-SFML as a shared library. To build ImGui-SFML examples, set `IMGUI_SFML_BUILD_EXAMPLES=ON`.
 
@@ -42,7 +45,7 @@ find_package(ImGui-SFML REQUIRED)
 target_link_libraries(my_target PRIVATE ImGui-SFML::ImGui-SFML)
 ```
 
-If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_ROOT` before calling `find_package`.
+If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_DIR` before calling `find_package`.
 
 Integrating into your project manually
 ---

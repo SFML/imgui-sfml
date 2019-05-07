@@ -8,6 +8,20 @@ project(imgui_sfml
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 
+# If you want to use your own user config when compiling ImGui, please set the following variables
+# For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
+#
+#   IMGUI_SFML_USE_DEFAULT_CONFIG = OFF
+#   IMGUI_SFML_USER_CONFIG_DIR = /path/to/dir/with/config
+#   IMGUI_SFML_USER_CONFIG_NAME = "myconfig.h"
+#
+# If you set IMGUI_SFML_CONFIG_INSTALL_DIR, ImGui-SFML won't install your custom config, because
+# you might want to do it yourself
+option(IMGUI_SFML_USE_DEFAULT_CONFIG "Use default imconfig-SFML.h" ON)
+set(IMGUI_SFML_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE PATH "Path to a directory containing user ImGui config")
+set(IMGUI_SFML_CONFIG_NAME "imconfig-SFML.h" CACHE STRING "Name of a custom user ImGui config header")
+set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header will be installed")
+
 # For FindImGui.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -22,15 +36,15 @@ if (IMGUI_SFML_FIND_SFML)
 
 	if(NOT SFML_FOUND)
 		set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
-		message(FATAL_ERROR "SFML 2 directory not found. Set SFML_ROOT to SFML's top-level path (containing \"include\" and \"lib\" directories).\n")
+    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which ccontains SFMLConfig.cmake)")
 	endif()
 endif()
 
 # ImGui does not provide native support for CMakeLists, workaround for now to have
-# users specify IMGUI_ROOT. Waiting for this PR to get merged...
+# users specify IMGUI_DIR. Waiting for this PR to get merged...
 #    https://github.com/ocornut/imgui/pull/1713
-if(NOT IMGUI_ROOT)
-  set(IMGUI_ROOT "" CACHE PATH "imgui top-level directory")
+if(NOT IMGUI_DIR)
+  set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
   message(FATAL_ERROR "ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing 'imgui.h' and other files).\n")
 endif()
 
@@ -43,6 +57,7 @@ endif()
 
 # these headers will be installed alongside ImGui-SFML
 set(IMGUI_PUBLIC_HEADERS
+  ${IMGUI_INCLUDE_DIR}/imconfig.h
   ${IMGUI_INCLUDE_DIR}/imgui.h
   ${IMGUI_INCLUDE_DIR}/imgui_internal.h # not actually public, but users might need it
   ${IMGUI_INCLUDE_DIR}/imstb_rectpack.h
@@ -85,10 +100,21 @@ target_include_directories(ImGui-SFML
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
+  if (IMGUI_SFML_CONFIG_DIR)
+    target_include_directories(ImGui-SFML
+      PUBLIC
+      $<BUILD_INTERFACE:${IMGUI_SFML_CONFIG_DIR}>
+      $<INSTALL_INTERFACE:${IMGUI_SFML_INSTALL_CONFIG_DIR}>
+    )
+  else()
+    message(FATAL_ERROR "IMGUI_SFML_CONFIG_DIR should be set if IMGUI_SFML_USE_DEFAULT_CONFIG is OFF")
+  endif()
+endif()
+
 target_compile_definitions(ImGui-SFML
   PUBLIC
-    IMGUI_USER_CONFIG="imconfig-SFML.h"
-    IMGUI_DISABLE_INCLUDE_IMCONFIG_H
+    IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}"
 )
 
 if(BUILD_SHARED_LIBS)
@@ -99,10 +125,18 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 set(IMGUI_SFML_PUBLIC_HEADERS
-  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h
-  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML_export.h
-  ${CMAKE_CURRENT_LIST_DIR}/imconfig-SFML.h
+  "${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h"
+  "${CMAKE_CURRENT_LIST_DIR}/imgui-SFML_export.h"
 )
+
+if (IMGUI_SFML_USE_DEFAULT_CONFIG OR
+    (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DIR}"))
+  list(APPEND IMGUI_SFML_PUBLIC_HEADERS
+    "${IMGUI_SFML_CONFIG_DIR}/${IMGUI_SFML_CONFIG_NAME}"
+  )
+# If user set IMGUI_SFML_INSTALL_CONFIG_DIR, it means that they'll install file themselves
+endif()
+
 list(APPEND IMGUI_SFML_PUBLIC_HEADERS "${IMGUI_PUBLIC_HEADERS}")
 
 set_target_properties(ImGui-SFML PROPERTIES
