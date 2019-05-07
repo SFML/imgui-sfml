@@ -44,10 +44,6 @@ endif()
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
 find_package(ImGui 1.68 REQUIRED)
 
-if (POLICY CMP0074)
-  cmake_policy(POP)
-endif()
-
 # these headers will be installed alongside ImGui-SFML
 set(IMGUI_PUBLIC_HEADERS
   ${IMGUI_INCLUDE_DIR}/imconfig.h
