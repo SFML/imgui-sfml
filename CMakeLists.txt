@@ -25,17 +25,10 @@ set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header
 # For FindImGui.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-# This policy searches in *_ROOT in find_package
-if (POLICY CMP0074)
-  cmake_policy(PUSH)
-  cmake_policy(SET CMP0074 NEW)
-endif()
-
 if (IMGUI_SFML_FIND_SFML)
 	find_package(SFML 2.5 COMPONENTS graphics system window)
 
 	if(NOT SFML_FOUND)
-		set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
     message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which ccontains SFMLConfig.cmake)")
 	endif()
 endif()
