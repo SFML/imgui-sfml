@@ -7,6 +7,8 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/Window/Joystick.hpp>
 
+#include "imgui-SFML_export.h"
+
 namespace sf
 {
     class Event;
@@ -19,77 +21,77 @@ namespace sf
 
 namespace ImGui
 {
-namespace SFML
-{
-    void Init(sf::RenderWindow& window, bool loadDefaultFont = true);
-    void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont = true);
+    namespace SFML
+    {
+        IMGUI_SFML_API void Init(sf::RenderWindow& window, bool loadDefaultFont = true);
+        IMGUI_SFML_API void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont = true);
 
-    void ProcessEvent(const sf::Event& event);
+        IMGUI_SFML_API void ProcessEvent(const sf::Event& event);
 
-    void Update(sf::RenderWindow& window, sf::Time dt);
-    void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt);
-    void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt);
+        IMGUI_SFML_API void Update(sf::RenderWindow& window, sf::Time dt);
+        IMGUI_SFML_API void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt);
+        IMGUI_SFML_API void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt);
 
-    void Render(sf::RenderTarget& target);
+        IMGUI_SFML_API void Render(sf::RenderTarget& target);
 
-    void Shutdown();
+        IMGUI_SFML_API void Shutdown();
 
-    void UpdateFontTexture();
-    sf::Texture& GetFontTexture();
+        IMGUI_SFML_API void UpdateFontTexture();
+        IMGUI_SFML_API sf::Texture& GetFontTexture();
 
-    // joystick functions
-    void SetActiveJoystickId(unsigned int joystickId);
-    void SetJoytickDPadThreshold(float threshold);
-    void SetJoytickLStickThreshold(float threshold);
+        // joystick functions
+        IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);
+        IMGUI_SFML_API void SetJoytickDPadThreshold(float threshold);
+        IMGUI_SFML_API void SetJoytickLStickThreshold(float threshold);
 
-    void SetJoystickMapping(int action, unsigned int joystickButton);
-    void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted = false);
-    void SetDPadYAxis(sf::Joystick::Axis dPadYAxis, bool inverted = false);
-    void SetLStickXAxis(sf::Joystick::Axis lStickXAxis, bool inverted = false);
-    void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted = false);
-}
+        IMGUI_SFML_API void SetJoystickMapping(int action, unsigned int joystickButton);
+        IMGUI_SFML_API void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted = false);
+        IMGUI_SFML_API void SetDPadYAxis(sf::Joystick::Axis dPadYAxis, bool inverted = false);
+        IMGUI_SFML_API void SetLStickXAxis(sf::Joystick::Axis lStickXAxis, bool inverted = false);
+        IMGUI_SFML_API void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted = false);
+    }
 
-// custom ImGui widgets for SFML stuff
+    // custom ImGui widgets for SFML stuff
 
-// Image overloads
-    void Image(const sf::Texture& texture,
+    // Image overloads
+    IMGUI_SFML_API void Image(const sf::Texture& texture,
         const sf::Color& tintColor = sf::Color::White,
         const sf::Color& borderColor = sf::Color::Transparent);
-    void Image(const sf::Texture& texture, const sf::Vector2f& size,
+    IMGUI_SFML_API void Image(const sf::Texture& texture, const sf::Vector2f& size,
         const sf::Color& tintColor = sf::Color::White,
         const sf::Color& borderColor = sf::Color::Transparent);
-    void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
+    IMGUI_SFML_API void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
         const sf::Color& tintColor = sf::Color::White,
         const sf::Color& borderColor = sf::Color::Transparent);
-    void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect,
-        const sf::Color& tintColor = sf::Color::White,
-        const sf::Color& borderColor = sf::Color::Transparent);
-
-    void Image(const sf::Sprite& sprite,
-        const sf::Color& tintColor = sf::Color::White,
-        const sf::Color& borderColor = sf::Color::Transparent);
-    void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
+    IMGUI_SFML_API void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::FloatRect& textureRect,
         const sf::Color& tintColor = sf::Color::White,
         const sf::Color& borderColor = sf::Color::Transparent);
 
-// ImageButton overloads
-    bool ImageButton(const sf::Texture& texture, const int framePadding = -1,
-                     const sf::Color& bgColor = sf::Color::Transparent,
-                     const sf::Color& tintColor = sf::Color::White);
-    bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding = -1,
-                     const sf::Color& bgColor = sf::Color::Transparent, const sf::Color& tintColor = sf::Color::White);
+    IMGUI_SFML_API void Image(const sf::Sprite& sprite,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
+    IMGUI_SFML_API void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
+        const sf::Color& tintColor = sf::Color::White,
+        const sf::Color& borderColor = sf::Color::Transparent);
 
-    bool ImageButton(const sf::Sprite& sprite, const int framePadding = -1,
-                     const sf::Color& bgColor = sf::Color::Transparent,
-                     const sf::Color& tintColor = sf::Color::White);
-    bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding = -1,
-                     const sf::Color& bgColor = sf::Color::Transparent,
-                     const sf::Color& tintColor = sf::Color::White);
+    // ImageButton overloads
+    IMGUI_SFML_API bool ImageButton(const sf::Texture& texture, const int framePadding = -1,
+        const sf::Color& bgColor = sf::Color::Transparent,
+        const sf::Color& tintColor = sf::Color::White);
+    IMGUI_SFML_API bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding = -1,
+        const sf::Color& bgColor = sf::Color::Transparent, const sf::Color& tintColor = sf::Color::White);
 
-// Draw_list overloads. All positions are in relative coordinates (relative to top-left of the current window)
-    void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Color& col, float thickness = 1.0f);
-    void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F, float thickness = 1.0f);
-    void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F);
+    IMGUI_SFML_API bool ImageButton(const sf::Sprite& sprite, const int framePadding = -1,
+        const sf::Color& bgColor = sf::Color::Transparent,
+        const sf::Color& tintColor = sf::Color::White);
+    IMGUI_SFML_API bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding = -1,
+        const sf::Color& bgColor = sf::Color::Transparent,
+        const sf::Color& tintColor = sf::Color::White);
+
+    // Draw_list overloads. All positions are in relative coordinates (relative to top-left of the current window)
+    IMGUI_SFML_API void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Color& col, float thickness = 1.0f);
+    IMGUI_SFML_API void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F, float thickness = 1.0f);
+    IMGUI_SFML_API void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color, float rounding = 0.0f, int rounding_corners = 0x0F);
 }
 
 #endif //# IMGUI_SFML_H

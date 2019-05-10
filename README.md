@@ -1,13 +1,17 @@
-ImGui + SFML
+ImGui + SFML v2.0
 =======
 
 Library which allows you to use [ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
 
-> Use [ImGui-SFML's v1.0](https://github.com/eliasdaler/imgui-sfml/releases/tag/v.1.0) if you're using ImGui's stable release (v.1.53)! This repo's master will be kept up to date with breaking changes in ImGui's master.
-
 ![screenshot](https://i2.wp.com/i.imgur.com/iQibpSk.gif)
 
 Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with big improvements and changes.
+
+Dependencies
+-----
+
+* [SFML](https://github.com/SFML/SFML) >= 2.5.0
+* [ImGui](https://github.com/ocornut/imgui) >= 1.68
 
 How-to
 ----
@@ -16,8 +20,35 @@ How-to
 - [**Using ImGui with modern C++ and STL**](https://eliasdaler.github.io/using-imgui-with-sfml-pt2/)
 - [**Thread on SFML forums**](https://en.sfml-dev.org/forums/index.php?topic=20137.0). Feel free to ask your questions there.
 
-Setting up:
+Building and integrating into your CMake project
+---
 
+```sh
+cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path with built SFML>
+```
+
+If you have SFML installed on your system, you don't need to set SFML_DIR during
+configuration.
+
+You can also specify `BUILD_SHARED_LIBS=ON` to build ImGui-SFML as a shared library. To build ImGui-SFML examples, set `IMGUI_SFML_BUILD_EXAMPLES=ON`.
+
+After the building, you can install the library on your system by running:
+```sh
+cmake --build . --target install
+```
+
+If you set `CMAKE_INSTALL_PREFIX` during configuration, you can install ImGui-SFML locally.
+
+Integrating into your project is simple.
+```cmake
+find_package(ImGui-SFML REQUIRED)
+target_link_libraries(my_target PRIVATE ImGui-SFML::ImGui-SFML)
+```
+
+If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_DIR` before calling `find_package`.
+
+Integrating into your project manually
+---
 - Download [ImGui](https://github.com/ocornut/imgui)
 - Add ImGui folder to your include directories
 - Add `imgui.cpp` and `imgui_draw.cpp` to your build/project
@@ -26,13 +57,14 @@ Setting up:
 - Add `imgui-SFML.cpp` to your build/project
 - Link OpenGL if you get linking errors
 
-In your code:
+Using ImGui-SFML in your code
+---
 
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there. You can create your font atlas and pass the pointer in Init too, otherwise the default internal font atlas will be created for you.
 - For each iteration of a game loop:
     - Poll and process events:
 
-        ```c++
+        ```cpp
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
@@ -54,7 +86,7 @@ Example code
 
 See example file [here](examples/main.cpp)
 
-```c++
+```cpp
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -106,7 +138,7 @@ Default font is loaded if you don't pass `false` in `ImGui::SFML::Init`. Call `I
 
 * Load your fonts like this:
 
-```c++
+```cpp
 IO.Fonts->Clear(); // clear fonts if you loaded some before (even if only default one was loaded)
 // IO.Fonts->AddFontDefault(); // this will load default font as well
 IO.Fonts->AddFontFromFileTTF("font1.ttf", 8.f);
@@ -117,7 +149,7 @@ ImGui::SFML::UpdateFontTexture(); // important call: updates font texture
 
 * And use them like this:
 
-```c++
+```cpp
 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
 ImGui::Button("Look at this pretty button");
 ImGui::PopFont();
@@ -129,47 +161,49 @@ ImGui::PopFont();
 
 The first loaded font is treated as the default one and doesn't need to be pushed with `ImGui::PushFont`.
 
-CMake how-to
----
- - Checkout the repository as a submoudle
- - Set IMGUI_ROOT 
- - Modify your builds to copy imgui-SFML and dependencies (sfml) to your project
-```CMakeLists
-add_subdirectory(repos/imgui-sfml)
-include_directories("${IMGUI_SFML_INCLUDE_DIRS}")
-add_executable(MY_PROJECT ${IMGUI_SOURCES} ${IMGUI_SFML_SOURCES} ${SRCS})
-...
-target_link_libraries(MY_PROJECT ${IMGUI_SFML_DEPENDENCIES})
-```
-
 SFML related ImGui overloads / new widgets
 ---
 
 There are some useful overloads implemented for SFML objects (see header for overloads):
-```c++
+```cpp
 ImGui::Image(const sf::Sprite& sprite);
 ImGui::Image(const sf::Texture& texture);
 ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
 ```
 
+Mouse cursors
+---
+You can change your cursors in ImGui like this:
+
+```cpp
+ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+```
+
+By default, your system cursor will change and will be rendered by your system. If you want SFML to draw your cursor with default ImGui cursors (the system cursor will be hidden), do this:
+
+```cpp
+ImGuiIO& io = ImGui::GetIO();
+io.MouseDrawCursor = true;
+```
+
 Keyboard/Gamepad navigation
 ---
 Starting with [ImGui 1.60](https://github.com/ocornut/imgui/releases/tag/v1.60), there's a feature to control ImGui with keyboard and gamepad. To use keyboard navigation, you just need to do this:
 
-```c++
+```cpp
 ImGuiIO& io = ImGui::GetIO();
 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 ```
 
 Gamepad navigation requires more work, unless you have XInput gamepad, in which case the mapping is automatically set for you. But you can still set it up for your own gamepad easily, just take a look how it's done for the default mapping [here](https://github.com/eliasdaler/imgui-sfml/blob/navigation/imgui-SFML.cpp#L697). And then you need to do this:
 
-```c++
+```cpp
 ImGuiIO& io = ImGui::GetIO();
 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 ```
 By default, the first active joystick is used for navigation, but you can set joystick id explicitly like this:
-```c++
+```cpp
 ImGui::SFML::SetActiveJoystickId(5);
 ```
 

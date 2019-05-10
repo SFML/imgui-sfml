@@ -3,6 +3,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
+#include "imgui-SFML_export.h"
+
 #define IM_VEC2_CLASS_EXTRA                                             \
     template <typename T>                                               \
     ImVec2(const sf::Vector2<T>& v) {                                   \
@@ -26,3 +28,5 @@
             static_cast<sf::Uint8>(z * 255.f),                          \
             static_cast<sf::Uint8>(w * 255.f));                         \
     }
+
+#define ImTextureID unsigned int
