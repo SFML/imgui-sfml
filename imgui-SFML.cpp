@@ -207,6 +207,7 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+    io.BackendPlatformName = "imgui_impl_sfml";
 
     // init keyboard mapping
     io.KeyMap[ImGuiKey_Tab] = sf::Keyboard::Tab;
