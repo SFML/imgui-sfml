@@ -311,9 +311,6 @@ void ProcessEvent(const sf::Event& event) {
             case sf::Event::KeyReleased:
                 io.KeysDown[event.key.code] =
                     (event.type == sf::Event::KeyPressed);
-                io.KeyCtrl = event.key.control;
-                io.KeyShift = event.key.shift;
-                io.KeyAlt = event.key.alt;
                 break;
             case sf::Event::TextEntered:
                 if (event.text.unicode > 0 && event.text.unicode < 0x10000) {
@@ -396,6 +393,14 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
             s_touchDown[i] = false;
         }
     }
+
+    // Update Ctrl, Shift, Alt state
+    io.KeyCtrl = io.KeysDown[sf::Keyboard::LControl] ||
+                 io.KeysDown[sf::Keyboard::RControl];
+    io.KeyAlt =
+        io.KeysDown[sf::Keyboard::LAlt] || io.KeysDown[sf::Keyboard::RAlt];
+    io.KeyShift =
+        io.KeysDown[sf::Keyboard::LShift] || io.KeysDown[sf::Keyboard::RShift];
 
 #ifdef ANDROID
 #ifdef USE_JNI
