@@ -5,6 +5,12 @@ project(imgui_sfml
   VERSION 2.0
 )
 
+# In CMake 3.13+ this policy enables you to define normal variables with option names as if you defined
+# these options. Useful for add_subdirectory(ImGui-SFML)
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
+
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 
