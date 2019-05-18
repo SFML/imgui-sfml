@@ -25,6 +25,10 @@ class ImguiSFML(ConanFile):
     * imconfig_install_folder: None or String
       Use 'None' if you want this build to include imconfig.h file,
       otherwise use anything else.
+
+    * imgui_revision: None or String
+      Tag or branch of ImGui repository that should be patched with
+      ImGui-SFML. 'None' will results in master branch.
     """
 
     name = 'ImGui-SFML'
@@ -41,13 +45,15 @@ class ImguiSFML(ConanFile):
         'shared': [True, False],
         'fPIC': [True, False],
         'imconfig': 'ANY',
-        'imconfig_install_folder': 'ANY'
+        'imconfig_install_folder': 'ANY',
+        'imgui_revision': 'ANY'
     }
     default_options = {
         'shared': False,
         'fPIC': True,
         'imconfig': None,
-        'imconfig_install_folder': None
+        'imconfig_install_folder': None,
+        'imgui_revision': 'v1.70'
     }
     exports_sources = [
         'imgui-SFML.cpp',
@@ -61,8 +67,9 @@ class ImguiSFML(ConanFile):
     _imgui_dir = 'imgui'
 
     def source(self):
+        imgui_revision = str(self.options.imgui_revision) if self.options.imgui_revision else 'master'
         git = Git(folder=self._imgui_dir)
-        git.clone('https://github.com/ocornut/imgui.git', 'v1.69')
+        git.clone('https://github.com/ocornut/imgui.git', imgui_revision)
 
     def configure(self):
         imconfig = self.options.imconfig
