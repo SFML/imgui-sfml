@@ -49,8 +49,14 @@ class ImguiSFML(ConanFile):
         'imconfig': None,
         'imconfig_install_folder': None
     }
-    exports_sources = ['imgui-SFML.cpp', 'imgui-SFML.h', 'imconfig-SFML.h',
-                       'imgui-SFML_export.h', 'CMakeLists.txt', 'cmake/FindImGui.cmake']
+    exports_sources = [
+        'imgui-SFML.cpp',
+        'imgui-SFML.h',
+        'imconfig-SFML.h',
+        'imgui-SFML_export.h',
+        'CMakeLists.txt',
+        'cmake/FindImGui.cmake'
+    ]
     exports = 'LICENSE.md'
     _imgui_dir = 'imgui'
 
@@ -61,7 +67,7 @@ class ImguiSFML(ConanFile):
     def configure(self):
         imconfig = self.options.imconfig
         if imconfig and not os.path.isfile(str(imconfig)):
-            raise ConanInvalidConfiguration("Provided ImGui config is not a file or does not exists")
+            raise ConanInvalidConfiguration("Provided ImGui config is not a file or doesn't exist")
         self.options['sfml'].graphics = True
         self.options['sfml'].window = True
         self.options['sfml'].shared = self.options.shared
