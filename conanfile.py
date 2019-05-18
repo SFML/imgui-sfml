@@ -4,6 +4,7 @@
 import os.path
 from conans import ConanFile, CMake
 from conans.tools import Git
+from conans.errors import ConanInvalidConfiguration
 
 class ImguiSFML(ConanFile):
     """ Imgui-SFML library conan file.
@@ -58,6 +59,9 @@ class ImguiSFML(ConanFile):
         git.clone('https://github.com/ocornut/imgui.git', 'v1.69')
 
     def configure(self):
+        imconfig = self.options.imconfig
+        if imconfig and not os.path.isfile(str(imconfig)):
+            raise ConanInvalidConfiguration("Provided ImGui config is not a file or does not exists")
         self.options['sfml'].graphics = True
         self.options['sfml'].window = True
         self.options['sfml'].shared = self.options.shared
