@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os.path
 from conans import ConanFile, CMake
 from conans.tools import Git
-import os
 
 class ImguiSFML(ConanFile):
     """ Imgui-SFML library conan file.
@@ -29,10 +29,10 @@ class ImguiSFML(ConanFile):
     name = 'ImGui-SFML'
     version = '2.0.1'
     description = 'ImGui binding for use with SFML'
-    topics = ('conan', 'sfml', 'imgui')
+    topics = ('conan', 'sfml', 'gui', 'imgui')
     url = 'https://github.com/eliasdaler/imgui-sfml'
     homepage = 'https://github.com/eliasdaler/imgui-sfml'
-    author = 'eliasdaler <eliasdaler@yandex.ru>'
+    author = 'Elias Daler <eliasdaler@yandex.ru>'
     build_requires = 'sfml/2.5.1@bincrafters/stable'
     license = 'MIT'
     settings = 'os', 'compiler', 'build_type', 'arch'
@@ -48,7 +48,8 @@ class ImguiSFML(ConanFile):
         'imconfig': None,
         'imconfig_install_folder': None
     }
-    exports_sources = ['*.cpp', '*.h', 'CMakeLists.txt', 'cmake*']
+    exports_sources = ['imgui-SFML.cpp', 'imgui-SFML.h', 'imconfig-SFML.h',
+                       'imgui-SFML_export.h', 'CMakeLists.txt', 'cmake/FindImGui.cmake']
     exports = 'LICENSE.md'
     _imgui_dir = 'imgui'
 
@@ -59,9 +60,9 @@ class ImguiSFML(ConanFile):
     def configure(self):
         self.options['sfml'].graphics = True
         self.options['sfml'].window = True
-        self.options['sfml'].shared = True
+        self.options['sfml'].shared = self.options.shared
 
-    def configure_cmake(self):
+    def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions['IMGUI_DIR'] = os.path.join(self.source_folder, self._imgui_dir)
         cmake.definitions['SFML_DIR'] = os.path.join(self.deps_cpp_info['sfml'].lib_paths[0], 'cmake', 'SFML')
@@ -80,11 +81,11 @@ class ImguiSFML(ConanFile):
         return cmake
 
     def build(self):
-        cmake = self.configure_cmake()
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
-        cmake = self.configure_cmake()
+        cmake = self._configure_cmake()
         cmake.install()
 
     def package_info(self):
