@@ -27,7 +27,7 @@ class ImguiSFML(ConanFile):
       otherwise use anything else.
 
     * imgui_revision: None or String
-      Tag or branch of ImGui repository that should be patched with
+      Tag or branch of ImGui repository that should be used with
       ImGui-SFML. 'None' will results in master branch.
     """
 
@@ -56,12 +56,12 @@ class ImguiSFML(ConanFile):
         'imgui_revision': 'v1.70'
     }
     exports_sources = [
-        'imgui-SFML.cpp',
-        'imgui-SFML.h',
-        'imconfig-SFML.h',
-        'imgui-SFML_export.h',
-        'CMakeLists.txt',
         'cmake/FindImGui.cmake'
+        'CMakeLists.txt',
+        'imconfig-SFML.h',
+        'imgui-SFML.cpp',
+        'imgui-SFML_export.h',
+        'imgui-SFML.h',
     ]
     exports = 'LICENSE.md'
     _imgui_dir = 'imgui'
