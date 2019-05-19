@@ -26,9 +26,9 @@ class ImguiSFML(ConanFile):
       Use 'None' if you want this build to include imconfig.h file,
       otherwise use anything else.
 
-    * imgui_revision: None or String
+    * imgui_revision: String
       Tag or branch of ImGui repository that should be used with
-      ImGui-SFML. 'None' will results in master branch.
+      ImGui-SFML.
     """
 
     name = 'ImGui-SFML'
@@ -67,14 +67,16 @@ class ImguiSFML(ConanFile):
     _imgui_dir = 'imgui'
 
     def source(self):
-        imgui_revision = str(self.options.imgui_revision) if self.options.imgui_revision else 'master'
         git = Git(folder=self._imgui_dir)
-        git.clone('https://github.com/ocornut/imgui.git', imgui_revision)
+        git.clone('https://github.com/ocornut/imgui.git', str(self.options.imgui_revision))
 
     def configure(self):
         imconfig = self.options.imconfig
         if imconfig and not os.path.isfile(str(imconfig)):
             raise ConanInvalidConfiguration("Provided ImGui config is not a file or doesn't exist")
+        if not self.options.imgui_revision:
+            raise ConanInvalidConfiguration("ImGui revision is empty. Try latest version tag or 'master'")
+
         self.options['sfml'].graphics = True
         self.options['sfml'].window = True
         self.options['sfml'].shared = self.options.shared
