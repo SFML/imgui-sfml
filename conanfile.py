@@ -38,7 +38,7 @@ class ImguiSFML(ConanFile):
     url = 'https://github.com/eliasdaler/imgui-sfml'
     homepage = 'https://github.com/eliasdaler/imgui-sfml'
     author = 'Elias Daler <eliasdaler@yandex.ru>'
-    build_requires = 'sfml/2.5.1@bincrafters/stable'
+    requires = 'sfml/2.5.1@bincrafters/stable'
     license = 'MIT'
     settings = 'os', 'compiler', 'build_type', 'arch'
     options = {
