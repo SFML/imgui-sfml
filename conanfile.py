@@ -6,7 +6,7 @@ from conans import ConanFile, CMake
 from conans.tools import Git
 from conans.errors import ConanInvalidConfiguration
 
-class ImguiSFML(ConanFile):
+class ImguiSfmlConan(ConanFile):
     """ Imgui-SFML library conan file.
 
     Options:
@@ -31,7 +31,7 @@ class ImguiSFML(ConanFile):
       ImGui-SFML.
     """
 
-    name = 'ImGui-SFML'
+    name = 'imgui-sfml'
     version = '2.0.1'
     description = 'ImGui binding for use with SFML'
     topics = ('conan', 'sfml', 'gui', 'imgui')
