@@ -56,7 +56,7 @@ class ImguiSfmlConan(ConanFile):
         'imgui_revision': 'v1.70'
     }
     exports_sources = [
-        'cmake/FindImGui.cmake'
+        'cmake/FindImGui.cmake',
         'CMakeLists.txt',
         'imconfig-SFML.h',
         'imgui-SFML.cpp',
