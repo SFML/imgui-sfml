@@ -12,10 +12,10 @@ class ImguiSfmlConan(ConanFile):
     Options:
 
     * shared: True or False
-      Whether to build this library shared or static
+      Whether to build this library shared or static.
 
     * fPIC: True or False
-      Whether or not to use -fPIC option while building
+      Whether or not to use -fPIC option while building.
 
     * imconfig: None or String
       Use 'None' if you want this library to provide default
@@ -63,7 +63,7 @@ class ImguiSfmlConan(ConanFile):
         'imgui-SFML_export.h',
         'imgui-SFML.h',
     ]
-    exports = 'LICENSE.md'
+    exports = 'LICENSE'
     _imgui_dir = 'imgui'
 
     def source(self):
@@ -74,6 +74,8 @@ class ImguiSfmlConan(ConanFile):
         imconfig = self.options.imconfig
         if imconfig and not os.path.isfile(str(imconfig)):
             raise ConanInvalidConfiguration("Provided ImGui config is not a file or doesn't exist")
+        else:
+            self.exports_sources.append(str(imconfig))
         if not self.options.imgui_revision:
             raise ConanInvalidConfiguration("ImGui revision is empty. Try latest version tag or 'master'")
 
