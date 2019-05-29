@@ -77,7 +77,7 @@ Using ImGui-SFML in your code
     - Call `ImGui::EndFrame` after the last `ImGui::End` in your update function, if you update more than once before rendering. (e.g. fixed delta game loops)
     - Call `ImGui::SFML::Render(window)`
 
-- Call `ImGui::SFML::Shutdown()` at the end of your program
+- Call `ImGui::SFML::Shutdown()` after `window.close()` has been called
 
 **If you only draw ImGui widgets without any SFML stuff, then you'll have to call window.resetGLStates() before rendering anything. You only need to do it once.**
 
