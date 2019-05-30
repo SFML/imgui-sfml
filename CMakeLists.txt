@@ -26,6 +26,9 @@ set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if (IMGUI_SFML_FIND_SFML)
+        if (NOT BUILD_SHARED_LIBS)
+            set(SFML_STATIC_LIBRARIES CACHE INTERNAL ON)
+        endif()
 	find_package(SFML 2.5 COMPONENTS graphics system window)
 
 	if(NOT SFML_FOUND)
