@@ -19,7 +19,7 @@ find_path(IMGUI_INCLUDE_DIR
 )
 
 if(NOT IMGUI_INCLUDE_DIR)
-  message(FATAL_ERROR "IMGUI imgui.cpp not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
+  message(FATAL_ERROR "IMGUI imgui.cpp not found. Set IMGUI_DIR to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
 
 set(IMGUI_SOURCES
@@ -35,7 +35,7 @@ set(IMGUI_DEMO_SOURCES
 
 # Extract version from header
 file(
-	STRINGS
+  STRINGS
   ${IMGUI_INCLUDE_DIR}/imgui.h
   IMGUI_VERSION
   REGEX "#define IMGUI_VERSION "

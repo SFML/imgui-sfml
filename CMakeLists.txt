@@ -5,6 +5,12 @@ project(imgui_sfml
   VERSION 2.0
 )
 
+# In CMake 3.13+ this policy enables you to define normal variables with option names as if you defined
+# these options. Useful for add_subdirectory(ImGui-SFML)
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
+
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 
@@ -96,9 +102,15 @@ if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
   if (IMGUI_SFML_CONFIG_DIR)
     target_include_directories(ImGui-SFML
       PUBLIC
-      $<BUILD_INTERFACE:${IMGUI_SFML_CONFIG_DIR}>
-      $<INSTALL_INTERFACE:${IMGUI_SFML_INSTALL_CONFIG_DIR}>
+        $<BUILD_INTERFACE:${IMGUI_SFML_CONFIG_DIR}>
     )
+    
+    if (IMGUI_SFML_CONFIG_INSTALL_DIR)
+      target_include_directories(ImGui-SFML
+        PUBLIC
+          $<INSTALL_INTERFACE:${IMGUI_SFML_CONFIG_INSTALL_DIR}>
+      )
+    endif()
   else()
     message(FATAL_ERROR "IMGUI_SFML_CONFIG_DIR should be set if IMGUI_SFML_USE_DEFAULT_CONFIG is OFF")
   endif()
@@ -126,7 +138,7 @@ if (IMGUI_SFML_USE_DEFAULT_CONFIG OR
   list(APPEND IMGUI_SFML_PUBLIC_HEADERS
     "${IMGUI_SFML_CONFIG_DIR}/${IMGUI_SFML_CONFIG_NAME}"
   )
-# If user set IMGUI_SFML_INSTALL_CONFIG_DIR, it means that they'll install file themselves
+# If user set IMGUI_SFML_CONFIG_INSTALL_DIR, it means that they'll install file themselves
 endif()
 
 list(APPEND IMGUI_SFML_PUBLIC_HEADERS "${IMGUI_PUBLIC_HEADERS}")

@@ -305,8 +305,8 @@ void ProcessEvent(const sf::Event& event) {
                     s_touchDown[event.touch.finger] = true;
                 }
             } break;
-            case sf::Event::MouseWheelMoved:
-                io.MouseWheel += static_cast<float>(event.mouseWheel.delta);
+            case sf::Event::MouseWheelScrolled:
+                io.MouseWheel += event.mouseWheelScroll.delta;
                 break;
             case sf::Event::KeyPressed:  // fall-through
             case sf::Event::KeyReleased:
