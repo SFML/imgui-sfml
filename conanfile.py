@@ -23,8 +23,9 @@ class ImguiSfmlConan(ConanFile):
       imconfig.h file you want to include in the build.
 
     * imconfig_install_folder: None or String
-      Use 'None' if you want this build to include imconfig.h file,
-      otherwise use anything else.
+      Use 'None' if you want this build to include custom config
+      file, otherwise specify the directory where your imconfig
+      will be installed.
 
     * imgui_revision: String
       Tag or branch of ImGui repository that should be used with
@@ -72,10 +73,11 @@ class ImguiSfmlConan(ConanFile):
 
     def configure(self):
         imconfig = self.options.imconfig
-        if imconfig and not os.path.isfile(str(imconfig)):
-            raise ConanInvalidConfiguration("Provided ImGui config is not a file or doesn't exist")
-        else:
-            self.exports_sources.append(str(imconfig))
+        if imconfig:
+            if not os.path.isfile(str(imconfig)):
+                raise ConanInvalidConfiguration("Provided user config is not a file or doesn't exist")
+            else:
+                self._imconfig_path = os.path.abspath(str(self.options.imconfig))
         if not self.options.imgui_revision:
             raise ConanInvalidConfiguration("ImGui revision is empty. Try latest version tag or 'master'")
 
@@ -92,10 +94,9 @@ class ImguiSfmlConan(ConanFile):
         if self.options.imconfig_install_folder:
             cmake.definitions['IMGUI_SFML_CONFIG_INSTALL_DIR'] = self.options.imconfig_install_folder
         if self.options.imconfig:
-            imconfig = str(self.options.imconfig)
             cmake.definitions['IMGUI_SFML_USE_DEFAULT_CONFIG'] = 'OFF'
-            cmake.definitions['IMGUI_SFML_CONFIG_NAME'] = os.path.basename(imconfig)
-            cmake.definitions['IMGUI_SFML_CONFIG_DIR'] = os.path.dirname(imconfig)
+            cmake.definitions['IMGUI_SFML_CONFIG_NAME'] = os.path.basename(self._imconfig_path)
+            cmake.definitions['IMGUI_SFML_CONFIG_DIR'] = os.path.dirname(self._imconfig_path)
         else:
             cmake.definitions['IMGUI_SFML_USE_DEFAULT_CONFIG'] = 'ON'
         cmake.configure()

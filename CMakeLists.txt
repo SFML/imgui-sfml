@@ -18,8 +18,8 @@ option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
 #
 #   IMGUI_SFML_USE_DEFAULT_CONFIG = OFF
-#   IMGUI_SFML_USER_CONFIG_DIR = /path/to/dir/with/config
-#   IMGUI_SFML_USER_CONFIG_NAME = "myconfig.h"
+#   IMGUI_SFML_CONFIG_DIR = /path/to/dir/with/config
+#   IMGUI_SFML_CONFIG_NAME = "myconfig.h"
 #
 # If you set IMGUI_SFML_CONFIG_INSTALL_DIR, ImGui-SFML won't install your custom config, because
 # you might want to do it yourself
