@@ -876,11 +876,12 @@ void updateJoystickLStickState(ImGuiIO& io) {
 }
 
 void setClipboardText(void* /*userData*/, const char* text) {
-    sf::Clipboard::setString(text);
+    sf::Clipboard::setString(sf::String::fromUtf8(text, text + std::strlen(text)));
 }
 
 const char* getClipboadText(void* /*userData*/) {
-    s_clipboardText = sf::Clipboard::getString().toAnsiString();
+    std::basic_string<sf::Uint8> tmp = sf::Clipboard::getString().toUtf8();
+    s_clipboardText = std::string(tmp.begin(), tmp.end());
     return s_clipboardText.c_str();
 }
 
