@@ -320,10 +320,11 @@ void ProcessEvent(const sf::Event& event) {
                     (event.type == sf::Event::KeyPressed);
                 break;
             case sf::Event::TextEntered:
-                if (event.text.unicode > 0 && event.text.unicode < 0x10000) {
-                    io.AddInputCharacter(
-                        static_cast<ImWchar>(event.text.unicode));
+                // Don't handle the event for unprintable characters
+                if (event.text.unicode < ' ' || event.text.unicode == 127) {
+                    break;
                 }
+                io.AddInputCharacter(event.text.unicode);
                 break;
             case sf::Event::JoystickConnected:
                 if (s_joystickId == NULL_JOYSTICK_ID) {
