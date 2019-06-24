@@ -306,10 +306,13 @@ void ProcessEvent(const sf::Event& event) {
                 }
             } break;
             case sf::Event::MouseWheelScrolled:
-                if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
+                if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel ||
+                    (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel &&
+                    io.KeyShift)) {
                     io.MouseWheel += event.mouseWheelScroll.delta;
-                else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
+                } else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel) {
                     io.MouseWheelH += event.mouseWheelScroll.delta;
+                }
                 break;
             case sf::Event::KeyPressed:  // fall-through
             case sf::Event::KeyReleased:
