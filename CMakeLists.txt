@@ -44,7 +44,7 @@ endif()
 #    https://github.com/ocornut/imgui/pull/1713
 if(NOT IMGUI_DIR)
   set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
-  message(FATAL_ERROR "ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing 'imgui.h' and other files).\n")
+  message(FATAL_ERROR "ImGui directory not found. Set IMGUI_DIR to imgui's top-level path (containing 'imgui.h' and other files).\n")
 endif()
 
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
