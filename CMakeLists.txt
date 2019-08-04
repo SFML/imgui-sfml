@@ -13,7 +13,7 @@ endif()
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
-option(IMGUI_SFML_USE_STATIC_LIBS "Use static SFML librares" ON)
+option(IMGUI_SFML_USE_STATIC_LIBS "Use static SFML librares" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
