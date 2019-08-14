@@ -25,6 +25,7 @@ namespace ImGui
     {
         IMGUI_SFML_API void Init(sf::RenderWindow& window, bool loadDefaultFont = true);
         IMGUI_SFML_API void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont = true);
+        IMGUI_SFML_API void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont = true);
 
         IMGUI_SFML_API void ProcessEvent(const sf::Event& event);
 
@@ -33,6 +34,7 @@ namespace ImGui
         IMGUI_SFML_API void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt);
 
         IMGUI_SFML_API void Render(sf::RenderTarget& target);
+        IMGUI_SFML_API void Render();
 
         IMGUI_SFML_API void Shutdown();
 

@@ -193,6 +193,10 @@ void Init(sf::RenderWindow& window, bool loadDefaultFont) {
 }
 
 void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
+    Init(window, static_cast<sf::Vector2f>(target.getSize()), loadDefaultFont);
+}
+
+void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont) {
 #if __cplusplus < 201103L  // runtime assert when using earlier than C++11 as no
                            // static_assert support
     assert(
@@ -245,7 +249,7 @@ void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
     initDefaultJoystickMapping();
 
     // init rendering
-    io.DisplaySize = static_cast<sf::Vector2f>(target.getSize());
+    io.DisplaySize = displaySize;
 
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
@@ -452,6 +456,11 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
 
 void Render(sf::RenderTarget& target) {
     target.resetGLStates();
+    ImGui::Render();
+    RenderDrawLists(ImGui::GetDrawData());
+}
+
+void Render() {
     ImGui::Render();
     RenderDrawLists(ImGui::GetDrawData());
 }
