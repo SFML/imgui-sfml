@@ -18,8 +18,8 @@ option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
 #
 #   IMGUI_SFML_USE_DEFAULT_CONFIG = OFF
-#   IMGUI_SFML_USER_CONFIG_DIR = /path/to/dir/with/config
-#   IMGUI_SFML_USER_CONFIG_NAME = "myconfig.h"
+#   IMGUI_SFML_CONFIG_DIR = /path/to/dir/with/config
+#   IMGUI_SFML_CONFIG_NAME = "myconfig.h"
 #
 # If you set IMGUI_SFML_CONFIG_INSTALL_DIR, ImGui-SFML won't install your custom config, because
 # you might want to do it yourself
@@ -33,7 +33,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if (IMGUI_SFML_FIND_SFML)
 	if (NOT BUILD_SHARED_LIBS)
-		set(SFML_STATIC_LIBRARIES TRUE)
+		set(SFML_STATIC_LIBRARIES ON)
 	endif()
 	find_package(SFML 2.5 COMPONENTS graphics system window)
 
