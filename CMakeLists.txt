@@ -32,9 +32,9 @@ set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if (IMGUI_SFML_FIND_SFML)
-        if (NOT BUILD_SHARED_LIBS)
-            set(SFML_STATIC_LIBRARIES CACHE INTERNAL ON)
-        endif()
+	if (NOT BUILD_SHARED_LIBS)
+		set(SFML_STATIC_LIBRARIES ON)
+	endif()
 	find_package(SFML 2.5 COMPONENTS graphics system window)
 
 	if(NOT SFML_FOUND)
@@ -47,7 +47,7 @@ endif()
 #    https://github.com/ocornut/imgui/pull/1713
 if(NOT IMGUI_DIR)
   set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
-  message(FATAL_ERROR "ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing 'imgui.h' and other files).\n")
+  message(FATAL_ERROR "ImGui directory not found. Set IMGUI_DIR to imgui's top-level path (containing 'imgui.h' and other files).\n")
 endif()
 
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
