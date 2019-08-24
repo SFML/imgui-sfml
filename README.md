@@ -1,4 +1,4 @@
-ImGui + SFML v2.0
+ImGui + SFML v2.1
 =======
 
 Library which allows you to use [ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)

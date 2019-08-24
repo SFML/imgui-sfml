@@ -33,7 +33,7 @@ class ImguiSfmlConan(ConanFile):
     """
 
     name = 'imgui-sfml'
-    version = '2.0.2'
+    version = '2.1'
     description = 'ImGui binding for use with SFML'
     topics = ('conan', 'sfml', 'gui', 'imgui')
     url = 'https://github.com/eliasdaler/imgui-sfml'

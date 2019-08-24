@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 project(imgui_sfml
   LANGUAGES CXX
-  VERSION 2.0
+  VERSION 2.1
 )
 
 # In CMake 3.13+ this policy enables you to define normal variables with option names as if you defined
@@ -104,7 +104,7 @@ if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
       PUBLIC
         $<BUILD_INTERFACE:${IMGUI_SFML_CONFIG_DIR}>
     )
-    
+
     if (IMGUI_SFML_CONFIG_INSTALL_DIR)
       target_include_directories(ImGui-SFML
         PUBLIC
