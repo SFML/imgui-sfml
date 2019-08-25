@@ -51,7 +51,7 @@ Integrating into your project manually
 ---
 - Download [ImGui](https://github.com/ocornut/imgui)
 - Add ImGui folder to your include directories
-- Add `imgui.cpp` and `imgui_draw.cpp` to your build/project
+- Add `imgui.cpp`, `imgui_widgets.cpp` and `imgui_draw.cpp` to your build/project
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast `ImVec2` to `sf::Vector2f` and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
