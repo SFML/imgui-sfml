@@ -13,8 +13,10 @@ list(APPEND IMGUI_SEARCH_PATH
   ${IMGUI_DIR}
 )
 
+message(STATUS ${IMGUI_SEARCH_PATH})
+
 find_path(IMGUI_INCLUDE_DIR
-  NAMES imgui.h
+  NAMES imgui.cpp
   PATHS ${IMGUI_SEARCH_PATH}
 )
 

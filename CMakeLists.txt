@@ -13,6 +13,7 @@ endif()
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
+option(IMGUI_SFML_DOWNLOAD_IMGUI "If IMGUI_DIR is not set, download ImGui from git" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
@@ -27,15 +28,19 @@ option(IMGUI_SFML_USE_DEFAULT_CONFIG "Use default imconfig-SFML.h" ON)
 set(IMGUI_SFML_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE PATH "Path to a directory containing user ImGui config")
 set(IMGUI_SFML_CONFIG_NAME "imconfig-SFML.h" CACHE STRING "Name of a custom user ImGui config header")
 set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header will be installed")
+set(IMGUI_SFML_IMGUI_GIT_REPO "https://github.com/ocornut/imgui.git" CACHE STRING "Git repository of the ImGui project")
+set(IMGUI_SFML_IMGUI_GIT_TAG "v1.72b" CACHE STRING "Tag of the repo to clone")
 
 # For FindImGui.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+#message(STATUS ${CMAKE_MODULE_PATH})
 
 if (IMGUI_SFML_FIND_SFML)
 	if (NOT BUILD_SHARED_LIBS)
 		set(SFML_STATIC_LIBRARIES ON)
 	endif()
-	find_package(SFML 2.5 COMPONENTS graphics system window)
+  find_package(SFML 2.5 COMPONENTS graphics system window)
 
 	if(NOT SFML_FOUND)
     message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which ccontains SFMLConfig.cmake)")
@@ -46,8 +51,22 @@ endif()
 # users specify IMGUI_DIR. Waiting for this PR to get merged...
 #    https://github.com/ocornut/imgui/pull/1713
 if(NOT IMGUI_DIR)
-  set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
-  message(FATAL_ERROR "ImGui directory not found. Set IMGUI_DIR to imgui's top-level path (containing 'imgui.h' and other files).\n")
+  if(IMGUI_SFML_DOWNLOAD_IMGUI) 
+    include(cmake/GitUtils.cmake)
+
+    message(STATUS "Downloading ImGui from ${IMGUI_SFML_IMGUI_GIT_REPO}#${IMGUI_SFML_IMGUI_GIT_TAG}")
+    
+    git_clone(
+        PROJECT_NAME "imgui"
+        GIT_URL ${IMGUI_SFML_IMGUI_GIT_REPO}
+        GIT_TAG ${IMGUI_SFML_IMGUI_GIT_TAG}
+    )
+    message(STATUS "ImGui repository cloned in ${imgui_SOURCE_DIR}")
+    set(IMGUI_DIR ${imgui_SOURCE_DIR})
+  else()
+    set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
+    message(FATAL_ERROR "ImGui directory not found. Set IMGUI_DIR to imgui's top-level path (containing 'imgui.h' and other files).\n")
+  endif()
 endif()
 
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
