@@ -19,8 +19,8 @@
 
 #define IM_VEC4_CLASS_EXTRA                                             \
     ImVec4(const sf::Color & c)                                         \
-        : ImVec4(c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f) {  \
-    }                                                                   \
+        : x(c.r / 255.f), y(c.g / 255.f), z(c.b / 255.f), w(c.a / 255.f)\
+    {}                                                                  \
     operator sf::Color() const {                                        \
         return sf::Color(                                               \
             static_cast<sf::Uint8>(x * 255.f),                          \
