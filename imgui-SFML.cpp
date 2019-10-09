@@ -914,16 +914,26 @@ void loadMouseCursor(ImGuiMouseCursor imguiCursorType,
 void updateMouseCursor(sf::Window& window) {
     ImGuiIO& io = ImGui::GetIO();
     if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0) {
-        ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
-        if (io.MouseDrawCursor || cursor == ImGuiMouseCursor_None) {
-            window.setMouseCursorVisible(false);
+
+        sf::IntRect windowRect(sf::Vector2i(0, 0),
+                               static_cast<sf::Vector2i>(window.getSize()));
+        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+        bool changeCursor = windowRect.contains(mousePosition);
+
+        if (changeCursor) {
+            ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+            if (io.MouseDrawCursor || cursor == ImGuiMouseCursor_None) {
+                window.setMouseCursorVisible(false);
+            } else {
+                window.setMouseCursorVisible(true);
+
+                sf::Cursor& c = s_mouseCursorLoaded[cursor]
+                                    ? *s_mouseCursors[cursor]
+                                    : *s_mouseCursors[ImGuiMouseCursor_Arrow];
+                window.setMouseCursor(c);
+            }
         } else {
             window.setMouseCursorVisible(true);
-
-            sf::Cursor& c = s_mouseCursorLoaded[cursor]
-                                ? *s_mouseCursors[cursor]
-                                : *s_mouseCursors[ImGuiMouseCursor_Arrow];
-            window.setMouseCursor(c);
         }
     }
 }
