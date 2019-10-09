@@ -269,6 +269,7 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
                     sf::Cursor::SizeBottomLeftTopRight);
     loadMouseCursor(ImGuiMouseCursor_ResizeNWSE,
                     sf::Cursor::SizeTopLeftBottomRight);
+    loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Hand);
 
     if (s_fontTexture) {  // delete previously created texture
         delete s_fontTexture;
