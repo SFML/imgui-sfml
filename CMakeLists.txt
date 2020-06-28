@@ -13,6 +13,7 @@ endif()
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
+option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
@@ -63,6 +64,10 @@ set(IMGUI_PUBLIC_HEADERS
   ${IMGUI_INCLUDE_DIR}/imstb_truetype.h
   ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
 )
+
+if (IMGUI_SFML_IMGUI_DEMO)
+    list(APPEND IMGUI_SOURCES ${IMGUI_DEMO_SOURCES})
+endif()
 
 # CMake 3.11 and later prefer to choose GLVND, but we choose legacy OpenGL just because it's safer
 # (unless the OpenGL_GL_PREFERENCE was explicitly set)
