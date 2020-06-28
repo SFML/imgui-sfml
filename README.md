@@ -30,7 +30,7 @@ cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path 
 If you have SFML installed on your system, you don't need to set SFML_DIR during
 configuration.
 
-You can also specify `BUILD_SHARED_LIBS=ON` to build ImGui-SFML as a shared library. To build ImGui-SFML examples, set `IMGUI_SFML_BUILD_EXAMPLES=ON`. To build imgui-demo.cpp, set `IMGUI_SFML_IMGUI_DEMO=ON`.
+You can also specify `BUILD_SHARED_LIBS=ON` to build ImGui-SFML as a shared library. To build ImGui-SFML examples, set `IMGUI_SFML_BUILD_EXAMPLES=ON`. To build imgui-demo.cpp (to be able to use `ImGui::ShowDemoWindow`), set `IMGUI_SFML_IMGUI_DEMO=ON`.
 
 After the building, you can install the library on your system by running:
 ```sh
