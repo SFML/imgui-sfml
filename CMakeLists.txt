@@ -5,6 +5,11 @@ project(imgui_sfml
   VERSION 2.1
 )
 
+# In CMake 3.12+ this policy will automatically take the ImGui_ROOT and SFML_ROOT environment variables
+# into account as hints for the find_package calls.
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
 # In CMake 3.13+ this policy enables you to define normal variables with option names as if you defined
 # these options. Useful for add_subdirectory(ImGui-SFML)
 if(POLICY CMP0077)
@@ -130,6 +135,9 @@ if(BUILD_SHARED_LIBS)
   target_compile_definitions(ImGui-SFML PRIVATE IMGUI_SFML_SHARED_LIB)
   set_target_properties(ImGui-SFML PROPERTIES
     DEFINE_SYMBOL "IMGUI_SFML_EXPORTS"
+  )
+  set_target_properties(ImGui-SFML PROPERTIES
+    DEBUG_POSTFIX "_d"
   )
 endif()
 
