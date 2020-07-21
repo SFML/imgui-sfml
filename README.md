@@ -1,7 +1,7 @@
-ImGui + SFML v2.1
+ImGui-SFML v2.1
 =======
 
-Library which allows you to use [ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
+Library which allows you to use [Dear ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
 
 ![screenshot](https://i2.wp.com/i.imgur.com/iQibpSk.gif)
 
@@ -11,7 +11,7 @@ Dependencies
 -----
 
 * [SFML](https://github.com/SFML/SFML) >= 2.5.0
-* [ImGui](https://github.com/ocornut/imgui) >= 1.68
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.68
 
 How-to
 ----
