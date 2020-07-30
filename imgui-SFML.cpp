@@ -249,7 +249,7 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     initDefaultJoystickMapping();
 
     // init rendering
-    io.DisplaySize = displaySize;
+    io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
 
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
@@ -387,7 +387,8 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
 void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
             sf::Time dt) {
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = displaySize;
+    io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
+    
     io.DeltaTime = dt.asSeconds();
 
     if (s_windowHasFocus) {
@@ -396,7 +397,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
                                   static_cast<int>(io.MousePos.y));
             sf::Mouse::setPosition(mousePos);
         } else {
-            io.MousePos = mousePos;
+            io.MousePos = ImVec2(mousePos.x, mousePos.y);
         }
         for (unsigned int i = 0; i < 3; i++) {
             io.MouseDown[i] = s_touchDown[i] || sf::Touch::isDown(i) ||
@@ -558,8 +559,9 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
            const sf::Color& tintColor, const sf::Color& borderColor) {
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    ImGui::Image(textureID, size, ImVec2(0, 0), ImVec2(1, 1), tintColor,
-                 borderColor);
+    
+    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1), ImColor( tintColor.toInteger()),
+        ImColor(borderColor.toInteger()));
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -581,7 +583,8 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
 
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    ImGui::Image(textureID, size, uv0, uv1, tintColor, borderColor);
+    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, ImColor(tintColor.toInteger()),
+        ImColor(borderColor.toInteger()));
 }
 
 void Image(const sf::Sprite& sprite, const sf::Color& tintColor,
@@ -646,8 +649,9 @@ bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
 void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b,
               const sf::Color& color, float thickness) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    sf::Vector2f pos = ImGui::GetCursorScreenPos();
-    draw_list->AddLine(a + pos, b + pos, ColorConvertFloat4ToU32(color),
+    auto ipos=ImGui::GetCursorScreenPos();
+    sf::Vector2f pos(ipos.x,ipos.y);
+    draw_list->AddLine(ImVec2(a.x+pos.x,a.y + pos.y) , ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(ImColor(color.toInteger())),
                        thickness);
 }
 
@@ -655,7 +659,7 @@ void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding,
               int rounding_corners, float thickness) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddRect(getTopLeftAbsolute(rect), getDownRightAbsolute(rect),
-                       ColorConvertFloat4ToU32(color), rounding,
+                       ColorConvertFloat4ToU32(ImColor(color.toInteger())), rounding,
                        rounding_corners, thickness);
 }
 
@@ -664,7 +668,7 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddRectFilled(
         getTopLeftAbsolute(rect), getDownRightAbsolute(rect),
-        ColorConvertFloat4ToU32(color), rounding, rounding_corners);
+        ColorConvertFloat4ToU32(ImColor(color.toInteger())), rounding, rounding_corners);
 }
 
 }  // end of namespace ImGui
@@ -805,8 +809,8 @@ bool imageButtonImpl(const sf::Texture& texture,
 
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    return ImGui::ImageButton(textureID, size, uv0, uv1, framePadding, bgColor,
-                              tintColor);
+    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), uv0, uv1, framePadding, ImColor(bgColor.toInteger()),
+                              ImColor(tintColor.toInteger()));
 }
 
 unsigned int getConnectedJoystickId() {
