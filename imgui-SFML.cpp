@@ -147,7 +147,7 @@ StickInfo s_lStickInfo;
 // various helper functions
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
-
+ImColor toImColor(sf::Color c);
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
 
@@ -560,8 +560,8 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
     
-    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1), ImColor( tintColor.toInteger()),
-        ImColor(borderColor.toInteger()));
+    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1),toImColor(tintColor),
+        toImColor(borderColor));
 }
 
 void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
@@ -674,7 +674,9 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
 }  // end of namespace ImGui
 
 namespace {
-
+ImColor toImColor(sf::Color c ) {
+    return ImColor(static_cast<int>(c.r), static_cast<int>(c.g), static_cast<int>(c.b), static_cast<int>(c.a));
+}
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect) {
     ImVec2 pos = ImGui::GetCursorScreenPos();
     return ImVec2(rect.left + pos.x, rect.top + pos.y);
@@ -809,8 +811,8 @@ bool imageButtonImpl(const sf::Texture& texture,
 
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), uv0, uv1, framePadding, ImColor(bgColor.toInteger()),
-                              ImColor(tintColor.toInteger()));
+    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), uv0, uv1, framePadding, toImColor(bgColor),
+        toImColor(tintColor));
 }
 
 unsigned int getConnectedJoystickId() {
