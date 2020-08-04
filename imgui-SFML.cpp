@@ -145,9 +145,10 @@ StickInfo s_dPadInfo;
 StickInfo s_lStickInfo;
 
 // various helper functions
+ImColor toImColor(sf::Color c);
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
-ImColor toImColor(sf::Color c);
+
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
 
