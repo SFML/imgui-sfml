@@ -561,7 +561,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
     
-    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1),toImColor(tintColor),
+    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1), toImColor(tintColor),
         toImColor(borderColor));
 }
 
@@ -652,7 +652,7 @@ void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b,
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     auto ipos=ImGui::GetCursorScreenPos();
     sf::Vector2f pos(ipos.x,ipos.y);
-    draw_list->AddLine(ImVec2(a.x+pos.x,a.y + pos.y) , ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(ImColor(color.toInteger())),
+    draw_list->AddLine(ImVec2(a.x+pos.x,a.y + pos.y), ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(ImColor(color.toInteger())),
                        thickness);
 }
 
