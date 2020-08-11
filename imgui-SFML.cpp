@@ -584,8 +584,8 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
 
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, ImColor(tintColor.toInteger()),
-        ImColor(borderColor.toInteger()));
+    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(tintColor),
+        toImColor(borderColor));
 }
 
 void Image(const sf::Sprite& sprite, const sf::Color& tintColor,
@@ -652,7 +652,7 @@ void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b,
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     auto ipos=ImGui::GetCursorScreenPos();
     sf::Vector2f pos(ipos.x,ipos.y);
-    draw_list->AddLine(ImVec2(a.x+pos.x,a.y + pos.y), ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(ImColor(color.toInteger())),
+    draw_list->AddLine(ImVec2(a.x+pos.x,a.y + pos.y), ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(toImColor(color)),
                        thickness);
 }
 
@@ -660,7 +660,7 @@ void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding,
               int rounding_corners, float thickness) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddRect(getTopLeftAbsolute(rect), getDownRightAbsolute(rect),
-                       ColorConvertFloat4ToU32(ImColor(color.toInteger())), rounding,
+                       ColorConvertFloat4ToU32(toImColor(color)), rounding,
                        rounding_corners, thickness);
 }
 
@@ -669,7 +669,7 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     draw_list->AddRectFilled(
         getTopLeftAbsolute(rect), getDownRightAbsolute(rect),
-        ColorConvertFloat4ToU32(ImColor(color.toInteger())), rounding, rounding_corners);
+        ColorConvertFloat4ToU32(toImColor(color)), rounding, rounding_corners);
 }
 
 }  // end of namespace ImGui
