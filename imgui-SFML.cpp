@@ -650,8 +650,7 @@ bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
 void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b,
               const sf::Color& color, float thickness) {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    auto ipos=ImGui::GetCursorScreenPos();
-    sf::Vector2f pos(ipos.x,ipos.y);
+    ImVec2 pos = ImGui::GetCursorScreenPos();
     draw_list->AddLine(ImVec2(a.x+pos.x,a.y + pos.y), ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(toImColor(color)),
                        thickness);
 }
