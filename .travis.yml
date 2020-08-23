@@ -214,6 +214,72 @@ matrix:
         - BUILD_TYPE=Release
 
 ## Clang
+### Clang 3.9
+    - name: Linux - Clang 3.9 - Debug
+      arch: amd64
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-3.9
+          packages:
+            - clang-3.9
+            - g++-6
+      env:
+        - COMPILER=clang++-3.9
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 3.9 - Release
+      arch: amd64
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-3.9
+          packages:
+            - clang-3.9
+            - g++-6
+      env:
+        - COMPILER=clang++-3.9
+        - BUILD_TYPE=Release
+
+### Clang 4
+    - name: Linux - Clang 4 - Debug
+      arch: amd64
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-4.0
+          packages:
+            - clang-4.0
+            - g++-6
+      env:
+        - COMPILER=clang++-4.0
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 4 - Release
+      arch: amd64
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-4.0
+          packages:
+            - clang-4.0
+            - g++-6
+      env:
+        - COMPILER=clang++-4.0
+        - BUILD_TYPE=Release
+
 ### Clang 5
     - name: Linux - Clang 5 - Debug
       arch: amd64
