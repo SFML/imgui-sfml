@@ -10,6 +10,93 @@ matrix:
   include:
 # Linux
 ## GCC
+### GCC 4.8
+    - name: Linux - GCC 4.8 - Debug
+      arch: amd64
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.8
+      env:
+        - COMPILER=g++-4.8
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 4.8 - Release
+      arch: amd64
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.8
+      env:
+        - COMPILER=g++-4.8
+        - BUILD_TYPE=Release
+
+### GCC 5
+    - name: Linux - GCC 5 - Debug
+      arch: amd64
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+        - COMPILER=g++-5
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 5 - Release
+      arch: amd64
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+        - COMPILER=g++-5
+        - BUILD_TYPE=Release
+
+### GCC 6
+    - name: Linux - GCC 6 - Debug
+      arch: amd64
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - COMPILER=g++-6
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 6 - Release
+      arch: amd64
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - COMPILER=g++-6
+        - BUILD_TYPE=Release
+
 ### GCC 7
     - name: Linux - GCC 7 - Debug
       arch: amd64
