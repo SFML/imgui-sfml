@@ -12,7 +12,6 @@ matrix:
 ## GCC
 ### GCC 4.8
     - name: Linux - GCC 4.8 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -26,7 +25,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 4.8 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -41,7 +39,6 @@ matrix:
 
 ### GCC 5
     - name: Linux - GCC 5 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -55,7 +52,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 5 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -70,7 +66,6 @@ matrix:
 
 ### GCC 6
     - name: Linux - GCC 6 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -84,7 +79,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 6 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -99,7 +93,6 @@ matrix:
 
 ### GCC 7
     - name: Linux - GCC 7 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -113,7 +106,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 7 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -128,7 +120,6 @@ matrix:
 
 ### GCC 8
     - name: Linux - GCC 8 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -142,7 +133,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 8 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -157,7 +147,6 @@ matrix:
 
 ### GCC 9
     - name: Linux - GCC 9 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -171,7 +160,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 9 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -186,7 +174,6 @@ matrix:
 
 ### GCC 10
     - name: Linux - GCC 10 - Debug
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -200,7 +187,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - GCC 10 - Release
-      arch: amd64
       os: linux
       compiler: gcc
       addons:
@@ -216,7 +202,6 @@ matrix:
 ## Clang
 ### Clang 3.9
     - name: Linux - Clang 3.9 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -232,7 +217,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 3.9 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -249,7 +233,6 @@ matrix:
 
 ### Clang 4
     - name: Linux - Clang 4 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -265,7 +248,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 4 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -282,7 +264,6 @@ matrix:
 
 ### Clang 5
     - name: Linux - Clang 5 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -298,7 +279,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 5 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -315,7 +295,6 @@ matrix:
 
 ### Clang 6
     - name: Linux - Clang 6 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -331,7 +310,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 6 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -348,7 +326,6 @@ matrix:
 
 ### Clang 7
     - name: Linux - Clang 7 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -364,7 +341,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 7 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -381,7 +357,6 @@ matrix:
 
 ### Clang 8
     - name: Linux - Clang 8 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -397,7 +372,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 8 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -414,7 +388,6 @@ matrix:
 
 ### Clang 9
     - name: Linux - Clang 9 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -430,7 +403,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 9 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -447,7 +419,6 @@ matrix:
 
 ### Clang 10
     - name: Linux - Clang 10 - Debug
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -463,7 +434,6 @@ matrix:
         - BUILD_TYPE=Debug
 
     - name: Linux - Clang 10 - Release
-      arch: amd64
       os: linux
       compiler: clang
       addons:
@@ -480,16 +450,92 @@ matrix:
 
 # OSX
 ## Xcode
+### Xcode 8.3
+    - name: OSX - Xcode 8.3 - Debug
+      os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 8.3 - Release
+      os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9
+    - name: OSX - Xcode 9 - Debug
+      os: osx
+      osx_image: xcode9
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9 - Release
+      os: osx
+      osx_image: xcode9
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.1
+    - name: OSX - Xcode 9.1 - Debug
+      os: osx
+      osx_image: xcode9.1
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.1 - Release
+      os: osx
+      osx_image: xcode9.1
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.2
+    - name: OSX - Xcode 9.2 - Debug
+      os: osx
+      osx_image: xcode9.2
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.2 - Release
+      os: osx
+      osx_image: xcode9.2
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.3
+    - name: OSX - Xcode 9.3 - Debug
+      os: osx
+      osx_image: xcode9.3
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.3 - Release
+      os: osx
+      osx_image: xcode9.3
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.4
+    - name: OSX - Xcode 9.4 - Debug
+      os: osx
+      osx_image: xcode9.4
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.4 - Release
+      os: osx
+      osx_image: xcode9.4
+      env:
+        - BUILD_TYPE=Release
+
 ### Xcode 10
     - name: OSX - Xcode 10 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode10
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 10 - Release
-      arch: amd64
       os: osx
       osx_image: xcode10
       env:
@@ -497,14 +543,12 @@ matrix:
 
 ### Xcode 10.1
     - name: OSX - Xcode 10.1 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode10.1
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 10.1 - Release
-      arch: amd64
       os: osx
       osx_image: xcode10.1
       env:
@@ -512,14 +556,12 @@ matrix:
 
 ### Xcode 10.2
     - name: OSX - Xcode 10.2 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode10.2
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 10.2 - Release
-      arch: amd64
       os: osx
       osx_image: xcode10.2
       env:
@@ -527,14 +569,12 @@ matrix:
 
 ### Xcode 10.3
     - name: OSX - Xcode 10.3 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode10.3
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 10.3 - Release
-      arch: amd64
       os: osx
       osx_image: xcode10.3
       env:
@@ -542,14 +582,12 @@ matrix:
 
 ### Xcode 11
     - name: OSX - Xcode 11 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11
       env:
@@ -557,14 +595,12 @@ matrix:
 
 ### Xcode 11.1
     - name: OSX - Xcode 11.1 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11.1
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11.1 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11.1
       env:
@@ -572,14 +608,12 @@ matrix:
 
 ### Xcode 11.2
     - name: OSX - Xcode 11.2 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11.2
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11.2 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11.2
       env:
@@ -587,14 +621,12 @@ matrix:
 
 ### Xcode 11.3
     - name: OSX - Xcode 11.3 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11.3
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11.3 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11.3
       env:
@@ -602,14 +634,12 @@ matrix:
 
 ### Xcode 11.4
     - name: OSX - Xcode 11.4 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11.4
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11.4 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11.4
       env:
@@ -617,14 +647,12 @@ matrix:
 
 ### Xcode 11.5
     - name: OSX - Xcode 11.5 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11.5
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11.5 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11.5
       env:
@@ -632,14 +660,12 @@ matrix:
 
 ### Xcode 11.6
     - name: OSX - Xcode 11.6 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode11.6
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 11.6 - Release
-      arch: amd64
       os: osx
       osx_image: xcode11.6
       env:
@@ -647,14 +673,12 @@ matrix:
 
 ### Xcode 12
     - name: OSX - Xcode 12 - Debug
-      arch: amd64
       os: osx
       osx_image: xcode12
       env:
         - BUILD_TYPE=Debug
 
     - name: OSX - Xcode 12 - Release
-      arch: amd64
       os: osx
       osx_image: xcode12
       env:
@@ -669,6 +693,7 @@ install:
   # Build and SFML dependencies
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update-reset
       brew list git &>/dev/null || brew install git
       brew list cmake &>/dev/null || brew install cmake
       brew list ninja &>/dev/null || brew install ninja
@@ -690,7 +715,7 @@ install:
   - cd cmake-build
   - mkdir $HOME/sfml_install
   - cmake -GNinja -DCMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=$HOME/sfml_install ..
-  - cmake --build . --target install
+  - cmake --build . --config ${BUILD_TYPE} --target install
 
   # Dear ImGui
   - git clone --recurse --depth 1 https://github.com/ocornut/imgui $HOME/imgui_local
