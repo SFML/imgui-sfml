@@ -6,6 +6,8 @@ git:
   depth: 1
   submodules: true
 
+cache: ccache
+
 matrix:
   include:
 # Linux
@@ -697,8 +699,9 @@ install:
       brew list git &>/dev/null || brew install git
       brew list cmake &>/dev/null || brew install cmake
       brew list ninja &>/dev/null || brew install ninja
+      brew list ccache &>/dev/null || brew install ccache
     else
-      sudo apt-get -y install git cmake ninja-build
+      sudo apt-get -y install git cmake ninja-build ccache
       sudo apt-get -y install libsfml-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxrandr-dev freeglut3-dev libjpeg-dev libfreetype6-dev libxrandr-dev libglew-dev libsndfile1-dev libopenal-dev libfreetype6-dev
     fi
 
@@ -707,6 +710,8 @@ install:
   - cmake --version
   - ninja --version
   - ${CXX} --version
+  - ccache -p
+  - ccache -z
 
   # SFML
   - git clone --recurse --depth 1 https://github.com/SFML/SFML $HOME/sfml_local
@@ -714,7 +719,7 @@ install:
   - mkdir cmake-build
   - cd cmake-build
   - mkdir $HOME/sfml_install
-  - cmake -GNinja -DCMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=$HOME/sfml_install ..
+  - cmake -G Ninja -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D CMAKE_INSTALL_PREFIX=$HOME/sfml_install ..
   - cmake --build . --config ${BUILD_TYPE} --target install
 
   # Dear ImGui
@@ -724,5 +729,6 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - mkdir cmake-build
   - cd cmake-build
-  - cmake -GNinja -DCMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_PREFIX_PATH=$HOME/sfml_install -DSFML_DIR=$HOME/sfml_install -DIMGUI_DIR=$HOME/imgui_local -DBUILD_SHARED_LIBS=ON ..
+  - cmake -G Ninja -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D CMAKE_PREFIX_PATH=$HOME/sfml_install -D SFML_DIR=$HOME/sfml_install -D IMGUI_DIR=$HOME/imgui_local -D BUILD_SHARED_LIBS=ON ..
   - cmake --build . --config ${BUILD_TYPE}
+  - ccache -s
