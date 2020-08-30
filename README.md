@@ -65,6 +65,9 @@ Using ImGui-SFML in your code
     - Poll and process events:
 
         ```cpp
+        // be sure to call this if you want to support multiple windows
+        // ImGui::SFML::SetCurrentWindow(window);
+      
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
