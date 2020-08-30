@@ -488,6 +488,11 @@ void Render() {
     RenderDrawLists(ImGui::GetDrawData());
 }
 
+void Shutdown(const sf::Window& window) {
+    SetCurrentWindow(window);
+    Shutdown();
+}
+
 void Shutdown() {
     ImGui::GetIO().Fonts->TexID = (ImTextureID)NULL;
 
