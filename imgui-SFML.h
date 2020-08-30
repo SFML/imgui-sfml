@@ -37,7 +37,7 @@ namespace ImGui
         IMGUI_SFML_API void Render(sf::RenderTarget& target);
         IMGUI_SFML_API void Render();
 
-        IMGUI_SFML_API void Shutdown(sf::Window& window);
+        IMGUI_SFML_API void Shutdown(const sf::Window& window);
         IMGUI_SFML_API void Shutdown();
 
         IMGUI_SFML_API void UpdateFontTexture();
