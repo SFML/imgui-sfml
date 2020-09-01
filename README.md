@@ -62,7 +62,7 @@ Using ImGui-SFML in your code
 
 - Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there. You can create your font atlas and pass the pointer in Init too, otherwise the default internal font atlas will be created for you. Do this for each window you want to draw ImGui on.
 - For each iteration of a game loop:
-    - Call `ImGui::SFML::SetCurrentWindow(window)` to make sure you tell ImGui-SFML the window you want to draw on next. This needs to be called before polling events. You don't need to do this if you don't want to support multiple windows.
+    - Call `ImGui::SFML::SetCurrentWindow(window)` to make sure you tell ImGui-SFML the window you want to draw on next. This needs to be called before polling events. You don't need to do this if you don't need to support multiple windows.
     - Poll and process events:
 
         ```cpp
