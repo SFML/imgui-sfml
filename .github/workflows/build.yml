@@ -1,0 +1,323 @@
+name: build
+
+on:
+  - push
+  - pull_request
+
+env:
+  CMAKE_VERSION: 3.17.0
+  NINJA_VERSION: 1.10.0
+  CCACHE_VERSION: 3.7.7
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows Latest - MSVC - Debug",
+            os: windows-latest,
+            cc: "cl",
+            cxx: "cl",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            build_type: Debug
+          }
+        - {
+            name: "Windows Latest - MSVC - Release",
+            os: windows-latest,
+            cc: "cl",
+            cxx: "cl",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            build_type: Release
+          }
+        - {
+            name: "Windows Latest - MinGW - Debug",
+            os: windows-latest,
+            cc: "gcc",
+            cxx: "g++",
+            build_type: Debug
+          }
+        - {
+            name: "Windows Latest - MinGW - Release",
+            os: windows-latest,
+            cc: "gcc",
+            cxx: "g++",
+            build_type: Release
+          }
+        - {
+            name: "Ubuntu Latest - GCC - Debug",
+            os: ubuntu-latest,
+            cc: "gcc",
+            cxx: "g++",
+            build_type: Debug
+          }
+        - {
+            name: "Ubuntu Latest - GCC - Release",
+            os: ubuntu-latest,
+            cc: "gcc",
+            cxx: "g++",
+            build_type: Release
+          }
+        - {
+            name: "Ubuntu Latest - Clang - Debug",
+            os: ubuntu-latest,
+            cc: "clang",
+            cxx: "clang++",
+            build_type: Debug
+          }
+        - {
+            name: "Ubuntu Latest - Clang - Release",
+            os: ubuntu-latest,
+            cc: "clang",
+            cxx: "clang++",
+            build_type: Release
+          }
+        - {
+            name: "macOS Latest - GCC - Debug",
+            os: macos-latest,
+            cc: "gcc",
+            cxx: "g++",
+            build_type: Debug
+          }
+        - {
+            name: "macOS Latest - GCC - Release",
+            os: macos-latest,
+            cc: "gcc",
+            cxx: "g++",
+            build_type: Release
+          }
+        - {
+            name: "macOS Latest - Clang - Debug",
+            os: macos-latest,
+            cc: "clang",
+            cxx: "clang++",
+            build_type: Debug
+          }
+        - {
+            name: "macOS Latest - Clang - Release",
+            os: macos-latest,
+            cc: "clang",
+            cxx: "clang++",
+            build_type: Release
+          }
+
+    steps:
+    - name: Checkout ImGui-SFML
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        path: imgui-sfml
+
+    - name: Checkout SFML
+      uses: actions/checkout@v2
+      with:
+        repository: SFML/SFML
+        submodules: recursive
+        path: SFML
+
+    - name: Checkout Dear ImGui
+      uses: actions/checkout@v2
+      with:
+        repository: ocornut/imgui
+        submodules: recursive
+        path: imgui
+
+    - name: Download CMake
+      id: cmake
+      shell: cmake -P {0}
+      run: |
+        set(cmake_version $ENV{CMAKE_VERSION})
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(cmake_suffix "win64-x64.zip")
+          set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
+        elseif ("${{ runner.os }}" STREQUAL "Linux")
+          set(cmake_suffix "Linux-x86_64.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
+        elseif ("${{ runner.os }}" STREQUAL "macOS")
+          set(cmake_suffix "Darwin-x86_64.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
+        endif()
+        set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
+        file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}/cmake" cmake_binary)
+        if (NOT "${{ runner.os }}" STREQUAL "Windows")
+          execute_process(COMMAND chmod +x ${cmake_binary})
+        endif()
+        message("::set-output name=cmake_binary::${cmake_binary}")
+
+    - name: Download Ninja
+      id: ninja
+      shell: cmake -P {0}
+      run: |
+        set(ninja_version $ENV{NINJA_VERSION})
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(ninja_suffix "win.zip")
+        elseif ("${{ runner.os }}" STREQUAL "Linux")
+          set(ninja_suffix "linux.zip")
+        elseif ("${{ runner.os }}" STREQUAL "macOS")
+          set(ninja_suffix "mac.zip")
+        endif()
+        set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
+        file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_binary)
+        if (NOT "${{ runner.os }}" STREQUAL "Windows")
+          execute_process(COMMAND chmod +x ${ninja_binary})
+        endif()
+        message("::set-output name=ninja_binary::${ninja_binary}")
+
+    - name: Download ccache
+      id: ccache
+      shell: cmake -P {0}
+      run: |
+        set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
+        file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ccache" ccache_binary)
+        if (NOT "${{ runner.os }}" STREQUAL "Windows")
+          execute_process(COMMAND chmod +x ${ccache_binary})
+        endif()
+        message("::set-output name=ccache_binary::${ccache_binary}")
+
+    - name: Configure ccache
+      id: configure_ccache
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+        message("::set-env name=CCACHE_BASEDIR::${ccache_basedir}")
+        message("::set-env name=CCACHE_DIR::${ccache_basedir}/.ccache")
+        message("::set-env name=CCACHE_COMPRESS::true")
+        message("::set-env name=CCACHE_COMPRESSLEVEL::6")
+        message("::set-env name=CCACHE_MAXSIZE::400M")
+        execute_process(COMMAND ${{ steps.ccache.outputs.ccache_binary }} -p)
+        execute_process(COMMAND ${{ steps.ccache.outputs.ccache_binary }} -z)
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("::set-output name=timestamp::${current_date}")
+
+    - name: Cache ccache files
+      uses: actions/cache@v2
+      with:
+        path: .ccache
+        key: ${{ matrix.config.name }}-ccache-${{ steps.configure_ccache.outputs.timestamp }}
+        restore-keys: |
+          ${{ matrix.config.name }}-ccache-
+
+    - name: Prepare build environment
+      shell: cmake -P {0}
+      run: |
+        message("::set-env name=CC::${{ matrix.config.cc }}")
+        message("::set-env name=CXX::${{ matrix.config.cxx }}")
+        if ("${{ runner.os }}" STREQUAL "Linux")
+          execute_process(
+            COMMAND sudo apt-get -y install libsfml-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxrandr-dev freeglut3-dev libjpeg-dev libfreetype6-dev libxrandr-dev libglew-dev libsndfile1-dev libopenal-dev libfreetype6-dev
+          )
+        endif()
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+          execute_process(
+            COMMAND "${{ matrix.config.environment_script }}" && set
+            OUTPUT_FILE environment_script_output.txt
+          )
+        endif()
+        message("::add-path::\"$ENV{GITHUB_WORKSPACE}\"")
+
+    - name: Install SFML
+      id: install_sfml
+      shell: cmake -P {0}
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+          file(STRINGS environment_script_output.txt output_lines)
+          foreach(line IN LISTS output_lines)
+            if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
+              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
+            endif()
+          endforeach()
+        endif()
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/sfml_install" sfml_install_dir)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${sfml_install_dir})
+        execute_process(
+          COMMAND ${{ steps.cmake.outputs.cmake_binary }}
+            -S $ENV{GITHUB_WORKSPACE}/SFML
+            -B $ENV{GITHUB_WORKSPACE}/SFML/build
+            -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build_type }}
+            -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
+            -G Ninja
+            -D CMAKE_MAKE_PROGRAM=${{ steps.ninja.outputs.ninja_binary }}
+            -D CMAKE_C_COMPILER_LAUNCHER=${{ steps.ccache.outputs.ccache_binary }}
+            -D CMAKE_CXX_COMPILER_LAUNCHER=${{ steps.ccache.outputs.ccache_binary }}
+            -D CMAKE_INSTALL_PREFIX=${sfml_install_dir}
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "SFML configure: Bad exit status")
+        endif()
+        execute_process(
+          COMMAND ${{ steps.cmake.outputs.cmake_binary }}
+            --build $ENV{GITHUB_WORKSPACE}/SFML/build
+            --config ${BUILD_TYPE}
+            --target install
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "SFML build: Bad exit status")
+        endif()
+        execute_process(COMMAND ${{ steps.ccache.outputs.ccache_binary }} -s)
+        message("::set-output name=sfml_install_dir::${sfml_install_dir}")
+
+    - name: Configure
+      shell: cmake -P {0}
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+          file(STRINGS environment_script_output.txt output_lines)
+          foreach(line IN LISTS output_lines)
+            if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
+              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
+            endif()
+          endforeach()
+        endif()
+        execute_process(
+          COMMAND ${{ steps.cmake.outputs.cmake_binary }}
+            -S $ENV{GITHUB_WORKSPACE}/imgui-sfml
+            -B $ENV{GITHUB_WORKSPACE}/imgui-sfml/build
+            -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build_type }}
+            -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
+            -G Ninja
+            -D CMAKE_MAKE_PROGRAM=${{ steps.ninja.outputs.ninja_binary }}
+            -D CMAKE_C_COMPILER_LAUNCHER=${{ steps.ccache.outputs.ccache_binary }}
+            -D CMAKE_CXX_COMPILER_LAUNCHER=${{ steps.ccache.outputs.ccache_binary }}
+            -D CMAKE_PREFIX_PATH=${{ steps.install_sfml.outputs.sfml_install_dir }}
+            -D SFML_DIR=${{ steps.install_sfml.outputs.sfml_install_dir }}
+            -D IMGUI_DIR=$ENV{GITHUB_WORKSPACE}/imgui
+            -D BUILD_SHARED_LIBS=ON
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()
+
+    - name: Build
+      shell: cmake -P {0}
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
+          file(STRINGS environment_script_output.txt output_lines)
+          foreach(line IN LISTS output_lines)
+            if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
+              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
+            endif()
+          endforeach()
+        endif()
+        execute_process(
+          COMMAND ${{ steps.cmake.outputs.cmake_binary }}
+            --build $ENV{GITHUB_WORKSPACE}/imgui-sfml/build
+            --config ${BUILD_TYPE}
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Build: Bad exit status")
+        endif()
+        execute_process(COMMAND ${{ steps.ccache.outputs.ccache_binary }} -s)
