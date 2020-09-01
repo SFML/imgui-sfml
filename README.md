@@ -80,6 +80,7 @@ Using ImGui-SFML in your code
 
 - Call `ImGui::SFML::Shutdown()` after `window.close()` has been called
     - Use `ImGui::SFML::Shutdown(window)` overload if you want to shutdown a different window than the window previously set with `ImGui::SFML::SetCurrentWindow(window)`. This works for current window as well.
+    - Calling either shutdown function will result in changing the current window to last registered valid window (with `ImGui::SFML::Init`). If no windows are available, current window is set to `NULL`.
 
 **If you only draw ImGui widgets without any SFML stuff, then you'll have to call window.resetGLStates() before rendering anything. You only need to do it once.**
 
