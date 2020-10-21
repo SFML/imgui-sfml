@@ -56,6 +56,7 @@ namespace ImGui
     // custom ImGui widgets for SFML stuff
 
     // Image overloads
+    IMGUI_SFML_API void Image(const sf::Sprite& sprite);
     IMGUI_SFML_API void Image(const sf::Texture& texture,
         const sf::Color& tintColor = sf::Color::White,
         const sf::Color& borderColor = sf::Color::Transparent);
@@ -77,6 +78,12 @@ namespace ImGui
         const sf::Color& borderColor = sf::Color::Transparent);
 
     // ImageButton overloads
+    IMGUI_SFML_API bool ImageButton(const sf::Sprite& sprite, const int framePadding = 0);
+    
+    IMGUI_SFML_API bool ImageButton(const sf::Sprite& sprite, const int framePadding = -1,
+        const sf::Color& bgColor = sf::Color::Transparent,
+        const sf::Color& tintColor = sf::Color::White);
+                               
     IMGUI_SFML_API bool ImageButton(const sf::Texture& texture, const int framePadding = -1,
         const sf::Color& bgColor = sf::Color::Transparent,
         const sf::Color& tintColor = sf::Color::White);

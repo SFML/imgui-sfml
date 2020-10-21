@@ -549,6 +549,15 @@ void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted) {
 }  // end of namespace SFML
 
 /////////////// Image Overloads
+void Image(const sf::Sprite& sprite) {
+    sf::FloatRect bounds = sprite.getLocalBounds();
+    sf::Vector2f scale = sprite.getScale();
+    sf::Color tintColor = sprite.getColor();
+    sf::Color borderColor = sf::Color::Transparent;
+    ImGui::SetCursorPos(ImVec2(sprite.getPosition().x - sprite.getOrigin().x * sprite.getScale().x, sprite.getPosition().y - sprite.getOrigin().y * sprite.getScale().y));
+    Image(sprite, sf::Vector2f(bounds.width * scale.x, bounds.height * scale.y), tintColor,
+        borderColor);
+}
 
 void Image(const sf::Texture& texture, const sf::Color& tintColor,
            const sf::Color& borderColor) {
@@ -625,12 +634,21 @@ bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size,
         framePadding, bgColor, tintColor);
 }
 
+bool ImageButton(const sf::Sprite& sprite, const int framePadding) {
+    sf::FloatRect bounds = sprite.getLocalBounds();
+    sf::Vector2f scale = sprite.getScale();
+    ImGui::SetCursorPos(ImVec2(sprite.getPosition().x - sprite.getOrigin().x * sprite.getScale().x, sprite.getPosition().y - sprite.getOrigin().y * sprite.getScale().y));
+    sf::Color tintColor = sprite.getColor();
+    sf::Color bgColor = sf::Color::Transparent;
+    return ImageButton(sprite, sf::Vector2f(bounds.width * scale.x, bounds.height * scale.y), framePadding, bgColor, tintColor);
+}
+
 bool ImageButton(const sf::Sprite& sprite, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
-    sf::FloatRect spriteSize = sprite.getGlobalBounds();
-    return ImageButton(sprite,
-                       sf::Vector2f(spriteSize.width, spriteSize.height),
-                       framePadding, bgColor, tintColor);
+    sf::FloatRect bounds = sprite.getLocalBounds();
+    sf::Vector2f scale = sprite.getScale();
+    ImGui::SetCursorPos(ImVec2(sprite.getPosition().x - sprite.getOrigin().x * sprite.getScale().x, sprite.getPosition().y - sprite.getOrigin().y * sprite.getScale().y));
+    return ImageButton(sprite, sf::Vector2f(bounds.width * scale.x, bounds.height * scale.y), framePadding, bgColor, tintColor);
 }
 
 bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
