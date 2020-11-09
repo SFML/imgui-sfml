@@ -90,7 +90,6 @@ class ImguiSfmlConan(ConanFile):
         cmake.definitions['IMGUI_DIR'] = os.path.join(self.source_folder, self._imgui_dir)
         cmake.definitions['SFML_DIR'] = os.path.join(self.deps_cpp_info['sfml'].lib_paths[0], 'cmake', 'SFML')
         cmake.definitions['IMGUI_SFML_BUILD_EXAMPLES'] = 'OFF'
-        cmake.definitions['IMGUI_SFML_FIND_SFML'] = 'ON'
         if self.options.imconfig_install_folder:
             cmake.definitions['IMGUI_SFML_CONFIG_INSTALL_DIR'] = self.options.imconfig_install_folder
         if self.options.imconfig:

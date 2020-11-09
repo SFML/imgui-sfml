@@ -17,7 +17,6 @@ if(POLICY CMP0077)
 endif()
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
-option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
@@ -37,7 +36,7 @@ set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header
 # For FindImGui.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-if (IMGUI_SFML_FIND_SFML)
+if (NOT TARGET sfml-graphics OR NOT TARGET sfml-system OR NOT TARGET sfml-window)
 	if (NOT BUILD_SHARED_LIBS)
 		set(SFML_STATIC_LIBRARIES ON)
 	endif()
