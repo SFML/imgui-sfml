@@ -394,11 +394,12 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
 
     if (s_windowHasFocus) {
         if (io.WantSetMousePos) {
-            sf::Vector2i mousePos(static_cast<int>(io.MousePos.x),
-                                  static_cast<int>(io.MousePos.y));
-            sf::Mouse::setPosition(mousePos);
+            sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x),
+                                     static_cast<int>(io.MousePos.y));
+            sf::Mouse::setPosition(newMousePos);
         } else {
-            io.MousePos = ImVec2(mousePos.x, mousePos.y);
+            io.MousePos = ImVec2(static_cast<float>(mousePos.x),
+                                 static_cast<float>(mousePos.y));
         }
         for (unsigned int i = 0; i < 3; i++) {
             io.MouseDown[i] = s_touchDown[i] || sf::Touch::isDown(i) ||
