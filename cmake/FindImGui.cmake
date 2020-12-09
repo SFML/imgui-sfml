@@ -26,9 +26,9 @@ endif()
 set(IMGUI_SOURCES
   ${IMGUI_INCLUDE_DIR}/imgui.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
+  ${IMGUI_INCLUDE_DIR}/imgui_tables.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
   ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.cpp
-  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_tables.cpp
 )
 
 set(IMGUI_DEMO_SOURCES
