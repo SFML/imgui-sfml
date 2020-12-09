@@ -1,5 +1,6 @@
 ImGui-SFML v2.1
 =======
+[![build Actions Status](https://github.com/eliasdaler/imgui-sfml/workflows/build/badge.svg)](https://github.com/eliasdaler/imgui-sfml/actions)
 
 Library which allows you to use [Dear ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
 
