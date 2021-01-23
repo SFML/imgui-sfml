@@ -26,7 +26,6 @@ endif()
 set(IMGUI_SOURCES
   ${IMGUI_INCLUDE_DIR}/imgui.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
-  ${IMGUI_INCLUDE_DIR}/imgui_tables.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
   ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.cpp
 )
@@ -48,6 +47,10 @@ if(NOT IMGUI_VERSION)
 endif()
 # Transform '#define IMGUI_VERSION "X.Y"' into 'X.Y'
 string(REGEX REPLACE ".*\"(.*)\".*" "\\1" IMGUI_VERSION "${IMGUI_VERSION}")
+
+if(${IMGUI_VERSION} VERSION_GREATER_EQUAL "1.80")
+  list(APPEND IMGUI_SOURCES ${IMGUI_INCLUDE_DIR}/imgui_tables.cpp)
+endif()
 
 # Check required version
 if(${IMGUI_VERSION} VERSION_LESS ${ImGui_FIND_VERSION})
