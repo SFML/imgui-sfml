@@ -216,7 +216,7 @@ jobs:
         message("::set-env name=CXX::${{ matrix.config.cxx }}")
         if ("${{ runner.os }}" STREQUAL "Linux")
           execute_process(
-            COMMAND sudo apt-get -y install mesa-common-dev libx11-dev libxcursor-dev libsfml-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxrandr-dev freeglut3-dev libjpeg-dev libfreetype6-dev libxrandr-dev libglew-dev libsndfile1-dev libopenal-dev libfreetype6-dev
+            COMMAND sudo apt-get -y install libgl1-mesa-dev mesa-common-dev libx11-dev libxcursor-dev libsfml-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxrandr-dev freeglut3-dev libjpeg-dev libfreetype6-dev libxrandr-dev libglew-dev libsndfile1-dev libopenal-dev libfreetype6-dev
           )
         endif()
         if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
