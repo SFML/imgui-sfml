@@ -131,6 +131,10 @@ target_compile_definitions(ImGui-SFML
     IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}"
 )
 
+if(WIN32 AND MINGW)
+  target_link_libraries(ImGui-SFML PUBLIC imm32)
+endif()
+
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(ImGui-SFML PRIVATE IMGUI_SFML_SHARED_LIB)
   set_target_properties(ImGui-SFML PROPERTIES
