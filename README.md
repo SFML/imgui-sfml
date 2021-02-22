@@ -165,13 +165,42 @@ The first loaded font is treated as the default one and doesn't need to be pushe
 SFML related ImGui overloads / new widgets
 ---
 
-There are some useful overloads implemented for SFML objects (see header for overloads):
+There are some useful overloads implemented for SFML objects (see `imgui-SFML.h` for other overloads):
+
 ```cpp
 ImGui::Image(const sf::Sprite& sprite);
 ImGui::Image(const sf::Texture& texture);
+ImGui::Image(const sf::RenderTexture& texture);
+
 ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
+ImGui::ImageButton(const sf::RenderTexture& texture);
 ```
+
+A note about sf::RenderTexture
+---
+
+`sf::RenderTexture`'s texture is stored with pixels flipped upside down. To display it properly when drawing `ImGui::Image` or `ImGui::ImageButton`, use overloads for `sf::RenderTexture`:
+
+```cpp
+sf::RenderTexture texture;
+sf::Sprite sprite(texture.getTexture());
+ImGui::Image(texture);              // OK
+ImGui::Image(sprite);               // NOT OK
+ImGui::Image(texture.getTexture()); // NOT OK
+```
+
+If you want to draw only a part of `sf::RenderTexture` and you're trying to use `sf::Sprite` the texture will be displayed upside-down. To prevent this, you can do this:
+
+```cpp
+// make a normal sf::Texture from sf::RenderTexture's flipped texture
+sf::Texture texture(renderTexture.getTexture());
+
+sf::Sprite sprite(texture);
+ImGui::Image(sprite); // the texture is displayed properly
+```
+
+For more notes see [this issue](https://github.com/eliasdaler/imgui-sfml/issues/35).
 
 Mouse cursors
 ---

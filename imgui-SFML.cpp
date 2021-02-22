@@ -4,6 +4,7 @@
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -154,12 +155,6 @@ GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
 
 void RenderDrawLists(
     ImDrawData* draw_data);  // rendering callback function prototype
-
-// Implementation of ImageButton overload
-bool imageButtonImpl(const sf::Texture& texture,
-                     const sf::FloatRect& textureRect, const sf::Vector2f& size,
-                     const int framePadding, const sf::Color& bgColor,
-                     const sf::Color& tintColor);
 
 // Default mapping is XInput gamepad mapping
 void initDefaultJoystickMapping();
@@ -549,12 +544,12 @@ void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted) {
 
 }  // end of namespace SFML
 
-/////////////// Image Overloads
+/////////////// Image Overloads for sf::Texture
 
 void Image(const sf::Texture& texture, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-    Image(texture, static_cast<sf::Vector2f>(texture.getSize()), tintColor,
-          borderColor);
+    Image(texture, static_cast<sf::Vector2f>(texture.getSize()), 
+        tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::Vector2f& size,
@@ -562,38 +557,35 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size,
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
     
-    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1), toImColor(tintColor),
-        toImColor(borderColor));
+    ImGui::Image(textureID, ImVec2(size.x,size.y), 
+        ImVec2(0, 0), ImVec2(1, 1), 
+        toImColor(tintColor), toImColor(borderColor));
 }
 
-void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
-           const sf::Color& tintColor, const sf::Color& borderColor) {
-    Image(
-        texture,
-        sf::Vector2f(std::abs(textureRect.width), std::abs(textureRect.height)),
-        textureRect, tintColor, borderColor);
-}
-
-void Image(const sf::Texture& texture, const sf::Vector2f& size,
-           const sf::FloatRect& textureRect, const sf::Color& tintColor,
+/////////////// Image Overloads for sf::RenderTexture
+void Image(const sf::RenderTexture& texture, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    ImVec2 uv0(textureRect.left / textureSize.x,
-               textureRect.top / textureSize.y);
-    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
-               (textureRect.top + textureRect.height) / textureSize.y);
-
-    ImTextureID textureID =
-        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(tintColor),
-        toImColor(borderColor));
+    Image(texture, static_cast<sf::Vector2f>(texture.getSize()),
+        tintColor, borderColor);
 }
+
+void Image(const sf::RenderTexture& texture, const sf::Vector2f& size,
+           const sf::Color& tintColor, const sf::Color& borderColor) {
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
+    
+    ImGui::Image(textureID, ImVec2(size.x,size.y),
+        ImVec2(0, 1), ImVec2(1, 0), // flipped vertically, because textures in sf::RenderTexture are stored this way
+        toImColor(tintColor), toImColor(borderColor));
+}
+
+/////////////// Image Overloads for sf::Sprite
 
 void Image(const sf::Sprite& sprite, const sf::Color& tintColor,
            const sf::Color& borderColor) {
     sf::FloatRect bounds = sprite.getGlobalBounds();
-    Image(sprite, sf::Vector2f(bounds.width, bounds.height), tintColor,
-          borderColor);
+    Image(sprite, sf::Vector2f(bounds.width, bounds.height), 
+        tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
@@ -604,12 +596,22 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
         return;
     }
 
-    Image(*texturePtr, size,
-          static_cast<sf::FloatRect>(sprite.getTextureRect()), tintColor,
-          borderColor);
+    const sf::Texture& texture = *texturePtr;
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    const sf::IntRect& textureRect = sprite.getTextureRect();
+    ImVec2 uv0(textureRect.left / textureSize.x,
+               textureRect.top / textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
+               (textureRect.top + textureRect.height) / textureSize.y);
+
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    
+    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, 
+        toImColor(tintColor), toImColor(borderColor));
 }
 
-/////////////// Image Button Overloads
+/////////////// Image Button Overloads for sf::Texture
 
 bool ImageButton(const sf::Texture& texture, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
@@ -620,11 +622,34 @@ bool ImageButton(const sf::Texture& texture, const int framePadding,
 bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size,
                  const int framePadding, const sf::Color& bgColor,
                  const sf::Color& tintColor) {
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    return ::imageButtonImpl(
-        texture, sf::FloatRect(0.f, 0.f, textureSize.x, textureSize.y), size,
-        framePadding, bgColor, tintColor);
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    
+    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), 
+        ImVec2(0, 0), ImVec2(1, 1), framePadding,
+        toImColor(tintColor), toImColor(tintColor));
 }
+
+/////////////// Image Button Overloads for sf::RenderTexture
+
+bool ImageButton(const sf::RenderTexture& texture, const int framePadding,
+                 const sf::Color& bgColor, const sf::Color& tintColor) {
+    return ImageButton(texture, static_cast<sf::Vector2f>(texture.getSize()),
+                       framePadding, bgColor, tintColor);
+}
+
+bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size,
+                 const int framePadding, const sf::Color& bgColor,
+                 const sf::Color& tintColor) {
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
+    
+    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), 
+        ImVec2(0, 1), ImVec2(1, 0), // flipped vertically, because textures in sf::RenderTexture are stored this way
+        framePadding, toImColor(tintColor), toImColor(tintColor));
+}
+
+/////////////// Image Button Overloads for sf::Sprite
 
 bool ImageButton(const sf::Sprite& sprite, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
@@ -638,12 +663,23 @@ bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
                  const int framePadding, const sf::Color& bgColor,
                  const sf::Color& tintColor) {
     const sf::Texture* texturePtr = sprite.getTexture();
+    // sprite without texture cannot be drawn
     if (!texturePtr) {
         return false;
     }
-    return ::imageButtonImpl(
-        *texturePtr, static_cast<sf::FloatRect>(sprite.getTextureRect()), size,
-        framePadding, bgColor, tintColor);
+
+    const sf::Texture& texture = *texturePtr;
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    const sf::IntRect& textureRect = sprite.getTextureRect();
+    ImVec2 uv0(textureRect.left / textureSize.x,
+               textureRect.top / textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
+               (textureRect.top + textureRect.height) / textureSize.y);
+
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), uv0, uv1, framePadding, 
+        toImColor(bgColor), toImColor(tintColor));
 }
 
 /////////////// Draw_list Overloads
@@ -797,23 +833,6 @@ void RenderDrawLists(ImDrawData* draw_data) {
 #else
     glPopAttrib();
 #endif
-}
-
-bool imageButtonImpl(const sf::Texture& texture,
-                     const sf::FloatRect& textureRect, const sf::Vector2f& size,
-                     const int framePadding, const sf::Color& bgColor,
-                     const sf::Color& tintColor) {
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-
-    ImVec2 uv0(textureRect.left / textureSize.x,
-               textureRect.top / textureSize.y);
-    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
-               (textureRect.top + textureRect.height) / textureSize.y);
-
-    ImTextureID textureID =
-        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), uv0, uv1, framePadding, toImColor(bgColor),
-        toImColor(tintColor));
 }
 
 unsigned int getConnectedJoystickId() {
