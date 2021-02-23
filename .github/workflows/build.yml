@@ -295,6 +295,7 @@ jobs:
             -S $ENV{GITHUB_WORKSPACE}/imgui-sfml
             -B $ENV{GITHUB_WORKSPACE}/imgui-sfml/build
             -D CMAKE_CONFIGURATION_TYPES=${{ matrix.config.build_type }}
+            -D CMAKE_CXX_STANDARD=98
             -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
             -G Ninja
             -D CMAKE_MAKE_PROGRAM=${{ steps.ninja.outputs.ninja_binary }}
