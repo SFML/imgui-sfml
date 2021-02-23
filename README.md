@@ -1,4 +1,4 @@
-ImGui-SFML v2.1
+ImGui-SFML v2.2
 =======
 [![build Actions Status](https://github.com/eliasdaler/imgui-sfml/workflows/build/badge.svg)](https://github.com/eliasdaler/imgui-sfml/actions)
 
@@ -12,7 +12,7 @@ Dependencies
 -----
 
 * [SFML](https://github.com/SFML/SFML) >= 2.5.0
-* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.68
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.80
 
 Contributing
 -----

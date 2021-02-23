@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 project(imgui_sfml
   LANGUAGES CXX
-  VERSION 2.1
+  VERSION 2.2
 )
 
 # In CMake 3.12+ this policy will automatically take the ImGui_ROOT and SFML_ROOT environment variables
@@ -57,7 +57,7 @@ if(NOT IMGUI_DIR)
 endif()
 
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
-find_package(ImGui 1.68 REQUIRED)
+find_package(ImGui 1.80 REQUIRED)
 
 # these headers will be installed alongside ImGui-SFML
 set(IMGUI_PUBLIC_HEADERS
