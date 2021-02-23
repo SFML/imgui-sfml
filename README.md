@@ -14,6 +14,12 @@ Dependencies
 * [SFML](https://github.com/SFML/SFML) >= 2.5.0
 * [Dear ImGui](https://github.com/ocornut/imgui) >= 1.68
 
+Contributing
+-----
+
+* The code is written in C++03. See [#7](https://github.com/eliasdaler/imgui-sfml/issues/7)
+* The code should be formatted via [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) using `.clang-format` provided in the root of this repository
+
 How-to
 ----
 
@@ -91,13 +97,12 @@ See example file [here](examples/main.cpp)
 #include "imgui.h"
 #include "imgui-SFML.h"
 
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
 
-int main()
-{
+int main() {
     sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);

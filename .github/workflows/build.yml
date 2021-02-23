@@ -112,6 +112,14 @@ jobs:
         submodules: recursive
         path: imgui-sfml
 
+    # Container action is only supported on Linux
+    - name: Check Clang Format
+      if: runner.os == 'Linux'
+      uses: DoozyX/clang-format-lint-action@v0.11
+      with:
+        source: '.'
+        extensions: 'h,cpp'
+
     - name: Checkout SFML
       uses: actions/checkout@v2
       with:

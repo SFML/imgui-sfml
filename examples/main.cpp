@@ -1,13 +1,13 @@
-#include "imgui.h"
-#include "imgui-SFML.h"
+#include "imgui.h" // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
 
+#include "imgui-SFML.h" // for ImGui::SFML::* functions and SFML-specific overloads
+
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
 
-int main()
-{
+int main() {
     sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
@@ -29,7 +29,7 @@ int main()
         ImGui::SFML::Update(window, deltaClock.restart());
 
         ImGui::ShowDemoWindow();
-        
+
         ImGui::Begin("Hello, world!");
         ImGui::Button("Look at this pretty button");
         ImGui::End();
@@ -41,6 +41,6 @@ int main()
     }
 
     ImGui::SFML::Shutdown();
-    
+
     return 0;
 }
