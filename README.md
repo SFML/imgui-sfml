@@ -64,6 +64,14 @@ Integrating into your project manually
 - Add `imgui-SFML.cpp` to your build/project
 - Link OpenGL if you get linking errors
 
+Other ways to add to your project(won't recommend as the versions tend to lag behind and are not 
+---
+Not recommended, as they're not maintained officially. Tend to lag behind and stay on older versions. 
+
+- [Conan](https://github.com/bincrafters/community/tree/main/recipes/imgui-sfml)
+- [vcpkg](https://github.com/microsoft/vcpkg/tree/master/ports/imgui-sfml)
+- [Bazel](https://github.com/zpervan/ImguiSFMLBazel)
+
 Using ImGui-SFML in your code
 ---
 
