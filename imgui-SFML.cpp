@@ -591,7 +591,7 @@ bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
     return ImGui::ImageButton(textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
-                              framePadding, toImColor(tintColor), toImColor(tintColor));
+                              framePadding, toImColor(bgColor), toImColor(tintColor));
 }
 
 /////////////// Image Button Overloads for sf::RenderTexture
@@ -610,7 +610,7 @@ bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size, con
     return ImGui::ImageButton(textureID, ImVec2(size.x, size.y), ImVec2(0, 1),
                               ImVec2(1, 0), // flipped vertically, because textures in
                                             // sf::RenderTexture are stored this way
-                              framePadding, toImColor(tintColor), toImColor(tintColor));
+                              framePadding, toImColor(bgColor), toImColor(tintColor));
 }
 
 /////////////// Image Button Overloads for sf::Sprite
