@@ -588,6 +588,7 @@ bool ImageButton(const sf::Texture& texture, const int framePadding, const sf::C
 
 bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
+    IM_UNUSED(bgColor);
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
     return ImGui::ImageButton(textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
@@ -604,6 +605,7 @@ bool ImageButton(const sf::RenderTexture& texture, const int framePadding, const
 
 bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
+    IM_UNUSED(bgColor);
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
 
