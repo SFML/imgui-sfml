@@ -162,7 +162,7 @@ void updateJoystickLStickState(ImGuiIO& io);
 
 // clipboard functions
 void setClipboardText(void* userData, const char* text);
-const char* getClipboadText(void* userData);
+const char* getClipboardText(void* userData);
 std::string s_clipboardText;
 
 // mouse cursors
@@ -240,7 +240,7 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
-    io.GetClipboardTextFn = getClipboadText;
+    io.GetClipboardTextFn = getClipboardText;
 
     // load mouse cursors
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
@@ -867,7 +867,7 @@ void setClipboardText(void* /*userData*/, const char* text) {
     sf::Clipboard::setString(sf::String::fromUtf8(text, text + std::strlen(text)));
 }
 
-const char* getClipboadText(void* /*userData*/) {
+const char* getClipboardText(void* /*userData*/) {
     std::basic_string<sf::Uint8> tmp = sf::Clipboard::getString().toUtf8();
     s_clipboardText = std::string(tmp.begin(), tmp.end());
     return s_clipboardText.c_str();
