@@ -5,7 +5,7 @@ on:
   - pull_request
 
 env:
-  CMAKE_VERSION: 3.17.0
+  CMAKE_VERSION: 3.19.7
   NINJA_VERSION: 1.10.0
   CCACHE_VERSION: 3.7.7
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
@@ -147,8 +147,8 @@ jobs:
           set(cmake_suffix "Linux-x86_64.tar.gz")
           set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
-          set(cmake_suffix "Darwin-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
+          set(cmake_suffix "macos-universal.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-macos-universal/CMake.app/Contents/bin")
         endif()
         set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
         file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
