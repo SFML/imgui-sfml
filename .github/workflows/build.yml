@@ -5,10 +5,9 @@ on:
   - pull_request
 
 env:
-  CMAKE_VERSION: 3.17.0
-  NINJA_VERSION: 1.10.0
-  CCACHE_VERSION: 3.7.7
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+  CMAKE_VERSION: 3.19.7
+  NINJA_VERSION: 1.10.2
+  CCACHE_VERSION: 4.2.1
 
 jobs:
   build:
@@ -147,8 +146,8 @@ jobs:
           set(cmake_suffix "Linux-x86_64.tar.gz")
           set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
-          set(cmake_suffix "Darwin-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
+          set(cmake_suffix "macos-universal.tar.gz")
+          set(cmake_dir "cmake-${cmake_version}-macos-universal/CMake.app/Contents/bin")
         endif()
         set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
         file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
@@ -199,11 +198,11 @@ jobs:
       shell: cmake -P {0}
       run: |
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
-        message("::set-env name=CCACHE_BASEDIR::${ccache_basedir}")
-        message("::set-env name=CCACHE_DIR::${ccache_basedir}/.ccache")
-        message("::set-env name=CCACHE_COMPRESS::true")
-        message("::set-env name=CCACHE_COMPRESSLEVEL::6")
-        message("::set-env name=CCACHE_MAXSIZE::400M")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_BASEDIR=${ccache_basedir}\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_DIR=${ccache_basedir}/.ccache\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_COMPRESS=true\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_COMPRESSLEVEL=6\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_MAXSIZE=400M\n")
         execute_process(COMMAND ${{ steps.ccache.outputs.ccache_binary }} -p)
         execute_process(COMMAND ${{ steps.ccache.outputs.ccache_binary }} -z)
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
@@ -220,8 +219,8 @@ jobs:
     - name: Prepare build environment
       shell: cmake -P {0}
       run: |
-        message("::set-env name=CC::${{ matrix.config.cc }}")
-        message("::set-env name=CXX::${{ matrix.config.cxx }}")
+        file(APPEND "$ENV{GITHUB_ENV}" "CC=${{ matrix.config.cc }}\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CXX=${{ matrix.config.cxx }}\n")
         if ("${{ runner.os }}" STREQUAL "Linux")
           execute_process(COMMAND sudo apt-get update)
           execute_process(
@@ -234,7 +233,7 @@ jobs:
             OUTPUT_FILE environment_script_output.txt
           )
         endif()
-        message("::add-path::\"$ENV{GITHUB_WORKSPACE}\"")
+        file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}\n")
 
     - name: Install SFML
       id: install_sfml
