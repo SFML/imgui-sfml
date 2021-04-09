@@ -381,8 +381,8 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
 
 void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt) {
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
 
+    io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
     if (s_windowHasFocus) {
@@ -440,8 +440,10 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
 
 void Render(sf::RenderTarget& target) {
     target.resetGLStates();
+    target.pushGLStates();
     ImGui::Render();
     RenderDrawLists(ImGui::GetDrawData());
+    target.popGLStates();
 }
 
 void Render() {
@@ -450,7 +452,7 @@ void Render() {
 }
 
 void Shutdown() {
-    ImGui::GetIO().Fonts->TexID = (ImTextureID)NULL;
+    ImGui::GetIO().Fonts->SetTexID(0);
 
     if (s_fontTexture) { // if internal texture was created, we delete it
         delete s_fontTexture;
@@ -480,7 +482,8 @@ void UpdateFontTexture() {
     texture.create(width, height);
     texture.update(pixels);
 
-    io.Fonts->TexID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImTextureID texID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    io.Fonts->SetTexID(texID);
 }
 
 sf::Texture& GetFontTexture() {
@@ -705,6 +708,51 @@ GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID) {
     return glTextureHandle;
 }
 
+// copied from imgui/backends/imgui_impl_opengl2.cpp
+void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height) {
+    // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor
+    // enabled, vertex/texcoord/color pointers, polygon fill.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); //
+    // In order to composite our output buffer we need to preserve alpha
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_COLOR_MATERIAL);
+    glEnable(GL_SCISSOR_TEST);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glEnable(GL_TEXTURE_2D);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glShadeModel(GL_SMOOTH);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    // Setup viewport, orthographic projection matrix
+    // Our visible imgui space lies from draw_data->DisplayPos (top left) to
+    // draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single
+    // viewport apps.
+    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+#ifdef GL_VERSION_ES_CL_1_1
+    glOrthof(draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
+             draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y, -1.0f,
+             +1.0f);
+#else
+    glOrtho(draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
+            draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y, -1.0f,
+            +1.0f);
+#endif
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+}
+
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data) {
     ImGui::GetDrawData();
@@ -715,86 +763,115 @@ void RenderDrawLists(ImDrawData* draw_data) {
     ImGuiIO& io = ImGui::GetIO();
     assert(io.Fonts->TexID != (ImTextureID)NULL); // You forgot to create and set font texture
 
-    // scale stuff (needed for proper handling of window resize)
-    int fb_width = static_cast<int>(io.DisplaySize.x * io.DisplayFramebufferScale.x);
-    int fb_height = static_cast<int>(io.DisplaySize.y * io.DisplayFramebufferScale.y);
-    if (fb_width == 0 || fb_height == 0) {
-        return;
-    }
+    // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates !=
+    // framebuffer coordinates)
+    int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+    int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+    if (fb_width == 0 || fb_height == 0) return;
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
-#ifdef GL_VERSION_ES_CL_1_1
-    GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
+    // Backup GL state
+    // Backup GL state
+    GLint last_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    GLint last_polygon_mode[2];
+    glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
+    GLint last_viewport[4];
+    glGetIntegerv(GL_VIEWPORT, last_viewport);
+    GLint last_scissor_box[4];
+    glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
+    GLint last_shade_model;
+    glGetIntegerv(GL_SHADE_MODEL, &last_shade_model);
+    GLint last_tex_env_mode;
+    glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &last_tex_env_mode);
+
+#ifdef GL_VERSION_ES_CL_1_1
+    GLint last_array_buffer;
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+    GLint last_element_array_buffer;
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
 #else
     glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
 #endif
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHTING);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    // Setup desired GL state
+    SetupRenderState(draw_data, fb_width, fb_height);
 
-    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    // Will project scissor/clipping rectangles into framebuffer space
+    ImVec2 clip_off = draw_data->DisplayPos; // (0,0) unless using multi-viewports
+    ImVec2 clip_scale = draw_data->FramebufferScale; // (1,1) unless using retina display which are
+                                                     // often (2,2)
 
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-#ifdef GL_VERSION_ES_CL_1_1
-    glOrthof(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-#else
-    glOrtho(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-#endif
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    for (int n = 0; n < draw_data->CmdListsCount; ++n) {
+    // Render command lists
+    for (int n = 0; n < draw_data->CmdListsCount; n++) {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
-
+        const ImDrawVert* vtx_buffer = cmd_list->VtxBuffer.Data;
+        const ImDrawIdx* idx_buffer = cmd_list->IdxBuffer.Data;
         glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert),
-                        (void*)(vtx_buffer + offsetof(ImDrawVert, pos)));
+                        (const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, pos)));
         glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert),
-                          (void*)(vtx_buffer + offsetof(ImDrawVert, uv)));
+                          (const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, uv)));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert),
-                       (void*)(vtx_buffer + offsetof(ImDrawVert, col)));
+                       (const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, col)));
 
-        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); ++cmd_i) {
+        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++) {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
             if (pcmd->UserCallback) {
-                pcmd->UserCallback(cmd_list, pcmd);
+                // User callback, registered via ImDrawList::AddCallback()
+                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to
+                // request the renderer to reset render state.)
+                if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+                    SetupRenderState(draw_data, fb_width, fb_height);
+                else
+                    pcmd->UserCallback(cmd_list, pcmd);
             } else {
-                GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->TextureId);
-                glBindTexture(GL_TEXTURE_2D, textureHandle);
-                glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w),
-                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
-                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT,
-                               idx_buffer);
+                // Project scissor/clipping rectangles into framebuffer space
+                ImVec4 clip_rect;
+                clip_rect.x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
+                clip_rect.y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
+                clip_rect.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
+                clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
+
+                if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f &&
+                    clip_rect.w >= 0.0f) {
+                    // Apply scissor/clipping rectangle
+                    glScissor((int)clip_rect.x, (int)(fb_height - clip_rect.w),
+                              (int)(clip_rect.z - clip_rect.x), (int)(clip_rect.w - clip_rect.y));
+
+                    // Bind texture, Draw
+                    GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->TextureId);
+                    glBindTexture(GL_TEXTURE_2D, textureHandle);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT,
+                                   idx_buffer);
+                }
             }
             idx_buffer += pcmd->ElemCount;
         }
     }
+
+    // Restore modified GL state
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindTexture(GL_TEXTURE_2D, (GLuint)last_texture);
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glPopAttrib();
+    glPolygonMode(GL_FRONT, (GLenum)last_polygon_mode[0]);
+    glPolygonMode(GL_BACK, (GLenum)last_polygon_mode[1]);
+    glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2],
+               (GLsizei)last_viewport[3]);
+    glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2],
+              (GLsizei)last_scissor_box[3]);
+    glShadeModel(last_shade_model);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, last_tex_env_mode);
+
 #ifdef GL_VERSION_ES_CL_1_1
-    glBindTexture(GL_TEXTURE_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     glDisable(GL_SCISSOR_TEST);
-#else
-    glPopAttrib();
 #endif
 }
 
