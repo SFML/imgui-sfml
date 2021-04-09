@@ -302,9 +302,15 @@ void ProcessEvent(const sf::Event& event) {
             }
             break;
         case sf::Event::KeyPressed: // fall-through
-        case sf::Event::KeyReleased:
-            io.KeysDown[event.key.code] = (event.type == sf::Event::KeyPressed);
-            break;
+        case sf::Event::KeyReleased: {
+            int key = event.key.code;
+            IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(io.KeysDown));
+            io.KeysDown[key] = (event.type == sf::Event::KeyPressed);
+            io.KeyCtrl = event.key.control;
+            io.KeyAlt = event.key.alt;
+            io.KeyShift = event.key.shift;
+            io.KeySuper = event.key.system;
+        } break;
         case sf::Event::TextEntered:
             // Don't handle the event for unprintable characters
             if (event.text.unicode < ' ' || event.text.unicode == 127) {
@@ -329,9 +335,20 @@ void ProcessEvent(const sf::Event& event) {
     }
 
     switch (event.type) {
-    case sf::Event::LostFocus:
+    case sf::Event::LostFocus: {
+        // reset all input - SFML doesn't send KeyReleased
+        // event when window goes out of focus
+        ImGuiIO& io = ImGui::GetIO();
+        for (int i = 0; i < IM_ARRAYSIZE(io.KeysDown); ++i) {
+            io.KeysDown[i] = false;
+        }
+        io.KeyCtrl = false;
+        io.KeyAlt = false;
+        io.KeyShift = false;
+        io.KeySuper = false;
+
         s_windowHasFocus = false;
-        break;
+    } break;
     case sf::Event::GainedFocus:
         s_windowHasFocus = true;
         break;
@@ -383,12 +400,6 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
             s_touchDown[i] = false;
         }
     }
-
-    // Update Ctrl, Shift, Alt, Super state
-    io.KeyCtrl = io.KeysDown[sf::Keyboard::LControl] || io.KeysDown[sf::Keyboard::RControl];
-    io.KeyAlt = io.KeysDown[sf::Keyboard::LAlt] || io.KeysDown[sf::Keyboard::RAlt];
-    io.KeyShift = io.KeysDown[sf::Keyboard::LShift] || io.KeysDown[sf::Keyboard::RShift];
-    io.KeySuper = io.KeysDown[sf::Keyboard::LSystem] || io.KeysDown[sf::Keyboard::RSystem];
 
 #ifdef ANDROID
 #ifdef USE_JNI
