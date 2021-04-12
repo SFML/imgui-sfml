@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 project(imgui_sfml
   LANGUAGES CXX
-  VERSION 2.2
+  VERSION 2.3
 )
 
 # In CMake 3.12+ this policy will automatically take the ImGui_ROOT and SFML_ROOT environment variables

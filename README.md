@@ -1,4 +1,4 @@
-ImGui-SFML v2.2
+ImGui-SFML v2.3
 =======
 [![build Actions Status](https://github.com/eliasdaler/imgui-sfml/workflows/build/badge.svg)](https://github.com/eliasdaler/imgui-sfml/actions)
 
@@ -64,9 +64,9 @@ Integrating into your project manually
 - Add `imgui-SFML.cpp` to your build/project
 - Link OpenGL if you get linking errors
 
-Other ways to add to your project(won't recommend as the versions tend to lag behind and are not 
+Other ways to add to your project(won't recommend as the versions tend to lag behind and are not
 ---
-Not recommended, as they're not maintained officially. Tend to lag behind and stay on older versions. 
+Not recommended, as they're not maintained officially. Tend to lag behind and stay on older versions.
 
 - [Conan](https://github.com/bincrafters/community/tree/main/recipes/imgui-sfml)
 - [vcpkg](https://github.com/microsoft/vcpkg/tree/master/ports/imgui-sfml)
