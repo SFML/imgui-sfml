@@ -116,7 +116,7 @@ namespace {
 static bool s_windowHasFocus = false;
 static bool s_mousePressed[3] = {false, false, false};
 static bool s_touchDown[3] = {false, false, false};
-static bool s_mouseUsed = true; // if false, touch events are used for controlling io.MousePos variable
+static bool s_mouseUsed = true; // if false, touch pos is used for setting io.MousePos
 static sf::Vector2i s_touchPos;
 static sf::Texture* s_fontTexture = NULL; // owning pointer to internal font atlas which is used
                                           // if user doesn't set custom sf::Texture.
