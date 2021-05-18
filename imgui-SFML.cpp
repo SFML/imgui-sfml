@@ -304,8 +304,9 @@ void ProcessEvent(const sf::Event& event) {
         case sf::Event::KeyPressed: // fall-through
         case sf::Event::KeyReleased: {
             int key = event.key.code;
-            IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(io.KeysDown));
-            io.KeysDown[key] = (event.type == sf::Event::KeyPressed);
+            if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
+                io.KeysDown[key] = (event.type == sf::Event::KeyPressed);
+            }
             io.KeyCtrl = event.key.control;
             io.KeyAlt = event.key.alt;
             io.KeyShift = event.key.shift;
