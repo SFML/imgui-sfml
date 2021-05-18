@@ -116,7 +116,7 @@ namespace {
 static bool s_windowHasFocus = false;
 static bool s_mousePressed[3] = {false, false, false};
 static bool s_touchDown[3] = {false, false, false};
-static bool s_mouseMoved = false;
+static bool s_mouseUsed = true; // if false, touch events are used for controlling io.MousePos variable
 static sf::Vector2i s_touchPos;
 static sf::Texture* s_fontTexture = NULL; // owning pointer to internal font atlas which is used
                                           // if user doesn't set custom sf::Texture.
@@ -227,6 +227,8 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
     io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
 
+    s_touchPos = sf::Touch::getPosition(0, window);
+
     s_joystickId = getConnectedJoystickId();
 
     for (unsigned int i = 0; i < ImGuiNavInput_COUNT; i++) {
@@ -276,7 +278,7 @@ void ProcessEvent(const sf::Event& event) {
 
         switch (event.type) {
         case sf::Event::MouseMoved:
-            s_mouseMoved = true;
+            s_mouseUsed = true;
             break;
         case sf::Event::MouseButtonPressed: // fall-through
         case sf::Event::MouseButtonReleased: {
@@ -287,7 +289,7 @@ void ProcessEvent(const sf::Event& event) {
         } break;
         case sf::Event::TouchBegan: // fall-through
         case sf::Event::TouchEnded: {
-            s_mouseMoved = false;
+            s_mouseUsed = false;
             int button = event.touch.finger;
             if (event.type == sf::Event::TouchBegan && button >= 0 && button < 3) {
                 s_touchDown[event.touch.finger] = true;
@@ -365,12 +367,12 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
     // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
     updateMouseCursor(window);
 
-    if (!s_mouseMoved) {
+    if (s_mouseUsed) {
+        Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+    } else {
         if (sf::Touch::isDown(0)) s_touchPos = sf::Touch::getPosition(0, window);
 
         Update(s_touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
-    } else {
-        Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
     }
 
     if (ImGui::GetIO().MouseDrawCursor) {
