@@ -30,6 +30,8 @@ How-to
 Building and integrating into your CMake project
 ---
 
+- [**CMake tutorial on my blog**](https://eliasdaler.github.io/using-cmake/)
+
 ```sh
 cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path with built SFML>
 ```
