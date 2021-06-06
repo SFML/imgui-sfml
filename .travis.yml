@@ -1,0 +1,734 @@
+language: cpp
+
+dist: bionic
+
+git:
+  depth: 1
+  submodules: true
+
+cache: ccache
+
+matrix:
+  include:
+# Linux
+## GCC
+### GCC 4.8
+    - name: Linux - GCC 4.8 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.8
+      env:
+        - COMPILER=g++-4.8
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 4.8 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.8
+      env:
+        - COMPILER=g++-4.8
+        - BUILD_TYPE=Release
+
+### GCC 5
+    - name: Linux - GCC 5 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+        - COMPILER=g++-5
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 5 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+        - COMPILER=g++-5
+        - BUILD_TYPE=Release
+
+### GCC 6
+    - name: Linux - GCC 6 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - COMPILER=g++-6
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 6 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - COMPILER=g++-6
+        - BUILD_TYPE=Release
+
+### GCC 7
+    - name: Linux - GCC 7 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - COMPILER=g++-7
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 7 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - COMPILER=g++-7
+        - BUILD_TYPE=Release
+
+### GCC 8
+    - name: Linux - GCC 8 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - COMPILER=g++-8
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 8 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - COMPILER=g++-8
+        - BUILD_TYPE=Release
+
+### GCC 9
+    - name: Linux - GCC 9 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+      env:
+        - COMPILER=g++-9
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 9 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+      env:
+        - COMPILER=g++-9
+        - BUILD_TYPE=Release
+
+### GCC 10
+    - name: Linux - GCC 10 - Debug
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-10
+      env:
+        - COMPILER=g++-10
+        - BUILD_TYPE=Debug
+
+    - name: Linux - GCC 10 - Release
+      os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-10
+      env:
+        - COMPILER=g++-10
+        - BUILD_TYPE=Release
+
+## Clang
+### Clang 3.9
+    - name: Linux - Clang 3.9 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-3.9
+          packages:
+            - clang-3.9
+            - g++-6
+      env:
+        - COMPILER=clang++-3.9
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 3.9 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-3.9
+          packages:
+            - clang-3.9
+            - g++-6
+      env:
+        - COMPILER=clang++-3.9
+        - BUILD_TYPE=Release
+
+### Clang 4
+    - name: Linux - Clang 4 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-4.0
+          packages:
+            - clang-4.0
+            - g++-6
+      env:
+        - COMPILER=clang++-4.0
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 4 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-4.0
+          packages:
+            - clang-4.0
+            - g++-6
+      env:
+        - COMPILER=clang++-4.0
+        - BUILD_TYPE=Release
+
+### Clang 5
+    - name: Linux - Clang 5 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-5.0
+          packages:
+            - clang-5.0
+            - g++-7
+      env:
+        - COMPILER=clang++-5.0
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 5 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-5.0
+          packages:
+            - clang-5.0
+            - g++-7
+      env:
+        - COMPILER=clang++-5.0
+        - BUILD_TYPE=Release
+
+### Clang 6
+    - name: Linux - Clang 6 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-6.0
+          packages:
+            - clang-6.0
+            - g++-7
+      env:
+        - COMPILER=clang++-6.0
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 6 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-6.0
+          packages:
+            - clang-6.0
+            - g++-7
+      env:
+        - COMPILER=clang++-6.0
+        - BUILD_TYPE=Release
+
+### Clang 7
+    - name: Linux - Clang 7 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-7
+          packages:
+            - clang-7
+            - g++-7
+      env:
+        - COMPILER=clang++-7
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 7 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-7
+          packages:
+            - clang-7
+            - g++-7
+      env:
+        - COMPILER=clang++-7
+        - BUILD_TYPE=Release
+
+### Clang 8
+    - name: Linux - Clang 8 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-8
+          packages:
+            - clang-8
+            - g++-8
+      env:
+        - COMPILER=clang++-8
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 8 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-8
+          packages:
+            - clang-8
+            - g++-8
+      env:
+        - COMPILER=clang++-8
+        - BUILD_TYPE=Release
+
+### Clang 9
+    - name: Linux - Clang 9 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-9
+          packages:
+            - clang-9
+            - g++-9
+      env:
+        - COMPILER=clang++-9
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 9 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-9
+          packages:
+            - clang-9
+            - g++-9
+      env:
+        - COMPILER=clang++-9
+        - BUILD_TYPE=Release
+
+### Clang 10
+    - name: Linux - Clang 10 - Debug
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-10
+          packages:
+            - clang-10
+            - g++-10
+      env:
+        - COMPILER=clang++-10
+        - BUILD_TYPE=Debug
+
+    - name: Linux - Clang 10 - Release
+      os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-10
+          packages:
+            - clang-10
+            - g++-10
+      env:
+        - COMPILER=clang++-10
+        - BUILD_TYPE=Release
+
+# OSX
+## Xcode
+### Xcode 8.3
+    - name: OSX - Xcode 8.3 - Debug
+      os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 8.3 - Release
+      os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9
+    - name: OSX - Xcode 9 - Debug
+      os: osx
+      osx_image: xcode9
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9 - Release
+      os: osx
+      osx_image: xcode9
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.1
+    - name: OSX - Xcode 9.1 - Debug
+      os: osx
+      osx_image: xcode9.1
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.1 - Release
+      os: osx
+      osx_image: xcode9.1
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.2
+    - name: OSX - Xcode 9.2 - Debug
+      os: osx
+      osx_image: xcode9.2
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.2 - Release
+      os: osx
+      osx_image: xcode9.2
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.3
+    - name: OSX - Xcode 9.3 - Debug
+      os: osx
+      osx_image: xcode9.3
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.3 - Release
+      os: osx
+      osx_image: xcode9.3
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 9.4
+    - name: OSX - Xcode 9.4 - Debug
+      os: osx
+      osx_image: xcode9.4
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 9.4 - Release
+      os: osx
+      osx_image: xcode9.4
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 10
+    - name: OSX - Xcode 10 - Debug
+      os: osx
+      osx_image: xcode10
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 10 - Release
+      os: osx
+      osx_image: xcode10
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 10.1
+    - name: OSX - Xcode 10.1 - Debug
+      os: osx
+      osx_image: xcode10.1
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 10.1 - Release
+      os: osx
+      osx_image: xcode10.1
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 10.2
+    - name: OSX - Xcode 10.2 - Debug
+      os: osx
+      osx_image: xcode10.2
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 10.2 - Release
+      os: osx
+      osx_image: xcode10.2
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 10.3
+    - name: OSX - Xcode 10.3 - Debug
+      os: osx
+      osx_image: xcode10.3
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 10.3 - Release
+      os: osx
+      osx_image: xcode10.3
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11
+    - name: OSX - Xcode 11 - Debug
+      os: osx
+      osx_image: xcode11
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11 - Release
+      os: osx
+      osx_image: xcode11
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11.1
+    - name: OSX - Xcode 11.1 - Debug
+      os: osx
+      osx_image: xcode11.1
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11.1 - Release
+      os: osx
+      osx_image: xcode11.1
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11.2
+    - name: OSX - Xcode 11.2 - Debug
+      os: osx
+      osx_image: xcode11.2
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11.2 - Release
+      os: osx
+      osx_image: xcode11.2
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11.3
+    - name: OSX - Xcode 11.3 - Debug
+      os: osx
+      osx_image: xcode11.3
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11.3 - Release
+      os: osx
+      osx_image: xcode11.3
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11.4
+    - name: OSX - Xcode 11.4 - Debug
+      os: osx
+      osx_image: xcode11.4
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11.4 - Release
+      os: osx
+      osx_image: xcode11.4
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11.5
+    - name: OSX - Xcode 11.5 - Debug
+      os: osx
+      osx_image: xcode11.5
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11.5 - Release
+      os: osx
+      osx_image: xcode11.5
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 11.6
+    - name: OSX - Xcode 11.6 - Debug
+      os: osx
+      osx_image: xcode11.6
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 11.6 - Release
+      os: osx
+      osx_image: xcode11.6
+      env:
+        - BUILD_TYPE=Release
+
+### Xcode 12
+    - name: OSX - Xcode 12 - Debug
+      os: osx
+      osx_image: xcode12
+      env:
+        - BUILD_TYPE=Debug
+
+    - name: OSX - Xcode 12 - Release
+      os: osx
+      osx_image: xcode12
+      env:
+        - BUILD_TYPE=Release
+
+before_install:
+  # Variables
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+  - if [[ "${BUILD_TYPE}" == "" ]]; then export BUILD_TYPE=Debug; fi
+
+install:
+  # Build and SFML dependencies
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update-reset
+      brew list git &>/dev/null || brew install git
+      brew list cmake &>/dev/null || brew install cmake
+      brew list ninja &>/dev/null || brew install ninja
+      brew list ccache &>/dev/null || brew install ccache
+    else
+      sudo apt-get -y install git cmake ninja-build ccache
+      sudo apt-get -y install libsfml-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxrandr-dev freeglut3-dev libjpeg-dev libfreetype6-dev libxrandr-dev libglew-dev libsndfile1-dev libopenal-dev libfreetype6-dev
+    fi
+
+  # Info
+  - uname -a
+  - cmake --version
+  - ninja --version
+  - ${CXX} --version
+  - ccache -p
+  - ccache -z
+
+  # SFML
+  - git clone --recurse --depth 1 https://github.com/SFML/SFML $HOME/sfml_local
+  - cd $HOME/sfml_local
+  - mkdir cmake-build
+  - cd cmake-build
+  - mkdir $HOME/sfml_install
+  - cmake -G Ninja -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D CMAKE_INSTALL_PREFIX=$HOME/sfml_install ..
+  - cmake --build . --config ${BUILD_TYPE} --target install
+
+  # Dear ImGui
+  - git clone --recurse --depth 1 https://github.com/ocornut/imgui $HOME/imgui_local
+
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - mkdir cmake-build
+  - cd cmake-build
+  - cmake -G Ninja -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_CONFIGURATION_TYPES=${BUILD_TYPE} -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D CMAKE_PREFIX_PATH=$HOME/sfml_install -D SFML_DIR=$HOME/sfml_install -D IMGUI_DIR=$HOME/imgui_local -D BUILD_SHARED_LIBS=ON ..
+  - cmake --build . --config ${BUILD_TYPE}
+  - ccache -s

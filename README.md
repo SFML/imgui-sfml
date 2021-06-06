@@ -1,5 +1,6 @@
-ImGui-SFML v2.1
+ImGui-SFML v2.3
 =======
+[![build Actions Status](https://github.com/eliasdaler/imgui-sfml/workflows/build/badge.svg)](https://github.com/eliasdaler/imgui-sfml/actions)
 
 Library which allows you to use [Dear ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
 
@@ -11,7 +12,13 @@ Dependencies
 -----
 
 * [SFML](https://github.com/SFML/SFML) >= 2.5.0
-* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.68
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.80
+
+Contributing
+-----
+
+* The code is written in C++03. See [#7](https://github.com/eliasdaler/imgui-sfml/issues/7)
+* The code should be formatted via [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) using `.clang-format` provided in the root of this repository
 
 How-to
 ----
@@ -22,6 +29,8 @@ How-to
 
 Building and integrating into your CMake project
 ---
+
+- [**CMake tutorial on my blog**](https://eliasdaler.github.io/using-cmake/)
 
 ```sh
 cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path with built SFML>
@@ -51,11 +60,19 @@ Integrating into your project manually
 ---
 - Download [ImGui](https://github.com/ocornut/imgui)
 - Add ImGui folder to your include directories
-- Add `imgui.cpp`, `imgui_widgets.cpp` and `imgui_draw.cpp` to your build/project
+- Add `imgui.cpp`, `imgui_widgets.cpp`, `imgui_draw.cpp` and `imgui_tables.cpp` to your build/project
 - Copy the contents of `imconfig-SFML.h` to your `imconfig.h` file. (to be able to cast `ImVec2` to `sf::Vector2f` and vice versa)
 - Add a folder which contains `imgui-SFML.h` to your include directories
 - Add `imgui-SFML.cpp` to your build/project
 - Link OpenGL if you get linking errors
+
+Other ways to add to your project(won't recommend as the versions tend to lag behind and are not
+---
+Not recommended, as they're not maintained officially. Tend to lag behind and stay on older versions.
+
+- [Conan](https://github.com/bincrafters/community/tree/main/recipes/imgui-sfml)
+- [vcpkg](https://github.com/microsoft/vcpkg/tree/master/ports/imgui-sfml)
+- [Bazel](https://github.com/zpervan/ImguiSFMLBazel)
 
 Using ImGui-SFML in your code
 ---
@@ -93,13 +110,12 @@ See example file [here](examples/main.cpp)
 #include "imgui.h"
 #include "imgui-SFML.h"
 
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
 
-int main()
-{
+int main() {
     sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
@@ -167,13 +183,42 @@ The first loaded font is treated as the default one and doesn't need to be pushe
 SFML related ImGui overloads / new widgets
 ---
 
-There are some useful overloads implemented for SFML objects (see header for overloads):
+There are some useful overloads implemented for SFML objects (see `imgui-SFML.h` for other overloads):
+
 ```cpp
 ImGui::Image(const sf::Sprite& sprite);
 ImGui::Image(const sf::Texture& texture);
+ImGui::Image(const sf::RenderTexture& texture);
+
 ImGui::ImageButton(const sf::Sprite& sprite);
 ImGui::ImageButton(const sf::Texture& texture);
+ImGui::ImageButton(const sf::RenderTexture& texture);
 ```
+
+A note about sf::RenderTexture
+---
+
+`sf::RenderTexture`'s texture is stored with pixels flipped upside down. To display it properly when drawing `ImGui::Image` or `ImGui::ImageButton`, use overloads for `sf::RenderTexture`:
+
+```cpp
+sf::RenderTexture texture;
+sf::Sprite sprite(texture.getTexture());
+ImGui::Image(texture);              // OK
+ImGui::Image(sprite);               // NOT OK
+ImGui::Image(texture.getTexture()); // NOT OK
+```
+
+If you want to draw only a part of `sf::RenderTexture` and you're trying to use `sf::Sprite` the texture will be displayed upside-down. To prevent this, you can do this:
+
+```cpp
+// make a normal sf::Texture from sf::RenderTexture's flipped texture
+sf::Texture texture(renderTexture.getTexture());
+
+sf::Sprite sprite(texture);
+ImGui::Image(sprite); // the texture is displayed properly
+```
+
+For more notes see [this issue](https://github.com/eliasdaler/imgui-sfml/issues/35).
 
 Mouse cursors
 ---
