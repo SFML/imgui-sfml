@@ -41,7 +41,7 @@ If you set `CMAKE_INSTALL_PREFIX` during configuration, you can install ImGui-SF
 
 Integrating into your project is simple.
 ```cmake
-find_package(ImGui-SFML REQUIRED)
+find_package(ImGui-SFML 2 REQUIRED)
 target_link_libraries(my_target PRIVATE ImGui-SFML::ImGui-SFML)
 ```
 
