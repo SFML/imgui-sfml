@@ -150,3 +150,14 @@ install(EXPORT ImGui-SFML
   NAMESPACE ImGui-SFML::
   FILE ImGui-SFMLConfig.cmake
 )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ImGui-SFMLConfigVersion.cmake
+  VERSION ${CMAKE_PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/ImGui-SFMLConfigVersion.cmake"
+  DESTINATION lib/cmake/ImGui-SFML
+)
