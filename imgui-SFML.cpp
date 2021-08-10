@@ -842,7 +842,8 @@ void RenderDrawLists(ImDrawData* draw_data) {
                     // Bind texture, Draw
                     GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->TextureId);
                     glBindTexture(GL_TEXTURE_2D, textureHandle);
-                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT,
+                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount,
+                                   sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
                                    idx_buffer);
                 }
             }
