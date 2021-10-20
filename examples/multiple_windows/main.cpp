@@ -45,9 +45,10 @@ int main() {
         }
 
         // Update
-        ImGui::SFML::Update(window, deltaClock.restart());
+        const sf::Time dt = deltaClock.restart();
+        ImGui::SFML::Update(window, dt);
         if (childWindow.isOpen()) {
-            ImGui::SFML::Update(childWindow, deltaClock.restart());
+            ImGui::SFML::Update(childWindow, dt);
         }
 
         // Add ImGui widgets in the first window
