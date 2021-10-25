@@ -155,8 +155,8 @@ struct StickInfo {
     float threshold;
 
     StickInfo() {
-        xAxis = sf::Joystick::Axis::X;
-        yAxis  = sf::Joystick::Axis::Y;
+        xAxis = sf::Joystick::X;
+        yAxis  = sf::Joystick::Y;
         xInverted = false;
         yInverted = false;
         threshold = 0.5;
