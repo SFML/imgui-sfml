@@ -95,8 +95,7 @@ Using ImGui-SFML in your code
     - Call `ImGui::SFML::Render(window)`
 
 - Call `ImGui::SFML::Shutdown()` **after** `window.close()` has been called
-    - Use `ImGui::SFML::Shutdown(window)` overload if you want to shutdown a different window than the window previously set with `ImGui::SFML::SetCurrentWindow(window)`. This works for current window as well.
-    - Calling either shutdown function will result in changing the current window to last registered valid window (with `ImGui::SFML::Init`). If no windows are available, current window is set to `NULL`.
+    - Use `ImGui::SFML::Shutdown(window)` overload if you have multiple windows. After it's called one of the current windows will become a current "global" window. Call `SetCurrentWindow` to explicitly set which window will be used as default.
 
 **If you only draw ImGui widgets without any SFML stuff, then you'll might need to call window.resetGLStates() before rendering anything. You only need to do it once.**
 
@@ -197,6 +196,7 @@ See `examples/multiple_windows` to see how you can create multiple SFML and run 
     ... // your custom rendering
     ImGui::Render();
     ```
+- When closing everything: don't forget to close all windows using SFML's `sf::Window::Close` and then call `ImGui::SFML::Shutdown` to remote all ImGui-SFML window contexts and other data.
 
 SFML related ImGui overloads / new widgets
 ---

@@ -41,6 +41,7 @@ IMGUI_SFML_API void Render(sf::RenderTarget& target);
 IMGUI_SFML_API void Render();
 
 IMGUI_SFML_API void Shutdown(const sf::Window& window);
+// Shuts down all ImGui contexts and removes ImGui-SFML data (or the only window if not using multiple)
 IMGUI_SFML_API void Shutdown();
 
 IMGUI_SFML_API void UpdateFontTexture();

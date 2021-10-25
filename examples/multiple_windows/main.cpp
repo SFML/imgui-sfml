@@ -25,10 +25,9 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 if (childWindow.isOpen()) {
                     childWindow.close();
-                    ImGui::SFML::Shutdown(childWindow);
                 }
                 window.close();
-                ImGui::SFML::Shutdown(window);
+                ImGui::SFML::Shutdown(); // will shutdown all windows
                 return 0; // return here so that we don't call Update/Render
             }
         }
