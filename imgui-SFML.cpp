@@ -156,7 +156,7 @@ struct StickInfo {
 
     StickInfo() {
         xAxis = sf::Joystick::X;
-        yAxis  = sf::Joystick::Y;
+        yAxis = sf::Joystick::Y;
         xInverted = false;
         yInverted = false;
         threshold = 0.5;
@@ -191,8 +191,7 @@ struct WindowContext {
 #endif
 #endif
 
-    WindowContext(const sf::Window* w)
-    {
+    WindowContext(const sf::Window* w) {
         window = w;
         imContext = ImGui::CreateContext();
         fontTexture = new sf::Texture;
@@ -231,7 +230,6 @@ struct WindowContext {
 
         ImGui::DestroyContext(imContext);
     }
-
 };
 
 std::vector<WindowContext*> s_windowContexts;
