@@ -278,12 +278,8 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.KeyMap[ImGuiKey_Home] = sf::Keyboard::Home;
     io.KeyMap[ImGuiKey_End] = sf::Keyboard::End;
     io.KeyMap[ImGuiKey_Insert] = sf::Keyboard::Insert;
-#ifdef ANDROID
-    io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::Delete;
-#else
     io.KeyMap[ImGuiKey_Delete] = sf::Keyboard::Delete;
     io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::BackSpace;
-#endif
     io.KeyMap[ImGuiKey_Space] = sf::Keyboard::Space;
     io.KeyMap[ImGuiKey_Enter] = sf::Keyboard::Return;
     io.KeyMap[ImGuiKey_Escape] = sf::Keyboard::Escape;
