@@ -77,26 +77,27 @@ Not recommended, as they're not maintained officially. Tend to lag behind and st
 Using ImGui-SFML in your code
 ---
 
-- Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there. You can create your font atlas and pass the pointer in Init too, otherwise the default internal font atlas will be created for you.
+- Call `ImGui::SFML::Init` and pass your `sf::Window` + `sf::RenderTarget` or `sf::RenderWindow` there. You can create your font atlas and pass the pointer in Init too, otherwise the default internal font atlas will be created for you. Do this for each window you want to draw ImGui on.
 - For each iteration of a game loop:
     - Poll and process events:
 
         ```cpp
         sf::Event event;
         while (window.pollEvent(event)) {
-            ImGui::SFML::ProcessEvent(event);
+            ImGui::SFML::ProcessEvent(window, event);
             ...
         }
         ```
 
-    - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`. You can also pass mousePosition and displaySize yourself instead of passing the window.
+    - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`. You can also pass `mousePosition` and `displaySize` yourself instead of passing the window.
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` after the last `ImGui::End` in your update function, if you update more than once before rendering. (e.g. fixed delta game loops)
     - Call `ImGui::SFML::Render(window)`
 
-- Call `ImGui::SFML::Shutdown()` after `window.close()` has been called
+- Call `ImGui::SFML::Shutdown()` **after** `window.close()` has been called
+    - Use `ImGui::SFML::Shutdown(window)` overload if you have multiple windows. After it's called one of the current windows will become a current "global" window. Call `SetCurrentWindow` to explicitly set which window will be used as default.
 
-**If you only draw ImGui widgets without any SFML stuff, then you'll have to call window.resetGLStates() before rendering anything. You only need to do it once.**
+**If you only draw ImGui widgets without any SFML stuff, then you'll might need to call window.resetGLStates() before rendering anything. You only need to do it once.**
 
 Example code
 ----
@@ -124,7 +125,7 @@ int main() {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            ImGui::SFML::ProcessEvent(event);
+            ImGui::SFML::ProcessEvent(window, event);
 
             if (event.type == sf::Event::Closed) {
                 window.close();
@@ -176,6 +177,26 @@ ImGui::PopFont();
 ```
 
 The first loaded font is treated as the default one and doesn't need to be pushed with `ImGui::PushFont`.
+
+Multiple windows
+----------------
+
+See `examples/multiple_windows` to see how you can create multiple SFML and run different ImGui contexts in them.
+
+- Don't forget to run `ImGui::SFML::Init(const sf::Window&)` for each window you create. Same goes for `ImGui::SFML::Shutdown(const sf::Window&)`
+- Instead of calling `ImGui::SFML::ProcessEvent(sf::Event&)`, you need to call `ImGui::SFML::ProcessEvent(const sf::Window&, const sf::Event&)` overload for each window you create
+- Call `ImGui::SFML::SetCurrentWindow` before calling any `ImGui` functions (e.g. `ImGui::Begin`, `ImGui::Button` etc.)
+- Either call `ImGui::Render(sf::RenderWindow&)` overload for each window or manually do this:
+    ```cpp
+    SetCurrentWindow(window);
+    ... // your custom rendering
+    ImGui::Render();
+
+    SetCurrentWindow(window2);
+    ... // your custom rendering
+    ImGui::Render();
+    ```
+- When closing everything: don't forget to close all windows using SFML's `sf::Window::Close` and then call `ImGui::SFML::Shutdown` to remote all ImGui-SFML window contexts and other data.
 
 SFML related ImGui overloads / new widgets
 ---
