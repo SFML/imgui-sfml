@@ -1,4 +1,4 @@
-ImGui-SFML v2.3
+ImGui-SFML v2.4
 =======
 [![build Actions Status](https://github.com/eliasdaler/imgui-sfml/workflows/build/badge.svg)](https://github.com/eliasdaler/imgui-sfml/actions)
 
