@@ -125,6 +125,7 @@ jobs:
         repository: SFML/SFML
         submodules: recursive
         path: SFML
+        ref: 27a4c83ebc724a978e554e77f5f231b887e0bdd9 # This commit is close to 2.5.1 and fixes CMake install paths
 
     - name: Checkout Dear ImGui
       uses: actions/checkout@v2
