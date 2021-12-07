@@ -24,4 +24,3 @@
                          static_cast<sf::Uint8>(z * 255.f), static_cast<sf::Uint8>(w * 255.f));    \
     }
 
-#define ImTextureID unsigned int
