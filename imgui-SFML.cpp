@@ -557,7 +557,7 @@ void Shutdown(const sf::Window& window) {
             break;
         }
     }
-    (void) ctxFound; // prevent warning in RELEASE mode
+    (void)ctxFound; // prevent warning in RELEASE mode
     assert(ctxFound && "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
     s_windowContexts.erase(s_windowContexts.begin() + ctxIdxToErase);
 }
