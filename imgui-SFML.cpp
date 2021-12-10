@@ -279,9 +279,9 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.KeyMap[ImGuiKey_End] = sf::Keyboard::End;
     io.KeyMap[ImGuiKey_Insert] = sf::Keyboard::Insert;
     io.KeyMap[ImGuiKey_Delete] = sf::Keyboard::Delete;
-    io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::BackSpace;
+    io.KeyMap[ImGuiKey_Backspace] = sf::Keyboard::Backspace;
     io.KeyMap[ImGuiKey_Space] = sf::Keyboard::Space;
-    io.KeyMap[ImGuiKey_Enter] = sf::Keyboard::Return;
+    io.KeyMap[ImGuiKey_Enter] = sf::Keyboard::Enter;
     io.KeyMap[ImGuiKey_Escape] = sf::Keyboard::Escape;
     io.KeyMap[ImGuiKey_A] = sf::Keyboard::A;
     io.KeyMap[ImGuiKey_C] = sf::Keyboard::C;
@@ -557,6 +557,7 @@ void Shutdown(const sf::Window& window) {
             break;
         }
     }
+    (void)ctxFound; // prevent warning in RELEASE mode
     assert(ctxFound && "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
     s_windowContexts.erase(s_windowContexts.begin() + ctxIdxToErase);
 }
