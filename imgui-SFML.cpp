@@ -20,7 +20,7 @@
 #include <cstddef> // offsetof, NULL, size_t
 #include <cstring> // memcpy
 
-#include <vector>
+#include <map>
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -232,7 +232,8 @@ struct WindowContext {
     }
 };
 
-std::vector<WindowContext*> s_windowContexts;
+typedef std::map<sf::WindowHandle, WindowContext*> WindowContextsMap;
+WindowContextsMap s_windowContexts;
 WindowContext* s_currWindowCtx = NULL;
 
 } // end of anonymous namespace
@@ -254,9 +255,9 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
                                                    // GLuint.
 #endif
 
-    s_windowContexts.push_back(new WindowContext(&window));
+    s_currWindowCtx = new WindowContext(&window);
+    s_windowContexts.insert({window.getSystemHandle(), s_currWindowCtx});
 
-    s_currWindowCtx = s_windowContexts.back();
     ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -319,14 +320,13 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 }
 
 void SetCurrentWindow(const sf::Window& window) {
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        if (s_windowContexts[i]->window->getSystemHandle() == window.getSystemHandle()) {
-            s_currWindowCtx = s_windowContexts[i];
-            ImGui::SetCurrentContext(s_currWindowCtx->imContext);
-            return;
-        }
+    if (s_windowContexts.find(window.getSystemHandle()) == s_windowContexts.end()) {
+        assert(false &&
+               "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
     }
-    assert(false && "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
+
+    s_currWindowCtx = s_windowContexts[window.getSystemHandle()];
+    ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 }
 
 void ProcessEvent(const sf::Window& window, const sf::Event& event) {
@@ -529,45 +529,39 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
+    if (s_windowContexts.find(window.getSystemHandle()) == s_windowContexts.end()) {
+        assert(false &&
+                "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
+    }
+
+    // check if the current window's context is the one we want to remove
+    const bool isCurrentWindowCtx =
+        window.getSystemHandle() == s_currWindowCtx->window->getSystemHandle();
+
+    // remove window's context  
+    delete s_windowContexts[window.getSystemHandle()];
+    s_windowContexts.erase(window.getSystemHandle());
+
     // set current context to some window for convenience if needed
-    if (window.getSystemHandle() == s_currWindowCtx->window->getSystemHandle()) {
-        if (s_windowContexts.size() > 1) {
+    if (isCurrentWindowCtx) {
+        if (!s_windowContexts.empty()) {
             // set to some other window
-            for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-                if (s_windowContexts[i]->window->getSystemHandle() != window.getSystemHandle()) {
-                    s_currWindowCtx = s_windowContexts[i];
-                    ImGui::SetCurrentContext(s_currWindowCtx->imContext);
-                    break;
-                }
-            }
+            s_currWindowCtx = s_windowContexts.begin()->second;
+            ImGui::SetCurrentContext(s_currWindowCtx->imContext);
         } else {
             // no alternatives...
             s_currWindowCtx = NULL;
+            ImGui::SetCurrentContext(NULL);
         }
     }
-
-    // remove window's context
-    std::size_t ctxIdxToErase = 0;
-    bool ctxFound = true;
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        if (s_windowContexts[i]->window->getSystemHandle() == window.getSystemHandle()) {
-            delete s_windowContexts[i];
-            ctxIdxToErase = i;
-            ctxFound = true;
-            break;
-        }
-    }
-    (void)ctxFound; // prevent warning in RELEASE mode
-    assert(ctxFound && "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
-    s_windowContexts.erase(s_windowContexts.begin() + ctxIdxToErase);
 }
 
 void Shutdown() {
     s_currWindowCtx = NULL;
     ImGui::SetCurrentContext(NULL);
 
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        delete s_windowContexts[i];
+    for (WindowContextsMap::iterator it = s_windowContexts.begin(); it != s_windowContexts.end(); ++it) {
+        delete it->second;
     }
     s_windowContexts.clear();
 }
