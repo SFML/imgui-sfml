@@ -239,15 +239,15 @@ WindowContext* s_currWindowCtx = NULL;
 
 namespace ImGui {
 namespace SFML {
-void Init(sf::RenderWindow& window, bool loadDefaultFont) {
-    Init(window, window, loadDefaultFont);
+bool Init(sf::RenderWindow& window, bool loadDefaultFont) {
+    return Init(window, window, loadDefaultFont);
 }
 
-void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
-    Init(window, static_cast<sf::Vector2f>(target.getSize()), loadDefaultFont);
+bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
+    return Init(window, static_cast<sf::Vector2f>(target.getSize()), loadDefaultFont);
 }
 
-void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont) {
+bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont) {
 #if __cplusplus < 201103L // runtime assert when using earlier than C++11 as no
                           // static_assert support
     assert(sizeof(GLuint) <= sizeof(ImTextureID)); // ImTextureID is not large enough to fit
@@ -314,8 +314,10 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     if (loadDefaultFont) {
         // this will load default font automatically
         // No need to call AddDefaultFont
-        UpdateFontTexture();
+        return UpdateFontTexture();
     }
+
+    return true;
 }
 
 void SetCurrentWindow(const sf::Window& window) {
@@ -572,7 +574,7 @@ void Shutdown() {
     s_windowContexts.clear();
 }
 
-void UpdateFontTexture() {
+bool UpdateFontTexture() {
     assert(s_currWindowCtx);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -582,11 +584,16 @@ void UpdateFontTexture() {
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     sf::Texture& texture = *s_currWindowCtx->fontTexture;
-    texture.create(width, height);
+    if (!texture.create(width, height)) {
+        return false;
+    }
+
     texture.update(pixels);
 
     ImTextureID texID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
     io.Fonts->SetTexID(texID);
+
+    return true;
 }
 
 sf::Texture& GetFontTexture() {
