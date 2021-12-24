@@ -688,39 +688,61 @@ void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf:
 /////////////// Image Overloads for sf::Sprite
 
 void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color& borderColor) {
-	Image(sprite, sf::Transform::Identity, tintColor, borderColor);
+	Image(sprite, sprite.getGlobalBounds().getSize(), sf::Transform::Identity, tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite, const sf::Transform& additionalTransform, const sf::Color& tintColor,
-    const sf::Color& borderColor)
+void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
+    const sf::Color& borderColor) {
+	Image(sprite, size, sf::Transform::Identity, tintColor, borderColor);
+}
+
+void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transform& additionalTransform,
+    const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    const sf::Texture* texturePtr = sprite.getTexture();
-    // sprite without texture cannot be drawn
-    if (!texturePtr) {
+    const sf::IntRect& textureRect = sprite.getTextureRect();
+
+    // sprite without or empty texture cannot be drawn
+    if (!sprite.getTexture() ||
+        textureRect.width <= 0 || textureRect.height <= 0 ||
+        size.x <= 0 || size.y <= 0) {
         return;
     }
 
+    // simply taken form ImGui::Image
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
         return;
 
-    const sf::Texture& texture = *texturePtr;
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    const sf::IntRect& textureRect = sprite.getTextureRect();
+    ImRect itemBB(window->DC.CursorPos.x, window->DC.CursorPos.y,
+        window->DC.CursorPos.x + size.x, window->DC.CursorPos.y + size.y);
+    if (borderColor.a > 0)
+    {
+        itemBB.Max.x += 2;
+        itemBB.Max.y += 2;
+    }
+
+    ItemSize(itemBB);
+    if (!ItemAdd(itemBB, 0))
+        return;
+
+    // prepare uv coordinates
+    const sf::Vector2f textureSize = static_cast<sf::Vector2f>(sprite.getTexture()->getSize());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
 
-    const ImVec2 uvs[4] =
-    {
-        uv0,
-        ImVec2(uv1.x, uv0.y),
-        uv1,
-        ImVec2(uv0.x, uv1.y)
-    };
+    sf::Transform transform = additionalTransform * sprite.getTransform();
+	sf::FloatRect spriteRect = sprite.getLocalBounds();
+	const sf::FloatRect bounding = transform.transformRect(spriteRect);
 
-    sf::FloatRect spriteRect = sprite.getLocalBounds();
+    // applies the transformations which are expected as a child of the parent window
+    sf::Transform childTransform;
+    childTransform.translate(itemBB.Min.x, itemBB.Min.y).
+        scale(size.x / bounding.width, size.y / bounding.height).
+        translate(-bounding.getPosition());
+    transform = childTransform * transform;
+    
+
     if (borderColor.a > 0)
     {
         spriteRect.left += 1;
@@ -729,7 +751,10 @@ void Image(const sf::Sprite& sprite, const sf::Transform& additionalTransform, c
         spriteRect.height -= 2;
     }
 
-    const sf::Transform transform = additionalTransform * sprite.getTransform();
+	ItemSize(itemBB);
+    if (!ItemAdd(itemBB, 0))
+        return;
+
     ImVec2 pos[4];
     toImVec2Quad(spriteRect, transform, pos);
 
@@ -740,7 +765,9 @@ void Image(const sf::Sprite& sprite, const sf::Transform& additionalTransform, c
         window->DrawList->AddQuad(borderPos[0], borderPos[1], borderPos[2], borderPos[3], toImColor(borderColor), 0.f);
     }
 
-    window->DrawList->AddImageQuad(textureID, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], toImColor(tintColor));
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(sprite.getTexture()->getNativeHandle());
+    window->DrawList->AddImageQuad(textureID, pos[0], pos[1], pos[2], pos[3],
+        uv0, ImVec2(uv1.x, uv0.y), uv1, ImVec2(uv0.x, uv1.y), toImColor(tintColor));
 }
 
 /////////////// Image Button Overloads for sf::Texture
