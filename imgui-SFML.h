@@ -22,6 +22,7 @@ class RenderTexture;
 class RenderWindow;
 class Sprite;
 class Texture;
+class Transform;
 class Window;
 }
 
@@ -87,7 +88,7 @@ IMGUI_SFML_API void Image(const sf::RenderTexture& texture, const sf::Vector2f& 
 // Image overloads for sf::Sprite
 IMGUI_SFML_API void Image(const sf::Sprite& sprite, const sf::Color& tintColor = sf::Color::White,
                           const sf::Color& borderColor = sf::Color::Transparent);
-IMGUI_SFML_API void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
+IMGUI_SFML_API void Image(const sf::Sprite& sprite, const sf::Transform& transform,
                           const sf::Color& tintColor = sf::Color::White,
                           const sf::Color& borderColor = sf::Color::Transparent);
 

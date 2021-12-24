@@ -1,5 +1,6 @@
 #include "imgui-SFML.h"
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -116,6 +117,7 @@ namespace {
 ImColor toImColor(sf::Color c);
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
+void toImVec2Quad(const sf::FloatRect& rect, const sf::Transform& transform, ImVec2 quad[4]);
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
@@ -686,29 +688,59 @@ void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf:
 /////////////// Image Overloads for sf::Sprite
 
 void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color& borderColor) {
-    sf::FloatRect bounds = sprite.getGlobalBounds();
-    Image(sprite, sf::Vector2f(bounds.width, bounds.height), tintColor, borderColor);
+	Image(sprite, sf::Transform::Identity, tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
-           const sf::Color& borderColor) {
+void Image(const sf::Sprite& sprite, const sf::Transform& additionalTransform, const sf::Color& tintColor,
+    const sf::Color& borderColor)
+{
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
         return;
     }
 
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return;
+
     const sf::Texture& texture = *texturePtr;
+    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
     const sf::IntRect& textureRect = sprite.getTextureRect();
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
 
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    const ImVec2 uvs[4] =
+    {
+        uv0,
+        ImVec2(uv1.x, uv0.y),
+        uv1,
+        ImVec2(uv0.x, uv1.y)
+    };
 
-    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(tintColor),
-                 toImColor(borderColor));
+    sf::FloatRect spriteRect = sprite.getLocalBounds();
+    if (borderColor.a > 0)
+    {
+        spriteRect.left += 1;
+        spriteRect.top += 1;
+        spriteRect.width -= 2;
+        spriteRect.height -= 2;
+    }
+
+    const sf::Transform transform = additionalTransform * sprite.getTransform();
+    ImVec2 pos[4];
+    toImVec2Quad(spriteRect, transform, pos);
+
+    if (borderColor.a > 0)
+    {
+        ImVec2 borderPos[4];
+        toImVec2Quad(sprite.getLocalBounds(), transform, borderPos);
+        window->DrawList->AddQuad(borderPos[0], borderPos[1], borderPos[2], borderPos[3], toImColor(borderColor), 0.f);
+    }
+
+    window->DrawList->AddImageQuad(textureID, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], toImColor(tintColor));
 }
 
 /////////////// Image Button Overloads for sf::Texture
@@ -814,6 +846,12 @@ ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect) {
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
     ImVec2 pos = ImGui::GetCursorScreenPos();
     return ImVec2(rect.left + rect.width + pos.x, rect.top + rect.height + pos.y);
+}
+void toImVec2Quad(const sf::FloatRect& rect, const sf::Transform& transform, ImVec2 quad[4]) {
+    quad[0] = static_cast<ImVec2>(transform * rect.getPosition());
+    quad[1] = static_cast<ImVec2>(transform * (rect.getPosition() + sf::Vector2f(rect.width, 0.f )));
+    quad[2] = static_cast<ImVec2>(transform * (rect.getPosition() + rect.getSize()));
+    quad[3] = static_cast<ImVec2>(transform * (rect.getPosition() + sf::Vector2f(0.f, rect.height)));
 }
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
