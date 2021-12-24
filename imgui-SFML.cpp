@@ -701,9 +701,8 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
 {
     const sf::IntRect& textureRect = sprite.getTextureRect();
 
-    // sprite without or empty texture cannot be drawn
+    // sprite without texture on empty frame cannot be drawn
     if (!sprite.getTexture() ||
-        textureRect.width <= 0 || textureRect.height <= 0 ||
         size.x <= 0 || size.y <= 0) {
         return;
     }
