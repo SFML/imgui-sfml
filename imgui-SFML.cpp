@@ -706,7 +706,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     }
 
     // \begin: emulate behaviour of ImGui::Image
-    ImGuiWindow* window = GetCurrentWindow();
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return;
 
