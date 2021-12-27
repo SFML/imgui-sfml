@@ -718,8 +718,8 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         itemBB.Max.y += 2;
     }
 
-    ItemSize(itemBB);
-    if (!ItemAdd(itemBB, 0))
+    ImGui::ItemSize(itemBB);
+    if (!ImGui::ItemAdd(itemBB, 0))
         return;
 
     // prepare uv coordinates
