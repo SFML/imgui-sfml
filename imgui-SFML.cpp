@@ -700,35 +700,36 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
     // sprite without texture or item with dimensions of zero cannot be drawn
-    if (!sprite.getTexture() ||
-        size.x <= 0 || size.y <= 0) {
+    if (!sprite.getTexture() || size.x <= 0 || size.y <= 0) {
         return;
     }
 
     // \begin: emulate behaviour of ImGui::Image
     ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems)
+    if (window->SkipItems) {
         return;
+    }
 
     ImRect itemBB(window->DC.CursorPos.x, window->DC.CursorPos.y,
         window->DC.CursorPos.x + size.x, window->DC.CursorPos.y + size.y);
-    if (borderColor.a > 0)
-    {
+    if (borderColor.a > 0) {
         itemBB.Max.x += 2;
         itemBB.Max.y += 2;
     }
 
     ImGui::ItemSize(itemBB);
-    if (!ImGui::ItemAdd(itemBB, 0))
+    if (!ImGui::ItemAdd(itemBB, 0)) {
         return;
+    }
     // \end: emulate behaviour of ImGui::Image
 
     // prepare uv coordinates
     const sf::IntRect& textureRect = sprite.getTextureRect();
     const sf::Vector2f textureSize = static_cast<sf::Vector2f>(sprite.getTexture()->getSize());
     // would result in a division by zero
-    if (textureSize.x == 0 || textureSize.y == 0)
+    if (textureSize.x == 0 || textureSize.y == 0) {
         return;
+    }
     const ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     const ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
@@ -745,15 +746,13 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         translate(-bounding.getPosition());
     finalTransform = itemTransform * finalTransform;
 
-    if (borderColor.a > 0)
-    {
+    if (borderColor.a > 0) {
         window->DrawList->AddRect(itemBB.Min, itemBB.Max, toImColor(borderColor), 0.f);
     }
 
 	ImVec2 pos[4];
     toImVec2Quad(spriteRect, finalTransform, pos);
-
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(sprite.getTexture()->getNativeHandle());
+    const ImTextureID textureID = convertGLTextureHandleToImTextureID(sprite.getTexture()->getNativeHandle());
     window->DrawList->AddImageQuad(textureID, pos[0], pos[1], pos[2], pos[3],
         uv0, ImVec2(uv1.x, uv0.y), uv1, ImVec2(uv0.x, uv1.y), toImColor(tintColor));
 }
