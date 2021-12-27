@@ -732,7 +732,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
 
     sf::Transform finalTransform = transform * sprite.getTransform();
 	sf::FloatRect spriteRect = sprite.getLocalBounds();
-	const sf::FloatRect bounding = transform.transformRect(spriteRect);
+	const sf::FloatRect bounding = finalTransform.transformRect(spriteRect);
 
     // applies the transformations which are expected as a item of the parent window
     const float offset = static_cast<float>(borderColor.a > 0);
