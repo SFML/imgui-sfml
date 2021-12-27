@@ -705,7 +705,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         return;
     }
 
-    // simply taken form ImGui::Image
+    // \begin: emulate behaviour of ImGui::Image
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
         return;
@@ -721,6 +721,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     ImGui::ItemSize(itemBB);
     if (!ImGui::ItemAdd(itemBB, 0))
         return;
+    // \end: emulate behaviour of ImGui::Image
 
     // prepare uv coordinates
     const sf::IntRect& textureRect = sprite.getTextureRect();
