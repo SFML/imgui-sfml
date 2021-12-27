@@ -696,11 +696,9 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 	Image(sprite, size, sf::Transform::Identity, tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transform& additionalTransform,
+void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transform& transform,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    const sf::IntRect& textureRect = sprite.getTextureRect();
-
     // sprite without texture on empty frame cannot be drawn
     if (!sprite.getTexture() ||
         size.x <= 0 || size.y <= 0) {
@@ -730,7 +728,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
 
-    sf::Transform transform = additionalTransform * sprite.getTransform();
+    sf::Transform finalTransform = transform * sprite.getTransform();
 	sf::FloatRect spriteRect = sprite.getLocalBounds();
 	const sf::FloatRect bounding = transform.transformRect(spriteRect);
 
@@ -739,7 +737,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     childTransform.translate(itemBB.Min.x, itemBB.Min.y).
         scale(size.x / bounding.width, size.y / bounding.height).
         translate(-bounding.getPosition());
-    transform = childTransform * transform;
+    finalTransform = childTransform * finalTransform;
     
 
     if (borderColor.a > 0)
@@ -755,12 +753,12 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         return;
 
     ImVec2 pos[4];
-    toImVec2Quad(spriteRect, transform, pos);
+    toImVec2Quad(spriteRect, finalTransform, pos);
 
     if (borderColor.a > 0)
     {
         ImVec2 borderPos[4];
-        toImVec2Quad(sprite.getLocalBounds(), transform, borderPos);
+        toImVec2Quad(sprite.getLocalBounds(), finalTransform, borderPos);
         window->DrawList->AddQuad(borderPos[0], borderPos[1], borderPos[2], borderPos[3], toImColor(borderColor), 0.f);
     }
 
