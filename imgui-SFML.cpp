@@ -726,7 +726,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     // prepare uv coordinates
     const sf::IntRect& textureRect = sprite.getTextureRect();
     const sf::Vector2f textureSize = static_cast<sf::Vector2f>(sprite.getTexture()->getSize());
-    // would result in a division by zero
+    // would lead to a division by zero
     if (textureSize.x == 0 || textureSize.y == 0) {
         return;
     }
@@ -737,6 +737,10 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     sf::Transform finalTransform = transform * sprite.getTransform();
 	const sf::FloatRect spriteRect = sprite.getLocalBounds();
 	const sf::FloatRect bounding = finalTransform.transformRect(spriteRect);
+    // would lead to a division by zero
+    if (bounding.width == 0 || bounding.height == 0) {
+        return;
+    }
 
     // applies the transformations which are expected as a item of the parent window
     const float offset = static_cast<float>(borderColor.a > 0);
