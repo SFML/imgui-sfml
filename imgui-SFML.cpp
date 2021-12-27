@@ -21,6 +21,7 @@
 #include <cstddef> // offsetof, NULL, size_t
 #include <cstring> // memcpy
 
+#include <utility>  // pair
 #include <vector>
 
 #ifdef ANDROID
@@ -118,6 +119,8 @@ ImColor toImColor(sf::Color c);
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
 void toImVec2Quad(const sf::FloatRect& rect, const sf::Transform& transform, ImVec2 quad[4]);
+
+std::pair<bool, ImRect> addWindowItem(const sf::Vector2f& size, bool useBorder);
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
@@ -704,24 +707,11 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         return;
     }
 
-    // \begin: emulate behaviour of ImGui::Image
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
+    const std::pair<bool, ImRect> itemInfo =  addWindowItem(size, borderColor.a > 0);
+    if (!itemInfo.first) {
         return;
     }
-
-    ImRect itemBB(window->DC.CursorPos.x, window->DC.CursorPos.y,
-        window->DC.CursorPos.x + size.x, window->DC.CursorPos.y + size.y);
-    if (borderColor.a > 0) {
-        itemBB.Max.x += 2;
-        itemBB.Max.y += 2;
-    }
-
-    ImGui::ItemSize(itemBB);
-    if (!ImGui::ItemAdd(itemBB, 0)) {
-        return;
-    }
-    // \end: emulate behaviour of ImGui::Image
+    const ImRect& itemBB = itemInfo.second;
 
     // prepare uv coordinates
     const sf::IntRect& textureRect = sprite.getTextureRect();
@@ -750,6 +740,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         translate(-bounding.getPosition());
     finalTransform = itemTransform * finalTransform;
 
+    ImGuiWindow* window = GetCurrentWindow();
     if (borderColor.a > 0) {
         window->DrawList->AddRect(itemBB.Min, itemBB.Max, toImColor(borderColor), 0.f);
     }
@@ -870,6 +861,25 @@ void toImVec2Quad(const sf::FloatRect& rect, const sf::Transform& transform, ImV
     quad[1] = static_cast<ImVec2>(transform * (rect.getPosition() + sf::Vector2f(rect.width, 0.f )));
     quad[2] = static_cast<ImVec2>(transform * (rect.getPosition() + rect.getSize()));
     quad[3] = static_cast<ImVec2>(transform * (rect.getPosition() + sf::Vector2f(0.f, rect.height)));
+}
+
+std::pair<bool, ImRect> addWindowItem(const sf::Vector2f& size, bool useBorder) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window && !window->SkipItems)
+    {
+        ImRect itemBB(window->DC.CursorPos.x, window->DC.CursorPos.y,
+            window->DC.CursorPos.x + size.x, window->DC.CursorPos.y + size.y);
+        if (useBorder) {
+            itemBB.Max.x += 2;
+            itemBB.Max.y += 2;
+        }
+
+        ImGui::ItemSize(itemBB);
+        if (ImGui::ItemAdd(itemBB, 0)) {
+            return std::make_pair(true, itemBB);
+        }
+    }
+    return std::make_pair(false, ImRect(0, 0, 0, 0));
 }
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
