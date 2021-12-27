@@ -734,8 +734,9 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
 	const sf::FloatRect bounding = transform.transformRect(spriteRect);
 
     // applies the transformations which are expected as a item of the parent window
+    const float offset = static_cast<float>(borderColor.a > 0);
     sf::Transform itemTransform;
-    itemTransform.translate(itemBB.Min.x, itemBB.Min.y).
+    itemTransform.translate(itemBB.Min.x + offset, itemBB.Min.y + offset).
         scale(size.x / bounding.width, size.y / bounding.height).
         translate(-bounding.getPosition());
     finalTransform = itemTransform * finalTransform;
