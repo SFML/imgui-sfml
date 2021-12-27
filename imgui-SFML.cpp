@@ -723,6 +723,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         return;
 
     // prepare uv coordinates
+    const sf::IntRect& textureRect = sprite.getTextureRect();
     const sf::Vector2f textureSize = static_cast<sf::Vector2f>(sprite.getTexture()->getSize());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
@@ -732,12 +733,12 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
 	sf::FloatRect spriteRect = sprite.getLocalBounds();
 	const sf::FloatRect bounding = transform.transformRect(spriteRect);
 
-    // applies the transformations which are expected as a child of the parent window
-    sf::Transform childTransform;
-    childTransform.translate(itemBB.Min.x, itemBB.Min.y).
+    // applies the transformations which are expected as a item of the parent window
+    sf::Transform itemTransform;
+    itemTransform.translate(itemBB.Min.x, itemBB.Min.y).
         scale(size.x / bounding.width, size.y / bounding.height).
         translate(-bounding.getPosition());
-    finalTransform = childTransform * finalTransform;
+    finalTransform = itemTransform * finalTransform;
     
 
     if (borderColor.a > 0)
