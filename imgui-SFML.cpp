@@ -726,12 +726,15 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
     // prepare uv coordinates
     const sf::IntRect& textureRect = sprite.getTextureRect();
     const sf::Vector2f textureSize = static_cast<sf::Vector2f>(sprite.getTexture()->getSize());
+    // would result in a division by zero
+    if (textureSize.x == 0 || textureSize.y == 0)
+        return;
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
 
     sf::Transform finalTransform = transform * sprite.getTransform();
-	sf::FloatRect spriteRect = sprite.getLocalBounds();
+	const sf::FloatRect spriteRect = sprite.getLocalBounds();
 	const sf::FloatRect bounding = finalTransform.transformRect(spriteRect);
 
     // applies the transformations which are expected as a item of the parent window
