@@ -699,7 +699,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transform& transform,
     const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    // sprite without texture on empty frame cannot be drawn
+    // sprite without texture or item with dimensions of zero cannot be drawn
     if (!sprite.getTexture() ||
         size.x <= 0 || size.y <= 0) {
         return;
