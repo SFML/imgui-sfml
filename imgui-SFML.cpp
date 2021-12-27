@@ -740,25 +740,14 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         scale(size.x / bounding.width, size.y / bounding.height).
         translate(-bounding.getPosition());
     finalTransform = itemTransform * finalTransform;
-    
 
     if (borderColor.a > 0)
     {
-        spriteRect.left += 1;
-        spriteRect.top += 1;
-        spriteRect.width -= 2;
-        spriteRect.height -= 2;
+        window->DrawList->AddRect(itemBB.Min, itemBB.Max, toImColor(borderColor), 0.f);
     }
 
-    ImVec2 pos[4];
+	ImVec2 pos[4];
     toImVec2Quad(spriteRect, finalTransform, pos);
-
-    if (borderColor.a > 0)
-    {
-        ImVec2 borderPos[4];
-        toImVec2Quad(sprite.getLocalBounds(), finalTransform, borderPos);
-        window->DrawList->AddQuad(borderPos[0], borderPos[1], borderPos[2], borderPos[3], toImColor(borderColor), 0.f);
-    }
 
     ImTextureID textureID = convertGLTextureHandleToImTextureID(sprite.getTexture()->getNativeHandle());
     window->DrawList->AddImageQuad(textureID, pos[0], pos[1], pos[2], pos[3],
