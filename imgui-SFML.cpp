@@ -750,10 +750,6 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Transfo
         spriteRect.height -= 2;
     }
 
-	ItemSize(itemBB);
-    if (!ItemAdd(itemBB, 0))
-        return;
-
     ImVec2 pos[4];
     toImVec2Quad(spriteRect, finalTransform, pos);
 
