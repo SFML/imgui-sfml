@@ -173,6 +173,7 @@ struct WindowContext {
     bool windowHasFocus;
     bool mouseMoved;
     bool mousePressed[3];
+    ImGuiMouseCursor lastCursor;
 
     bool touchDown[3];
     sf::Vector2i touchPos;
@@ -202,6 +203,7 @@ struct WindowContext {
             mousePressed[i] = false;
             touchDown[i] = false;
         }
+        lastCursor = ImGuiMouseCursor_COUNT;
 
         joystickId = getConnectedJoystickId();
         for (int i = 0; i < ImGuiNavInput_COUNT; ++i) {
@@ -432,21 +434,22 @@ void Update(sf::RenderWindow& window, sf::Time dt) {
 
 void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
     SetCurrentWindow(window);
-    // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
-    updateMouseCursor(window);
-
     assert(s_currWindowCtx);
+
+    // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
+    ImGuiMouseCursor mouse_cursor =
+        ImGui::GetIO().MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
+    if (s_currWindowCtx->lastCursor != mouse_cursor) {
+        s_currWindowCtx->lastCursor = mouse_cursor;
+        updateMouseCursor(window);
+    }
+
     if (!s_currWindowCtx->mouseMoved) {
         if (sf::Touch::isDown(0)) s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
 
         Update(s_currWindowCtx->touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
     } else {
         Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
-    }
-
-    if (ImGui::GetIO().MouseDrawCursor) {
-        // Hide OS mouse cursor if imgui is drawing it
-        window.setMouseCursorVisible(false);
     }
 }
 
