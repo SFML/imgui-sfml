@@ -223,7 +223,7 @@ struct WindowContext {
     ~WindowContext() {
         delete fontTexture;
         for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-            if (mouseCursorLoaded[i]) {
+            if (mouseCursors[i] != nullptr) {
                 delete mouseCursors[i];
             }
         }
