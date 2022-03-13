@@ -850,35 +850,38 @@ void SetJoytickRTriggerThreshold(float threshold) {
     s_currWindowCtx->rTriggerInfo.threshold = threshold;
 }
 
-void SetJoystickMapping(ImGuiKey_ key, unsigned int joystickButton) {
+void SetJoystickMapping(int key, unsigned int joystickButton) {
     assert(s_currWindowCtx);
     // This function now expects ImGuiKey_* values.
     // For partial backwards compatibility, also expect some ImGuiNavInput_* values.
+    ImGuiKey_ finalKey;
     switch (key) {
     case ImGuiNavInput_Activate:
-        key = ImGuiKey_GamepadFaceDown;
+        finalKey = ImGuiKey_GamepadFaceDown;
         break;
     case ImGuiNavInput_Cancel:
-        key = ImGuiKey_GamepadFaceRight;
+        finalKey = ImGuiKey_GamepadFaceRight;
         break;
     case ImGuiNavInput_Input:
-        key = ImGuiKey_GamepadFaceUp;
+        finalKey = ImGuiKey_GamepadFaceUp;
         break;
     case ImGuiNavInput_Menu:
-        key = ImGuiKey_GamepadFaceLeft;
+        finalKey = ImGuiKey_GamepadFaceLeft;
         break;
     case ImGuiNavInput_FocusPrev:
     case ImGuiNavInput_TweakSlow:
-        key = ImGuiKey_GamepadL1;
+        finalKey = ImGuiKey_GamepadL1;
         break;
     case ImGuiNavInput_FocusNext:
     case ImGuiNavInput_TweakFast:
-        key = ImGuiKey_GamepadR1;
+        finalKey = ImGuiKey_GamepadR1;
         break;
+    default:
+        assert(key >= ImGuiKey_NamedKey_BEGIN && key < ImGuiKey_NamedKey_END);
+        finalKey = static_cast<ImGuiKey_>(key);
     }
-    assert(key >= ImGuiKey_NamedKey_BEGIN && key < ImGuiKey_NamedKey_END);
     assert(joystickButton < sf::Joystick::ButtonCount);
-    s_currWindowCtx->joystickMapping[joystickButton] = key;
+    s_currWindowCtx->joystickMapping[joystickButton] = finalKey;
 }
 
 void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted) {

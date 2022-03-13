@@ -63,7 +63,7 @@ IMGUI_SFML_API void SetJoytickRStickThreshold(float threshold);
 IMGUI_SFML_API void SetJoytickLTriggerThreshold(float threshold);
 IMGUI_SFML_API void SetJoytickRTriggerThreshold(float threshold);
 
-IMGUI_SFML_API void SetJoystickMapping(int action, unsigned int joystickButton);
+IMGUI_SFML_API void SetJoystickMapping(int key, unsigned int joystickButton);
 IMGUI_SFML_API void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted = false);
 IMGUI_SFML_API void SetDPadYAxis(sf::Joystick::Axis dPadYAxis, bool inverted = false);
 IMGUI_SFML_API void SetLStickXAxis(sf::Joystick::Axis lStickXAxis, bool inverted = false);
