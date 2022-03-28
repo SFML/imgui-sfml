@@ -965,10 +965,9 @@ void RenderDrawLists(ImDrawData* draw_data) {
                     glBindTexture(GL_TEXTURE_2D, textureHandle);
                     glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount,
                                    sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
-                                   idx_buffer);
+                                   idx_buffer + pcmd->IdxOffset);
                 }
             }
-            idx_buffer += pcmd->ElemCount;
         }
     }
 
