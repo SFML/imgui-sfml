@@ -17,7 +17,7 @@ Dependencies
 Contributing
 -----
 
-* The code is written in C++03. See [#7](https://github.com/eliasdaler/imgui-sfml/issues/7)
+* The code is written in C++11 (stable SFML is still C++03, Dear ImGui has started using C++11 since 2022)
 * The code should be formatted via [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) using `.clang-format` provided in the root of this repository
 
 How-to
