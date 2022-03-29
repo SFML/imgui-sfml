@@ -610,13 +610,13 @@ void SetActiveJoystickId(unsigned int joystickId) {
     s_currWindowCtx->joystickId = joystickId;
 }
 
-void SetJoytickDPadThreshold(float threshold) {
+void SetJoystickDPadThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= 0.f && threshold <= 100.f);
     s_currWindowCtx->dPadInfo.threshold = threshold;
 }
 
-void SetJoytickLStickThreshold(float threshold) {
+void SetJoystickLStickThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= 0.f && threshold <= 100.f);
     s_currWindowCtx->lStickInfo.threshold = threshold;
@@ -1027,8 +1027,8 @@ void initDefaultJoystickMapping() {
     ImGui::SFML::SetLStickXAxis(sf::Joystick::X);
     ImGui::SFML::SetLStickYAxis(sf::Joystick::Y);
 
-    ImGui::SFML::SetJoytickDPadThreshold(5.f);
-    ImGui::SFML::SetJoytickLStickThreshold(5.f);
+    ImGui::SFML::SetJoystickDPadThreshold(5.f);
+    ImGui::SFML::SetJoystickLStickThreshold(5.f);
 }
 
 void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action) {
