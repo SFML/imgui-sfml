@@ -57,8 +57,8 @@ IMGUI_SFML_API sf::Texture& GetFontTexture();
 
 // joystick functions
 IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);
-IMGUI_SFML_API void SetJoytickDPadThreshold(float threshold);
-IMGUI_SFML_API void SetJoytickLStickThreshold(float threshold);
+IMGUI_SFML_API void SetJoystickDPadThreshold(float threshold);
+IMGUI_SFML_API void SetJoystickLStickThreshold(float threshold);
 
 IMGUI_SFML_API void SetJoystickMapping(int action, unsigned int joystickButton);
 IMGUI_SFML_API void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted = false);
