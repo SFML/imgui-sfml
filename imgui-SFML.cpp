@@ -823,31 +823,31 @@ void SetActiveJoystickId(unsigned int joystickId) {
     s_currWindowCtx->joystickId = joystickId;
 }
 
-void SetJoytickDPadThreshold(float threshold) {
+void SetJoystickDPadThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= 0.f && threshold <= 100.f);
     s_currWindowCtx->dPadInfo.threshold = threshold;
 }
 
-void SetJoytickLStickThreshold(float threshold) {
+void SetJoystickLStickThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= 0.f && threshold <= 100.f);
     s_currWindowCtx->lStickInfo.threshold = threshold;
 }
 
-void SetJoytickRStickThreshold(float threshold) {
+void SetJoystickRStickThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= 0.f && threshold <= 100.f);
     s_currWindowCtx->rStickInfo.threshold = threshold;
 }
 
-void SetJoytickLTriggerThreshold(float threshold) {
+void SetJoystickLTriggerThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= -100.f && threshold <= 100.f);
     s_currWindowCtx->lTriggerInfo.threshold = threshold;
 }
 
-void SetJoytickRTriggerThreshold(float threshold) {
+void SetJoystickRTriggerThreshold(float threshold) {
     assert(s_currWindowCtx);
     assert(threshold >= -100.f && threshold <= 100.f);
     s_currWindowCtx->rTriggerInfo.threshold = threshold;
@@ -1245,10 +1245,9 @@ void RenderDrawLists(ImDrawData* draw_data) {
                     glBindTexture(GL_TEXTURE_2D, textureHandle);
                     glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount,
                                    sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
-                                   idx_buffer);
+                                   idx_buffer + pcmd->IdxOffset);
                 }
             }
-            idx_buffer += pcmd->ElemCount;
         }
     }
 
@@ -1313,11 +1312,11 @@ void initDefaultJoystickMapping() {
     ImGui::SFML::SetLTriggerAxis(sf::Joystick::Z);
     ImGui::SFML::SetRTriggerAxis(sf::Joystick::R);
 
-    ImGui::SFML::SetJoytickDPadThreshold(15.f);
-    ImGui::SFML::SetJoytickLStickThreshold(15.f);
-    ImGui::SFML::SetJoytickRStickThreshold(15.f);
-    ImGui::SFML::SetJoytickLTriggerThreshold(0.f);
-    ImGui::SFML::SetJoytickRTriggerThreshold(0.f);
+    ImGui::SFML::SetJoystickDPadThreshold(5.f);
+    ImGui::SFML::SetJoystickLStickThreshold(5.f);
+    ImGui::SFML::SetJoystickRStickThreshold(15.f);
+    ImGui::SFML::SetJoystickLTriggerThreshold(0.f);
+    ImGui::SFML::SetJoystickRTriggerThreshold(0.f);
 }
 
 void updateJoystickButtonState(ImGuiIO& io) {
