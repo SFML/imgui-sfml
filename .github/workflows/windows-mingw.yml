@@ -101,7 +101,6 @@ jobs:
             -D CMAKE_PREFIX_PATH=${{steps.sfml.outputs.sfml_install_dir}}
             -D SFML_DIR=${{steps.sfml.outputs.sfml_install_dir}}
             -D IMGUI_DIR=${workspace}/imgui
-            -D CMAKE_CXX_STANDARD=11
             -D BUILD_SHARED_LIBS=ON
           RESULT_VARIABLE result
         )
