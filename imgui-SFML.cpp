@@ -20,6 +20,8 @@
 #include <cstddef> // offsetof, NULL, size_t
 #include <cstring> // memcpy
 
+#include <algorithm>
+#include <memory>
 #include <vector>
 
 #ifdef ANDROID
@@ -177,8 +179,8 @@ struct WindowContext {
     const sf::Window* window;
     ImGuiContext* imContext;
 
-    sf::Texture* fontTexture; // owning pointer to internal font atlas which is used if user
-                              // doesn't set a custom sf::Texture.
+    sf::Texture fontTexture; // internal font atlas which is used if user doesn't set a custom
+                             // sf::Texture.
 
     bool windowHasFocus;
     bool mouseMoved;
@@ -196,7 +198,7 @@ struct WindowContext {
     TriggerInfo lTriggerInfo;
     TriggerInfo rTriggerInfo;
 
-    sf::Cursor* mouseCursors[ImGuiMouseCursor_COUNT];
+    sf::Cursor mouseCursors[ImGuiMouseCursor_COUNT];
     bool mouseCursorLoaded[ImGuiMouseCursor_COUNT];
 
 #ifdef ANDROID
@@ -205,10 +207,12 @@ struct WindowContext {
 #endif
 #endif
 
+    WindowContext(const WindowContext&) = delete; // non construction-copyable
+    WindowContext& operator=(const WindowContext&) = delete; // non copyable
+
     WindowContext(const sf::Window* w) {
         window = w;
         imContext = ImGui::CreateContext();
-        fontTexture = new sf::Texture;
 
         windowHasFocus = window->hasFocus();
         mouseMoved = false;
@@ -224,7 +228,6 @@ struct WindowContext {
         }
 
         for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-            mouseCursors[i] = NULL;
             mouseCursorLoaded[i] = false;
         }
 
@@ -235,20 +238,11 @@ struct WindowContext {
 #endif
     }
 
-    ~WindowContext() {
-        delete fontTexture;
-        for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-            if (mouseCursors[i] != nullptr) {
-                delete mouseCursors[i];
-            }
-        }
-
-        ImGui::DestroyContext(imContext);
-    }
+    ~WindowContext() { ImGui::DestroyContext(imContext); }
 };
 
-std::vector<WindowContext*> s_windowContexts;
-WindowContext* s_currWindowCtx = NULL;
+std::vector<std::unique_ptr<WindowContext>> s_windowContexts;
+WindowContext* s_currWindowCtx = nullptr;
 
 } // end of anonymous namespace
 
@@ -269,9 +263,9 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
                                                    // GLuint.
 #endif
 
-    s_windowContexts.push_back(new WindowContext(&window));
+    s_windowContexts.emplace_back(new WindowContext(&window));
 
-    s_currWindowCtx = s_windowContexts.back();
+    s_currWindowCtx = s_windowContexts.back().get();
     ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -313,14 +307,14 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 }
 
 void SetCurrentWindow(const sf::Window& window) {
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        if (s_windowContexts[i]->window->getSystemHandle() == window.getSystemHandle()) {
-            s_currWindowCtx = s_windowContexts[i];
-            ImGui::SetCurrentContext(s_currWindowCtx->imContext);
-            return;
-        }
-    }
-    assert(false && "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
+    auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
+                              [&](std::unique_ptr<WindowContext>& ctx) {
+                                  return ctx->window->getSystemHandle() == window.getSystemHandle();
+                              });
+    assert(found != s_windowContexts.end() &&
+           "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
+    s_currWindowCtx = found->get();
+    ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 }
 
 void ProcessEvent(const sf::Window& window, const sf::Event& event) {
@@ -747,46 +741,36 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
-    // set current context to some window for convenience if needed
-    if (window.getSystemHandle() == s_currWindowCtx->window->getSystemHandle()) {
-        if (s_windowContexts.size() > 1) {
-            // set to some other window
-            for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-                if (s_windowContexts[i]->window->getSystemHandle() != window.getSystemHandle()) {
-                    s_currWindowCtx = s_windowContexts[i];
-                    ImGui::SetCurrentContext(s_currWindowCtx->imContext);
-                    break;
-                }
-            }
-        } else {
-            // no alternatives...
-            s_currWindowCtx = NULL;
-        }
-    }
+    bool needReplacement = (s_currWindowCtx->window->getSystemHandle() == window.getSystemHandle());
 
     // remove window's context
-    std::size_t ctxIdxToErase = 0;
-    bool ctxFound = true;
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        if (s_windowContexts[i]->window->getSystemHandle() == window.getSystemHandle()) {
-            delete s_windowContexts[i];
-            ctxIdxToErase = i;
-            ctxFound = true;
-            break;
+    auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
+                              [&](std::unique_ptr<WindowContext>& ctx) {
+                                  return ctx->window->getSystemHandle() == window.getSystemHandle();
+                              });
+    assert(found != s_windowContexts.end() &&
+           "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
+    s_windowContexts.erase(found); // s_currWindowCtx can become invalid here!
+
+    // set current context to some window for convenience if needed
+    if (needReplacement) {
+        auto it = s_windowContexts.begin();
+        if (it != s_windowContexts.end()) {
+            // set to some other window
+            s_currWindowCtx = it->get();
+            ImGui::SetCurrentContext(s_currWindowCtx->imContext);
+        } else {
+            // no alternatives...
+            s_currWindowCtx = nullptr;
+            ImGui::SetCurrentContext(nullptr);
         }
     }
-    (void)ctxFound; // prevent warning in RELEASE mode
-    assert(ctxFound && "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
-    s_windowContexts.erase(s_windowContexts.begin() + ctxIdxToErase);
 }
 
 void Shutdown() {
-    s_currWindowCtx = NULL;
-    ImGui::SetCurrentContext(NULL);
+    s_currWindowCtx = nullptr;
+    ImGui::SetCurrentContext(nullptr);
 
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        delete s_windowContexts[i];
-    }
     s_windowContexts.clear();
 }
 
@@ -799,7 +783,7 @@ bool UpdateFontTexture() {
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    sf::Texture& texture = *s_currWindowCtx->fontTexture;
+    sf::Texture& texture = s_currWindowCtx->fontTexture;
     if (!texture.create(width, height)) {
         return false;
     }
@@ -814,7 +798,7 @@ bool UpdateFontTexture() {
 
 sf::Texture& GetFontTexture() {
     assert(s_currWindowCtx);
-    return *s_currWindowCtx->fontTexture;
+    return s_currWindowCtx->fontTexture;
 }
 
 void SetActiveJoystickId(unsigned int joystickId) {
@@ -1392,9 +1376,8 @@ const char* getClipboardText(void* /*userData*/) {
 }
 
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType) {
-    s_currWindowCtx->mouseCursors[imguiCursorType] = new sf::Cursor();
     s_currWindowCtx->mouseCursorLoaded[imguiCursorType] =
-        s_currWindowCtx->mouseCursors[imguiCursorType]->loadFromSystem(sfmlCursorType);
+        s_currWindowCtx->mouseCursors[imguiCursorType].loadFromSystem(sfmlCursorType);
 }
 
 void updateMouseCursor(sf::Window& window) {
@@ -1407,8 +1390,8 @@ void updateMouseCursor(sf::Window& window) {
             window.setMouseCursorVisible(true);
 
             sf::Cursor& c = s_currWindowCtx->mouseCursorLoaded[cursor] ?
-                                *s_currWindowCtx->mouseCursors[cursor] :
-                                *s_currWindowCtx->mouseCursors[ImGuiMouseCursor_Arrow];
+                                s_currWindowCtx->mouseCursors[cursor] :
+                                s_currWindowCtx->mouseCursors[ImGuiMouseCursor_Arrow];
             window.setMouseCursor(c);
         }
     }
