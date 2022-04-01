@@ -20,6 +20,7 @@
 #include <cstddef> // offsetof, NULL, size_t
 #include <cstring> // memcpy
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -316,14 +317,14 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 }
 
 void SetCurrentWindow(const sf::Window& window) {
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        if (s_windowContexts[i]->window->getSystemHandle() == window.getSystemHandle()) {
-            s_currWindowCtx = s_windowContexts[i].get();
-            ImGui::SetCurrentContext(s_currWindowCtx->imContext);
-            return;
-        }
-    }
-    assert(false && "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
+    auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
+                              [&](std::unique_ptr<WindowContext>& ctx) {
+                                  return ctx->window->getSystemHandle() == window.getSystemHandle();
+                              });
+    assert(found != s_windowContexts.end() &&
+           "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
+    s_currWindowCtx = found->get();
+    ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 }
 
 void ProcessEvent(const sf::Window& window, const sf::Event& event) {
@@ -527,36 +528,30 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
+    bool needReplacement = (s_currWindowCtx->window->getSystemHandle() == window.getSystemHandle());
+
+    // remove window's context
+    auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
+                              [&](std::unique_ptr<WindowContext>& ctx) {
+                                  return ctx->window->getSystemHandle() == window.getSystemHandle();
+                              });
+    assert(found != s_windowContexts.end() &&
+           "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
+    s_windowContexts.erase(found); // s_currWindowCtx can become invalid here!
+
     // set current context to some window for convenience if needed
-    if (window.getSystemHandle() == s_currWindowCtx->window->getSystemHandle()) {
-        if (s_windowContexts.size() > 1) {
+    if (needReplacement) {
+        auto it = s_windowContexts.begin();
+        if (it != s_windowContexts.end()) {
             // set to some other window
-            for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-                if (s_windowContexts[i]->window->getSystemHandle() != window.getSystemHandle()) {
-                    s_currWindowCtx = s_windowContexts[i].get();
-                    ImGui::SetCurrentContext(s_currWindowCtx->imContext);
-                    break;
-                }
-            }
+            s_currWindowCtx = it->get();
+            ImGui::SetCurrentContext(s_currWindowCtx->imContext);
         } else {
             // no alternatives...
             s_currWindowCtx = nullptr;
+            ImGui::SetCurrentContext(nullptr);
         }
     }
-
-    // remove window's context
-    std::size_t ctxIdxToErase = 0;
-    bool ctxFound = true;
-    for (std::size_t i = 0; i < s_windowContexts.size(); ++i) {
-        if (s_windowContexts[i]->window->getSystemHandle() == window.getSystemHandle()) {
-            ctxIdxToErase = i;
-            ctxFound = true;
-            break;
-        }
-    }
-    (void)ctxFound; // prevent warning in RELEASE mode
-    assert(ctxFound && "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
-    s_windowContexts.erase(s_windowContexts.begin() + ctxIdxToErase);
 }
 
 void Shutdown() {
