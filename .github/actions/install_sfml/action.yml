@@ -1,0 +1,98 @@
+name: "Setup SFML"
+description: "Setup SFML"
+inputs:
+  sfml_version:
+    description: "SFML version"
+    required: true
+  used_env:
+    description: "Environment used with runs-on"
+    required: true
+outputs:
+  sfml_install_dir:
+    description: "SFML install path"
+    value: ${{steps.configure.outputs.sfml_install_dir}}
+runs:
+  using: "composite"
+  steps:
+    - name: Install SFML dependencies
+      shell: cmake -P {0}
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Linux")
+          execute_process(COMMAND sudo apt-get update)
+          execute_process(
+            COMMAND sudo apt-get -y install mesa-common-dev libx11-dev libxcursor-dev libsfml-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxrandr-dev freeglut3-dev libjpeg-dev libfreetype6-dev libxrandr-dev libglew-dev libsndfile1-dev libopenal-dev libfreetype6-dev
+          )
+        endif()
+
+    - name: Cache SFML install
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: ${{github.workspace}}/SFML
+        key: SFML-${{inputs.sfml_version}}-${{inputs.used_env}}
+
+    - name: Checkout SFML
+      if: ${{steps.cache.outputs.cache-hit != 'true'}}
+      uses: actions/checkout@v2
+      with:
+        repository: SFML/SFML
+        submodules: recursive
+        path: SFML_repo
+        ref: ${{inputs.sfml_version}}
+
+    - name: Install SFML
+      id: install
+      if: ${{steps.cache.outputs.cache-hit != 'true'}}
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+        message(STATUS "Build SFML")
+        execute_process(
+          COMMAND ${CMAKE_COMMAND}
+            -S "${workspace}/SFML_repo"
+            -B "${workspace}/SFML_repo/build"
+            -D CMAKE_CONFIGURATION_TYPES=Release
+            -D CMAKE_BUILD_TYPE=Release
+            -D ENABLE_TESTING=OFF
+            -D SFML_BUILD_EXAMPLES=OFF
+            -D SFML_BUILD_DOC=OFF
+            -D SFML_BUILD_FRAMEWORKS=OFF
+            -D SFML_INSTALL_XCODE_TEMPLATES=OFF
+            -D SFML_DEPENDENCIES_INSTALL_PREFIX=${workspace}/SFML
+            -D CMAKE_INSTALL_PREFIX=${workspace}/SFML
+            -D CMAKE_INSTALL_FRAMEWORK_PREFIX=${workspace}/SFML
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "project configuration failed")
+        endif()
+        include(ProcessorCount)
+        ProcessorCount(N)
+        execute_process(
+          COMMAND ${CMAKE_COMMAND}
+            --build "${workspace}/SFML_repo/build"
+            --config Release
+            --parallel ${N}
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "project build failed")
+        endif()
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${workspace}/SFML")
+        execute_process(
+          COMMAND ${CMAKE_COMMAND}
+            --install "${workspace}/SFML_repo/build"
+            --prefix "${workspace}/SFML"
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "project installation failed")
+        endif()
+
+    - name: Configure SFML
+      id: configure
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        message("::set-output name=sfml_install_dir::${workspace}/SFML")

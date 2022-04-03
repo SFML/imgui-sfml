@@ -1,6 +1,11 @@
 ImGui-SFML v2.5
 =======
-[![build Actions Status](https://github.com/eliasdaler/imgui-sfml/workflows/build/badge.svg)](https://github.com/eliasdaler/imgui-sfml/actions)
+
+[![Ubuntu](https://github.com/eliasdaler/imgui-sfml/actions/workflows/ubuntu.yml/badge.svg?branch=master)](https://github.com/eliasdaler/imgui-sfml/actions/workflows/ubuntu.yml)
+[![Windows MinGW](https://github.com/eliasdaler/imgui-sfml/actions/workflows/windows-mingw.yml/badge.svg?branch=master)](https://github.com/eliasdaler/imgui-sfml/actions/workflows/windows-mingw.yml)
+[![Windows Visual Studio](https://github.com/eliasdaler/imgui-sfml/actions/workflows/windows-msvc.yml/badge.svg?branch=master)](https://github.com/eliasdaler/imgui-sfml/actions/workflows/windows-msvc.yml)
+[![macOS](https://github.com/eliasdaler/imgui-sfml/actions/workflows/macos.yml/badge.svg?branch=master)](https://github.com/eliasdaler/imgui-sfml/actions/workflows/macos.yml)
+[![clang-format](https://github.com/eliasdaler/imgui-sfml/actions/workflows/clang-format.yml/badge.svg?branch=master)](https://github.com/eliasdaler/imgui-sfml/actions/workflows/clang-format.yml)
 
 Library which allows you to use [Dear ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
 

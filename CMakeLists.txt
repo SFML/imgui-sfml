@@ -164,6 +164,9 @@ set_target_properties(ImGui-SFML PROPERTIES
   PUBLIC_HEADER "${IMGUI_SFML_PUBLIC_HEADERS}"
 )
 
+# Set minimum required standard
+target_compile_features(ImGui-SFML PUBLIC cxx_std_11)
+
 if(IMGUI_SFML_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
