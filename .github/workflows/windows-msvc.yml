@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-    name: ${{matrix.config.os}} - ${{matrix.config.generator_short}} - ${{matrix.config.toolset}} - ${{matrix.architecture}} - ${{matrix.build_type}}
+    name: Windows - ${{matrix.config.generator_short}} - ${{matrix.build_type}}
     runs-on: ${{matrix.config.os}}
     strategy:
       fail-fast: false
@@ -23,7 +23,6 @@ jobs:
           {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: v143},
           # {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: ClangCL}, # SFML 2.5.1 doesn't compile, fixed on branch 2.6.x
         ]
-        architecture: [Win32, x64]
         build_type: [Debug, Release]
 
     steps:
@@ -38,7 +37,6 @@ jobs:
       run: |
         file(APPEND "$ENV{GITHUB_ENV}" "CMAKE_GENERATOR=${{matrix.config.generator}}\n")
         file(APPEND "$ENV{GITHUB_ENV}" "CMAKE_GENERATOR_TOOLSET=${{matrix.config.toolset}}\n")
-        file(APPEND "$ENV{GITHUB_ENV}" "CMAKE_GENERATOR_PLATFORM=${{matrix.architecture}}\n")
 
     - name: Setup CMake
       id: cmake
@@ -52,7 +50,7 @@ jobs:
       uses: ./imgui-sfml/.github/actions/install_sfml
       with:
         sfml_version: ${{env.SFML_VERSION}}
-        used_env: ${{matrix.config.os}}-msvc-${{matrix.architecture}}
+        used_env: ${{matrix.config.os}}-msvc
 
     - name: Checkout Dear ImGui
       uses: actions/checkout@v2
