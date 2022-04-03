@@ -1,0 +1,111 @@
+name: "Setup ccache"
+description: "Setup ccache"
+inputs:
+  ccache_version:
+    description: "ccache version"
+    required: true
+  used_env:
+    description: "Environment used with runs-on"
+    required: true
+  cache_id:
+    description: "Cache id unique to the current config"
+    required: true
+outputs:
+  ccache_binary:
+    description: "ccache binary path"
+    value: ${{steps.configure.outputs.ccache_binary}}
+runs:
+  using: "composite"
+  steps:
+    - name: Cache ccache
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: ${{github.workspace}}/ccache
+        key: ccache-${{inputs.ccache_version}}-${{inputs.used_env}}
+
+    - name: Download and install ccache
+      id: download
+      if: ${{steps.cache.outputs.cache-hit != 'true'}}
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+        set(ccache_url "https://github.com/ccache/ccache/releases/download/v${{inputs.ccache_version}}/ccache-${{inputs.ccache_version}}.tar.gz")
+        message(STATUS "Download from: ${ccache_url}")
+        file(DOWNLOAD "${ccache_url}" "${workspace}/ccache.tar.gz" SHOW_PROGRESS)
+        message(STATUS "Extract")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${workspace}/ccache.tar.gz")
+        message(STATUS "Build ccache")
+        execute_process(
+          COMMAND ${CMAKE_COMMAND}
+            -S "${workspace}/ccache-${{inputs.ccache_version}}"
+            -B "${workspace}/ccache-${{inputs.ccache_version}}/build"
+            -D CMAKE_CONFIGURATION_TYPES=Release
+            -D CMAKE_BUILD_TYPE=Release
+            -D ZSTD_FROM_INTERNET=ON
+            -D REDIS_STORAGE_BACKEND=OFF
+            -D ENABLE_TESTING=OFF
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "project configuration failed")
+        endif()
+        include(ProcessorCount)
+        ProcessorCount(N)
+        execute_process(
+          COMMAND ${CMAKE_COMMAND}
+            --build "${workspace}/ccache-${{inputs.ccache_version}}/build"
+            --target ccache
+            --config Release
+            --parallel ${N}
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "project build failed")
+        endif()
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${workspace}/ccache")
+        execute_process(
+          COMMAND ${CMAKE_COMMAND}
+            --install "${workspace}/ccache-${{inputs.ccache_version}}/build"
+            --prefix "${workspace}/ccache"
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "project installation failed")
+        endif()
+        if(NOT "${{runner.os}}" STREQUAL "Windows")
+          execute_process(COMMAND chmod +x "${workspace}/ccache/bin/ccache")
+        endif()
+
+    - name: Configure ccache
+      id: configure
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_BASEDIR=${workspace}\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_DIR=${workspace}/.ccache\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_COMPRESS=true\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_COMPRESSLEVEL=6\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CCACHE_MAXSIZE=400M\n")
+        set(ccache_binary "${workspace}/ccache/bin/ccache")
+        message(STATUS "ccache binary: ${ccache_binary}")
+        message("::set-output name=ccache_binary::${ccache_binary}")
+        execute_process(COMMAND ${ccache_binary} --zero-stats)
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("::set-output name=timestamp::${current_date}")
+
+    - name: Print ccache config
+      id: print
+      shell: cmake -P {0}
+      run: |
+        execute_process(COMMAND ${{steps.configure.outputs.ccache_binary}} --version)
+        execute_process(COMMAND ${{steps.configure.outputs.ccache_binary}} --show-config)
+
+    - name: Cache ccache files
+      uses: actions/cache@v2
+      with:
+        path: ${{env.CCACHE_DIR}}
+        key: ccache-cache-${{inputs.cache_id}}-${{steps.configure.outputs.timestamp}}
+        restore-keys: |
+          ccache-cache-${{inputs.cache_id}}-

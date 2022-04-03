@@ -1,0 +1,88 @@
+name: "Setup CMake"
+description: "Setup CMake"
+inputs:
+  cmake_version:
+    description: "CMake version"
+    required: true
+  used_env:
+    description: "Environment used with runs-on"
+    required: true
+outputs:
+  cmake_binary:
+    description: "CMake binary path"
+    value: ${{steps.configure.outputs.cmake_binary}}
+  ctest_binary:
+    description: "CTest binary path"
+    value: ${{steps.configure.outputs.ctest_binary}}
+runs:
+  using: "composite"
+  steps:
+    - name: Cache CMake
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: ${{github.workspace}}/cmake
+        key: cmake-${{inputs.cmake_version}}-${{inputs.used_env}}
+
+    - name: Download CMake
+      id: download
+      if: ${{steps.cache.outputs.cache-hit != 'true'}}
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+        if("${{runner.os}}" STREQUAL "Windows")
+          set(cmake_suffix "windows-x86_64.zip")
+          set(cmake_dir "cmake-${{inputs.cmake_version}}-windows-x86_64")
+          set(cmake_bin_dir "cmake-${{inputs.cmake_version}}-windows-x86_64/bin")
+        elseif("${{runner.os}}" STREQUAL "Linux")
+          set(cmake_suffix "linux-x86_64.tar.gz")
+          set(cmake_dir "cmake-${{inputs.cmake_version}}-linux-x86_64")
+          set(cmake_bin_dir "cmake-${{inputs.cmake_version}}-linux-x86_64/bin")
+        elseif("${{runner.os}}" STREQUAL "macOS")
+          set(cmake_suffix "macos-universal.tar.gz")
+          set(cmake_dir "cmake-${{inputs.cmake_version}}-macos-universal")
+          set(cmake_bin_dir "cmake-${{inputs.cmake_version}}-macos-universal/CMake.app/Contents/bin")
+        endif()
+        set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${{inputs.cmake_version}}/cmake-${{inputs.cmake_version}}-${cmake_suffix}")
+        message(STATUS "Download from: ${cmake_url}")
+        file(DOWNLOAD "${cmake_url}" "${workspace}/cmake.zip" SHOW_PROGRESS)
+        message(STATUS "Extract")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${workspace}/cmake.zip")
+        file(COPY "${workspace}/${cmake_dir}" DESTINATION "${workspace}/cmake")
+        if(NOT "${{runner.os}}" STREQUAL "Windows")
+          execute_process(COMMAND chmod +x "${workspace}/cmake/${cmake_bin_dir}/cmake")
+          execute_process(COMMAND chmod +x "${workspace}/cmake/${cmake_bin_dir}/ctest")
+        endif()
+
+    - name: Configure CMake
+      id: configure
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        if("${{runner.os}}" STREQUAL "Windows")
+          set(cmake_bin_dir "cmake-${{inputs.cmake_version}}-windows-x86_64/bin")
+        elseif("${{runner.os}}" STREQUAL "Linux")
+          set(cmake_bin_dir "cmake-${{inputs.cmake_version}}-linux-x86_64/bin")
+        elseif("${{runner.os}}" STREQUAL "macOS")
+          set(cmake_bin_dir "cmake-${{inputs.cmake_version}}-macos-universal/CMake.app/Contents/bin")
+        endif()
+        set(cmake_binary "${workspace}/cmake/${cmake_bin_dir}/cmake")
+        set(ctest_binary "${workspace}/cmake/${cmake_bin_dir}/ctest")
+        message(STATUS "CMake binary: ${cmake_binary}")
+        message("::set-output name=cmake_binary::${cmake_binary}")
+        message(STATUS "CTest binary: ${ctest_binary}")
+        message("::set-output name=ctest_binary::${ctest_binary}")
+
+    - name: Print version
+      id: print
+      shell: cmake -P {0}
+      run: |
+        execute_process(COMMAND ${{steps.configure.outputs.cmake_binary}} --version RESULT_VARIABLE result)
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()
+        execute_process(COMMAND ${{steps.configure.outputs.ctest_binary}} --version RESULT_VARIABLE result)
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()

@@ -1,0 +1,98 @@
+name: Windows Visual Studio
+
+on:
+  - push
+  - pull_request
+
+env:
+  CMAKE_VERSION: 3.22.2
+  SFML_VERSION: 2.5.1
+  IMGUI_VERSION: 1.87
+
+jobs:
+  build:
+    name: Windows - ${{matrix.config.generator_short}} - ${{matrix.build_type}}
+    runs-on: ${{matrix.config.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [
+          # {os: windows-2017, generator: "Visual Studio 15 2017", generator_short: VS2017, toolset: v141},
+          {os: windows-2019, generator: "Visual Studio 16 2019", generator_short: VS2019, toolset: v142},
+          # {os: windows-2019, generator: "Visual Studio 16 2019", generator_short: VS2019, toolset: ClangCL}, # SFML 2.5.1 doesn't compile, fixed on branch 2.6.x
+          {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: v143},
+          # {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: ClangCL}, # SFML 2.5.1 doesn't compile, fixed on branch 2.6.x
+        ]
+        build_type: [Debug, Release]
+
+    steps:
+    - name: Checkout ImGui-SFML
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        path: imgui-sfml
+
+    - name: Setup build environment
+      shell: cmake -P {0}
+      run: |
+        file(APPEND "$ENV{GITHUB_ENV}" "CMAKE_GENERATOR=${{matrix.config.generator}}\n")
+        file(APPEND "$ENV{GITHUB_ENV}" "CMAKE_GENERATOR_TOOLSET=${{matrix.config.toolset}}\n")
+
+    - name: Setup CMake
+      id: cmake
+      uses: ./imgui-sfml/.github/actions/setup_cmake
+      with:
+        cmake_version: ${{env.CMAKE_VERSION}}
+        used_env: ${{matrix.config.os}}
+
+    - name: Install SFML
+      id: sfml
+      uses: ./imgui-sfml/.github/actions/install_sfml
+      with:
+        sfml_version: ${{env.SFML_VERSION}}
+        used_env: ${{matrix.config.os}}-msvc
+
+    - name: Checkout Dear ImGui
+      uses: actions/checkout@v2
+      with:
+        repository: ocornut/imgui
+        submodules: recursive
+        path: imgui
+        ref: v${{env.IMGUI_VERSION}}
+
+    - name: Configure
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        execute_process(
+          COMMAND ${{steps.cmake.outputs.cmake_binary}}
+            -S "${workspace}/imgui-sfml"
+            -B "${workspace}/imgui-sfml/build"
+            -D CMAKE_CONFIGURATION_TYPES=${{matrix.build_type}}
+            -D CMAKE_BUILD_TYPE=${{matrix.build_type}}
+            -D CMAKE_PREFIX_PATH=${{steps.sfml.outputs.sfml_install_dir}}
+            -D SFML_DIR=${{steps.sfml.outputs.sfml_install_dir}}
+            -D IMGUI_DIR=${workspace}/imgui
+            -D BUILD_SHARED_LIBS=ON
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()
+
+    - name: Build
+      shell: cmake -P {0}
+      run: |
+        file(TO_CMAKE_PATH [=[${{github.workspace}}]=] workspace)
+        include(ProcessorCount)
+        ProcessorCount(N)
+        execute_process(
+          COMMAND ${{steps.cmake.outputs.cmake_binary}}
+            --build "${workspace}/imgui-sfml/build"
+            --config ${{matrix.build_type}}
+            --parallel ${N}
+          RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+          message(FATAL_ERROR "Bad exit status")
+        endif()
