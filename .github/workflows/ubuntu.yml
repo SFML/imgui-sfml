@@ -23,10 +23,10 @@ jobs:
           # {os: ubuntu-18.04, compiler_name: gcc-10, c_compiler: gcc-10, cxx_compiler: g++-10},
           # {os: ubuntu-18.04, compiler_name: clang-9, c_compiler: clang-9, cxx_compiler: clang++-9},
           {os: ubuntu-20.04, compiler_name: gcc-9, c_compiler: gcc-9, cxx_compiler: g++-9},
-          {os: ubuntu-20.04, compiler_name: gcc-10, c_compiler: gcc-10, cxx_compiler: g++-10},
+          # {os: ubuntu-20.04, compiler_name: gcc-10, c_compiler: gcc-10, cxx_compiler: g++-10},
           {os: ubuntu-20.04, compiler_name: clang-10, c_compiler: clang-10, cxx_compiler: clang++-10},
-          {os: ubuntu-20.04, compiler_name: clang-11, c_compiler: clang-11, cxx_compiler: clang++-11},
-          {os: ubuntu-20.04, compiler_name: clang-12, c_compiler: clang-12, cxx_compiler: clang++-12},
+          # {os: ubuntu-20.04, compiler_name: clang-11, c_compiler: clang-11, cxx_compiler: clang++-11},
+          # {os: ubuntu-20.04, compiler_name: clang-12, c_compiler: clang-12, cxx_compiler: clang++-12},
         ]
         build_type: [Debug, Release]
 
