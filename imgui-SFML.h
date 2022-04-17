@@ -59,12 +59,19 @@ IMGUI_SFML_API sf::Texture& GetFontTexture();
 IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);
 IMGUI_SFML_API void SetJoystickDPadThreshold(float threshold);
 IMGUI_SFML_API void SetJoystickLStickThreshold(float threshold);
+IMGUI_SFML_API void SetJoystickRStickThreshold(float threshold);
+IMGUI_SFML_API void SetJoystickLTriggerThreshold(float threshold);
+IMGUI_SFML_API void SetJoystickRTriggerThreshold(float threshold);
 
-IMGUI_SFML_API void SetJoystickMapping(int action, unsigned int joystickButton);
+IMGUI_SFML_API void SetJoystickMapping(int key, unsigned int joystickButton);
 IMGUI_SFML_API void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted = false);
 IMGUI_SFML_API void SetDPadYAxis(sf::Joystick::Axis dPadYAxis, bool inverted = false);
 IMGUI_SFML_API void SetLStickXAxis(sf::Joystick::Axis lStickXAxis, bool inverted = false);
 IMGUI_SFML_API void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted = false);
+IMGUI_SFML_API void SetRStickXAxis(sf::Joystick::Axis rStickXAxis, bool inverted = false);
+IMGUI_SFML_API void SetRStickYAxis(sf::Joystick::Axis rStickYAxis, bool inverted = false);
+IMGUI_SFML_API void SetLTriggerAxis(sf::Joystick::Axis lTriggerAxis);
+IMGUI_SFML_API void SetRTriggerAxis(sf::Joystick::Axis rTriggerAxis);
 } // end of namespace SFML
 
 // custom SFML overloads for ImGui widgets
