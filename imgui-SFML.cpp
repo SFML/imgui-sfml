@@ -350,7 +350,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Backspace;
     case sf::Keyboard::Space:
         return ImGuiKey_Space;
-    case sf::Keyboard::Return:
+    case sf::Keyboard::Enter:
         return ImGuiKey_Enter;
     case sf::Keyboard::Escape:
         return ImGuiKey_Escape;
