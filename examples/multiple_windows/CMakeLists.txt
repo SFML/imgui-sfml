@@ -1,7 +1,3 @@
-project(imgui_sfml_example_multiple_windows
-  LANGUAGES CXX
-)
-
 add_executable(imgui_sfml_example_multiple_windows
   main.cpp
   ${IMGUI_DEMO_SOURCES}
