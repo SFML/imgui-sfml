@@ -784,9 +784,15 @@ bool UpdateFontTexture() {
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     sf::Texture& texture = s_currWindowCtx->fontTexture;
+#if SFML_VERSION_MAJOR >= 3
+    if (!texture.create(sf::Vector2u(width, height))) {
+        return false;
+    }
+#else
     if (!texture.create(width, height)) {
         return false;
     }
+#endif
 
     texture.update(pixels);
 
