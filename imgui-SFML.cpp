@@ -179,6 +179,7 @@ struct WindowContext {
     bool mouseMoved{false};
     bool mousePressed[3] = {false};
     ImGuiMouseCursor lastCursor{ImGuiMouseCursor_COUNT};
+    bool windowIsHovered = {false};
 
     bool touchDown[3] = {false};
     sf::Vector2i touchPos;
@@ -263,6 +264,8 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
         return UpdateFontTexture();
     }
 
+    s_currWindowCtx->windowHasFocus = window.hasFocus();
+    // TODO : initialize windowIsHovered
     return true;
 }
 
@@ -299,6 +302,35 @@ void ProcessEvent(const sf::Event& event) {
             io.DisplaySize =
                 ImVec2(static_cast<float>(event.size.width), static_cast<float>(event.size.height));
             break;
+        case sf::Event::MouseEntered:
+            s_currWindowCtx->windowIsHovered = true;
+            break;
+        case sf::Event::MouseLeft:
+            s_currWindowCtx->windowIsHovered = false;
+            break;
+        }
+    }
+    
+    
+    if (s_currWindowCtx->windowIsHovered) {
+        ImGuiIO& io = ImGui::GetIO();
+
+        switch (event.type) {
+        case sf::Event::MouseWheelScrolled:
+            if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel ||
+                (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel && io.KeyShift)) {
+                io.MouseWheel += event.mouseWheelScroll.delta;
+            } else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel) {
+                io.MouseWheelH += event.mouseWheelScroll.delta;
+            }
+            break;
+        }
+    }
+    if (s_currWindowCtx->windowHasFocus)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        switch (event.type) {
         case sf::Event::MouseMoved:
             io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
                                 static_cast<float>(event.mouseMove.y));
@@ -324,14 +356,6 @@ void ProcessEvent(const sf::Event& event) {
                 s_currWindowCtx->touchDown[event.touch.finger] = true;
             }
         } break;
-        case sf::Event::MouseWheelScrolled:
-            if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel ||
-                (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel && io.KeyShift)) {
-                io.AddMouseWheelEvent(0, event.mouseWheelScroll.delta);
-            } else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel) {
-                io.AddMouseWheelEvent(event.mouseWheelScroll.delta, 0);
-            }
-            break;
         case sf::Event::KeyPressed: // fall-through
         case sf::Event::KeyReleased: {
             const bool down = (event.type == sf::Event::KeyPressed);
@@ -422,7 +446,8 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
-    if (s_currWindowCtx->windowHasFocus) {
+    if (s_currWindowCtx->windowIsHovered || s_currWindowCtx->windowHasFocus)
+    {
         if (io.WantSetMousePos) {
             const sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x),
                                            static_cast<int>(io.MousePos.y));
