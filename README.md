@@ -28,8 +28,8 @@ Contributing
 How-to
 ----
 
-- [**Detailed tutorial on my blog**](https://eliasdaler.github.io/using-imgui-with-sfml-pt1)
-- [**Using ImGui with modern C++ and STL**](https://eliasdaler.github.io/using-imgui-with-sfml-pt2/)
+- [**Detailed tutorial on my blog**](https://eliasdaler.github.io/using-imgui-with-sfml-pt-1)
+- [**Using ImGui with modern C++ and STL**](https://eliasdaler.github.io/using-imgui-with-sfml-pt-2/)
 - [**Thread on SFML forums**](https://en.sfml-dev.org/forums/index.php?topic=20137.0). Feel free to ask your questions there.
 
 Building and integrating into your CMake project
@@ -107,7 +107,7 @@ Using ImGui-SFML in your code
 Example code
 ----
 
-See example file [here](examples/main.cpp)
+See example file [here](examples/minimal/main.cpp)
 
 ```cpp
 #include "imgui.h"
