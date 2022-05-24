@@ -107,7 +107,7 @@ Using ImGui-SFML in your code
 Example code
 ----
 
-See example file [here](examples/main.cpp)
+See example file [here](https://github.com/eliasdaler/imgui-sfml/blob/master/examples/minimal/main.cpp)
 
 ```cpp
 #include "imgui.h"
@@ -139,6 +139,8 @@ int main() {
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
+        ImGui::ShowDemoWindow();
+
         ImGui::Begin("Hello, world!");
         ImGui::Button("Look at this pretty button");
         ImGui::End();
@@ -150,6 +152,8 @@ int main() {
     }
 
     ImGui::SFML::Shutdown();
+
+    return 0;
 }
 ```
 
