@@ -24,6 +24,14 @@
 #include <memory>
 #include <vector>
 
+
+// For multi-viewport support enable/disable
+#define VIEWPORTS_ENABLE
+
+#if defined(VIEWPORTS_ENABLE) && defined(_WIN32)
+#include <Windows.h>
+#endif
+
 #ifdef ANDROID
 #ifdef USE_JNI
 
@@ -176,7 +184,7 @@ struct TriggerInfo {
 };
 
 struct WindowContext {
-    const sf::Window* window;
+    sf::Window* const window;
     ImGuiContext* imContext;
 
     sf::Texture fontTexture; // internal font atlas which is used if user doesn't set a custom
@@ -207,12 +215,24 @@ struct WindowContext {
 #endif
 #endif
 
+#ifdef VIEWPORTS_ENABLE
+    const bool imContextOwner; // Context owner/main viewport
+    const bool isRenderWindow;
+
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
 
-    WindowContext(const sf::Window* w) {
-        window = w;
-        imContext = ImGui::CreateContext();
+    WindowContext(sf::RenderWindow* w, ImGuiContext* context = nullptr) 
+        : WindowContext(w, context, true) { }
+
+    WindowContext(sf::Window* w, ImGuiContext* context = nullptr, bool isRenderWindow = false) 
+        : window(w), imContextOwner(context == nullptr), isRenderWindow(isRenderWindow)
+    {
+        if (context) {
+            imContext = context;
+        } else {
+            imContext = ::ImGui::CreateContext();
+        }
 
         windowHasFocus = window->hasFocus();
         mouseMoved = false;
@@ -238,11 +258,80 @@ struct WindowContext {
 #endif
     }
 
-    ~WindowContext() { ImGui::DestroyContext(imContext); }
+    ~WindowContext() { 
+        if (imContextOwner)
+            ::ImGui::DestroyContext(imContext);
+        else
+            delete window;
+    }
+
+#else 
+    WindowContext(const WindowContext&) = delete; // non construction-copyable
+    WindowContext& operator=(const WindowContext&) = delete; // non copyable
+
+    WindowContext(sf::Window* w) : window(w)
+    {
+        imContext = ::ImGui::CreateContext();
+
+        windowHasFocus = window->hasFocus();
+        mouseMoved = false;
+        for (int i = 0; i < 3; ++i) {
+            mousePressed[i] = false;
+            touchDown[i] = false;
+        }
+        lastCursor = ImGuiMouseCursor_COUNT;
+
+        joystickId = getConnectedJoystickId();
+        for (int i = 0; i < sf::Joystick::ButtonCount; ++i) {
+            joystickMapping[i] = ImGuiKey_None;
+        }
+
+        for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
+            mouseCursorLoaded[i] = false;
+        }
+
+#ifdef ANDROID
+#ifdef USE_JNI
+        wantTextInput = false;
+#endif
+#endif
+    }
+
+    ~WindowContext() { ::ImGui::DestroyContext(imContext); }
+#endif
 };
 
 std::vector<std::unique_ptr<WindowContext>> s_windowContexts;
 WindowContext* s_currWindowCtx = nullptr;
+
+
+#ifdef VIEWPORTS_ENABLE
+// VIEWPORT functions
+void SFML_CreateWindow(ImGuiViewport* viewport);
+void SFML_DestroyWindow(ImGuiViewport* viewport);
+void SFML_ShowWindow(ImGuiViewport* viewport);
+void SFML_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos);
+ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport);
+void SFML_SetWindowSize(ImGuiViewport* viewport, ImVec2 size);
+ImVec2 SFML_GetWindowSize(ImGuiViewport* viewport);
+void SFML_SetWindowFocus(ImGuiViewport* viewport);
+bool SFML_GetWindowFocus(ImGuiViewport* viewport);
+bool SFML_GetWindowMinimized(ImGuiViewport* viewport);
+void SFML_SetWindowTitle(ImGuiViewport* viewport, const char* str);
+//void SFML_SetWindowAlpha(ImGuiViewport* viewport, float alpha);
+void SFML_UpdateWindow(ImGuiViewport* viewport);
+void SFML_RenderWindow(ImGuiViewport* viewport, void*);
+void SFML_SwapBuffers(ImGuiViewport* viewport, void*);
+//float  SFML_GetWindowDpiScale(ImGuiViewport* viewport);
+//void   SFML_OnChangedViewport(ImGuiViewport* viewport);
+//int    SFML_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_inst, const void* vk_allocators, ImU64* out_vk_surface);
+
+void SFML_UpdateMonitors();
+
+void SFML_InitInterface(WindowContext* windowContext);
+void SFML_ShutdownInterface();
+
+#endif
 
 } // end of anonymous namespace
 
@@ -274,6 +363,12 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+#ifdef VIEWPORTS_ENABLE
+    io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
+    SFML_InitInterface(s_currWindowCtx);
+    SFML_UpdateMonitors();
+#endif
     io.BackendPlatformName = "imgui_impl_sfml";
 
     s_currWindowCtx->joystickId = getConnectedJoystickId();
@@ -555,8 +650,14 @@ void ProcessEvent(const sf::Event& event) {
 
     if (s_currWindowCtx->windowHasFocus) {
         switch (event.type) {
-        case sf::Event::MouseMoved:
-            io.AddMousePosEvent(event.mouseMove.x, event.mouseMove.y);
+        case sf::Event::MouseMoved: 
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition();
+                io.AddMousePosEvent(mousePos.x, mousePos.y);
+            } 
+            else {
+                io.AddMousePosEvent(event.mouseMove.x, event.mouseMove.y);
+            }
             s_currWindowCtx->mouseMoved = true;
             break;
         case sf::Event::MouseButtonPressed: // fall-through
@@ -661,22 +762,166 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
         updateMouseCursor(window);
     }
 
+    ImGui::GetMainViewport()->Pos = window.getPosition() + sf::Vector2i(0, 24);
+
     if (!s_currWindowCtx->mouseMoved) {
         if (sf::Touch::isDown(0)) s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
 
         Update(s_currWindowCtx->touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
     } else {
-        Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            Update(sf::Mouse::getPosition(), static_cast<sf::Vector2f>(target.getSize()), dt);
+        else
+            Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
     }
 }
 
 void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt) {
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
-
     ImGuiIO& io = ImGui::GetIO();
+    
     io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
+#ifdef VIEWPORTS_ENABLE
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        SFML_UpdateMonitors();
+
+        for (auto& viewport : ImGui::GetPlatformIO().Viewports) {
+            WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+            if (wc->imContextOwner) continue;
+            sf::Event event;
+
+            while (wc->window->pollEvent(event)) {
+                if (wc->window->hasFocus()) {
+                    switch (event.type) {
+                    case sf::Event::MouseMoved: 
+                        {
+                            sf::Vector2i mousePos = sf::Mouse::getPosition();
+                            io.AddMousePosEvent(mousePos.x, mousePos.y);
+                        }
+                        wc->mouseMoved = true;
+                        break;
+                    case sf::Event::MouseButtonPressed: // fall-through
+                    case sf::Event::MouseButtonReleased: {
+                        int button = event.mouseButton.button;
+                        if (button >= 0 && button < 3) {
+                            if (event.type == sf::Event::MouseButtonPressed) {
+                                wc->mousePressed[event.mouseButton.button] = true;
+                                io.AddMouseButtonEvent(button, true);
+                            } else {
+                                io.AddMouseButtonEvent(button, false);
+                            }
+                        }
+                    } break;
+                    case sf::Event::TouchBegan: // fall-through
+                    case sf::Event::TouchEnded: {
+                        wc->mouseMoved = false;
+                        int button = event.touch.finger;
+                        if (event.type == sf::Event::TouchBegan && button >= 0 && button < 3) {
+                            wc->touchDown[event.touch.finger] = true;
+                        }
+                    } break;
+                    case sf::Event::MouseWheelScrolled:
+                        if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel ||
+                            (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel &&
+                             io.KeyShift)) {
+                            io.AddMouseWheelEvent(0, event.mouseWheelScroll.delta);
+                        } else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel) {
+                            io.AddMouseWheelEvent(event.mouseWheelScroll.delta, 0);
+                        }
+                        break;
+                    case sf::Event::KeyPressed: // fall-through
+                    case sf::Event::KeyReleased: {
+                        bool down = (event.type == sf::Event::KeyPressed);
+
+                        ImGuiKey mod = keycodeToImGuiMod(event.key.code);
+                        // The modifier booleans are not reliable when it's the modifier
+                        // itself that's being pressed. Detect these presses directly.
+                        if (mod != ImGuiKey_None) {
+                            io.AddKeyEvent(mod, down);
+                        } else {
+                            io.AddKeyEvent(ImGuiKey_ModCtrl, event.key.control);
+                            io.AddKeyEvent(ImGuiKey_ModShift, event.key.shift);
+                            io.AddKeyEvent(ImGuiKey_ModAlt, event.key.alt);
+                            io.AddKeyEvent(ImGuiKey_ModSuper, event.key.system);
+                        }
+
+                        ImGuiKey key = keycodeToImGuiKey(event.key.code);
+                        io.AddKeyEvent(key, down);
+                        io.SetKeyEventNativeData(key, event.key.code, -1);
+                    } break;
+                    case sf::Event::TextEntered:
+                        // Don't handle the event for unprintable characters
+                        if (event.text.unicode < ' ' || event.text.unicode == 127) {
+                            break;
+                        }
+                        io.AddInputCharacter(event.text.unicode);
+                        break;
+                    case sf::Event::JoystickConnected:
+                        if (wc->joystickId == NULL_JOYSTICK_ID) {
+                            wc->joystickId = event.joystickConnect.joystickId;
+                        }
+                        break;
+                    case sf::Event::JoystickDisconnected:
+                        if (wc->joystickId == event.joystickConnect.joystickId) { // used gamepad
+                                                                                  // was
+                                                                                  // disconnected
+                            wc->joystickId = getConnectedJoystickId();
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                switch (event.type) {
+                case sf::Event::LostFocus: {
+                    io.AddFocusEvent(false);
+                    wc->windowHasFocus = false;
+                } break;
+                case sf::Event::GainedFocus:
+                    io.AddFocusEvent(true);
+                    wc->windowHasFocus = true;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+    
+    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+    const ImVec2 mouse_pos_prev = io.MousePos;
+
+    for (auto& viewport : platform_io.Viewports) {
+        WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+        sf::Window* window = (sf::Window*)viewport->PlatformHandle;
+
+        if (window->hasFocus()) {
+            if (io.WantSetMousePos) {
+                sf::Mouse::setPosition({ static_cast<int>(mouse_pos_prev.x - viewport->Pos.x),
+                                         static_cast<int>(mouse_pos_prev.y - viewport->Pos.y) },
+                                       *window);
+            }
+            sf::Vector2i mousePos;
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+                mousePos = sf::Mouse::getPosition();
+            else
+                mousePos = sf::Mouse::getPosition(*window);
+            
+            io.AddMousePosEvent(mousePos.x, mousePos.y);
+
+            for (unsigned int i = 0; i < 3; i++) {
+                io.MouseDown[i] = wc->touchDown[i] || sf::Touch::isDown(i) || wc->mousePressed[i] ||
+                                  sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
+                wc->mousePressed[i] = false;
+                wc->touchDown[i] = false;
+            }
+        }
+    }
+
+#else
     if (s_currWindowCtx->windowHasFocus) {
         if (io.WantSetMousePos) {
             sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x),
@@ -693,6 +938,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
             s_currWindowCtx->touchDown[i] = false;
         }
     }
+#endif
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -741,6 +987,11 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
+#ifdef VIEWPORTS_ENABLE
+    SetCurrentWindow(window);
+    SFML_ShutdownInterface();
+#endif // VIEWPORTS_ENABLE
+
     bool needReplacement = (s_currWindowCtx->window->getSystemHandle() == window.getSystemHandle());
 
     // remove window's context
@@ -768,6 +1019,13 @@ void Shutdown(const sf::Window& window) {
 }
 
 void Shutdown() {
+#ifdef VIEWPORTS_ENABLE
+    for (auto& ctx : s_windowContexts) {
+        ImGui::SetCurrentContext(ctx->imContext);
+        SFML_ShutdownInterface();
+    }
+#endif // VIEWPORTS_ENABLE
+
     s_currWindowCtx = nullptr;
     ImGui::SetCurrentContext(nullptr);
 
@@ -1402,5 +1660,177 @@ void updateMouseCursor(sf::Window& window) {
         }
     }
 }
+
+
+#ifdef VIEWPORTS_ENABLE
+
+void SFML_CreateWindow(ImGuiViewport* viewport) {
+    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(viewport->Size.x, viewport->Size.y), "", sf::Style::None);
+    window->setVisible(false);
+    WindowContext* data = IM_NEW(WindowContext)(window, ImGui::GetCurrentContext(), true);
+    data->windowHasFocus = true;
+    viewport->PlatformUserData = data;
+    viewport->PlatformHandle = window;
+}
+
+void SFML_DestroyWindow(ImGuiViewport* viewport) {
+    if (WindowContext* wc = (WindowContext*)viewport->PlatformUserData) {
+        if (!wc->imContextOwner) {
+            wc->window->close();
+            IM_DELETE(wc);
+        }
+    }
+    viewport->PlatformUserData = nullptr;
+    viewport->PlatformHandle = nullptr;
+}
+
+void SFML_ShowWindow(ImGuiViewport* viewport) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    wc->window->setVisible(true);
+}
+
+void SFML_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    wc->window->setPosition(pos);
+}
+
+ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+
+#ifdef _WIN32    
+    RECT clientAreaRect;
+    HWND hwnd = wc->window->getSystemHandle();
+    GetClientRect(hwnd, &clientAreaRect);
+    MapWindowPoints(hwnd, NULL, (LPPOINT)&clientAreaRect, 2);
+    return { (float)clientAreaRect.left, (float)clientAreaRect.top };
+#else
+    if (wc->imContextOwner) return wc->window->getPosition() + sf::Vector2i(0, 24);
+    return wc->window->getPosition();
+#endif
+}
+
+void SFML_SetWindowSize(ImGuiViewport* viewport, ImVec2 size) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    wc->window->setSize(size);
+}
+
+ImVec2 SFML_GetWindowSize(ImGuiViewport* viewport) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    return wc->window->getSize();
+}
+
+void SFML_SetWindowFocus(ImGuiViewport* viewport) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    wc->window->requestFocus();
+}
+
+bool SFML_GetWindowFocus(ImGuiViewport* viewport) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    return wc->window->hasFocus();
+}
+
+bool SFML_GetWindowMinimized(ImGuiViewport* viewport) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    return false;   // tell imgui that window is allways maximized
+}
+
+void SFML_SetWindowTitle(ImGuiViewport* viewport, const char* str) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    wc->window->setTitle(str);
+}
+
+void SFML_UpdateWindow(ImGuiViewport* viewport) {
+    // TODO: implement or delete
+}
+
+void SFML_RenderWindow(ImGuiViewport* viewport, void*) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    if (!wc->imContextOwner) {
+        IM_ASSERT(wc->isRenderWindow);
+        sf::RenderWindow* window = (sf::RenderWindow*)wc->window;
+        window->setActive(true);
+        window->resetGLStates();
+        window->pushGLStates();
+        RenderDrawLists(viewport->DrawData);
+        window->popGLStates();
+    }
+}
+
+void SFML_SwapBuffers(ImGuiViewport* viewport, void*) {
+    WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
+    wc->window->display();
+}
+
+#ifdef _WIN32
+static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor,
+                                     LPARAM dwData) {
+    int* Count = (int*)dwData;
+    (*Count)++;
+    return TRUE;
+}
+#endif // _WIN32
+
+void SFML_UpdateMonitors() {
+#ifdef _WIN32
+    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+    platform_io.Monitors.resize(0);
+
+    MONITORENUMPROC proc = [](HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor,
+                              LPARAM dwData) -> BOOL {
+        ImGuiPlatformIO& platform_io = *((ImGuiPlatformIO*)dwData);
+        ImGuiPlatformMonitor monitor;
+
+        MONITORINFOEXW mi;
+        ZeroMemory(&mi, sizeof(mi));
+        mi.cbSize = sizeof(mi);
+
+        GetMonitorInfoW(hMonitor, (MONITORINFO*)&mi);
+
+        monitor.MainPos = ImVec2(mi.rcMonitor.left, mi.rcMonitor.top);
+        monitor.MainSize =
+            ImVec2(mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top);
+        monitor.WorkPos = ImVec2(mi.rcWork.left, mi.rcWork.top);
+        monitor.WorkSize =
+            ImVec2(mi.rcWork.right - mi.rcWork.left, mi.rcWork.bottom - mi.rcWork.top);
+
+        platform_io.Monitors.push_back(monitor);
+        return TRUE;
+    };
+
+    // if (EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&Count))
+    EnumDisplayMonitors(NULL, NULL, proc, (LPARAM)&platform_io);
+#else
+    #error "Update monitors is only implemented for windows."
+#endif // _WIN32
+}
+
+void SFML_InitInterface(WindowContext* windowContext) {
+    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+    platform_io.Platform_CreateWindow = SFML_CreateWindow;
+    platform_io.Platform_DestroyWindow = SFML_DestroyWindow;
+    platform_io.Platform_ShowWindow = SFML_ShowWindow;
+    platform_io.Platform_SetWindowPos = SFML_SetWindowPos;
+    platform_io.Platform_GetWindowPos = SFML_GetWindowPos;
+    platform_io.Platform_SetWindowSize = SFML_SetWindowSize;
+    platform_io.Platform_GetWindowSize = SFML_GetWindowSize;
+    platform_io.Platform_SetWindowFocus = SFML_SetWindowFocus;
+    platform_io.Platform_GetWindowFocus = SFML_GetWindowFocus;
+    platform_io.Platform_GetWindowMinimized = SFML_GetWindowMinimized;
+    platform_io.Platform_SetWindowTitle = SFML_SetWindowTitle;
+    //platform_io.Platform_SetWindowAlpha = SFML_SetWindowAlpha;
+    platform_io.Platform_UpdateWindow = SFML_UpdateWindow;
+    platform_io.Platform_RenderWindow = SFML_RenderWindow;
+    platform_io.Platform_SwapBuffers = SFML_SwapBuffers;
+
+    ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+    mainViewport->PlatformUserData = windowContext;
+    mainViewport->PlatformHandle = windowContext->window;
+}
+
+void SFML_ShutdownInterface() {
+    ImGui::DestroyPlatformWindows();
+}
+
+#endif // VIEWPORTS_ENABLE
 
 } // end of anonymous namespace
