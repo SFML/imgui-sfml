@@ -218,6 +218,7 @@ struct WindowContext {
 #ifdef VIEWPORTS_ENABLE
     const bool imContextOwner; // Context owner/main viewport
     const bool isRenderWindow;
+    bool mouseHovered;
 
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
@@ -233,9 +234,9 @@ struct WindowContext {
         } else {
             imContext = ::ImGui::CreateContext();
         }
-
         windowHasFocus = window->hasFocus();
         mouseMoved = false;
+        mouseHovered = false;
         for (int i = 0; i < 3; ++i) {
             mousePressed[i] = false;
             touchDown[i] = false;
@@ -306,28 +307,7 @@ WindowContext* s_currWindowCtx = nullptr;
 
 
 #ifdef VIEWPORTS_ENABLE
-// VIEWPORT functions
-void SFML_CreateWindow(ImGuiViewport* viewport);
-void SFML_DestroyWindow(ImGuiViewport* viewport);
-void SFML_ShowWindow(ImGuiViewport* viewport);
-void SFML_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos);
-ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport);
-void SFML_SetWindowSize(ImGuiViewport* viewport, ImVec2 size);
-ImVec2 SFML_GetWindowSize(ImGuiViewport* viewport);
-void SFML_SetWindowFocus(ImGuiViewport* viewport);
-bool SFML_GetWindowFocus(ImGuiViewport* viewport);
-bool SFML_GetWindowMinimized(ImGuiViewport* viewport);
-void SFML_SetWindowTitle(ImGuiViewport* viewport, const char* str);
-//void SFML_SetWindowAlpha(ImGuiViewport* viewport, float alpha);
-void SFML_UpdateWindow(ImGuiViewport* viewport);
-void SFML_RenderWindow(ImGuiViewport* viewport, void*);
-void SFML_SwapBuffers(ImGuiViewport* viewport, void*);
-//float  SFML_GetWindowDpiScale(ImGuiViewport* viewport);
-//void   SFML_OnChangedViewport(ImGuiViewport* viewport);
-//int    SFML_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_inst, const void* vk_allocators, ImU64* out_vk_surface);
-
 void SFML_UpdateMonitors();
-
 void SFML_InitInterface(WindowContext* windowContext);
 void SFML_ShutdownInterface();
 
@@ -366,6 +346,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 #ifdef VIEWPORTS_ENABLE
     io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
     io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
     SFML_InitInterface(s_currWindowCtx);
     SFML_UpdateMonitors();
 #endif
@@ -741,6 +722,22 @@ void ProcessEvent(const sf::Event& event) {
         io.AddFocusEvent(true);
         s_currWindowCtx->windowHasFocus = true;
         break;
+#ifdef VIEWPORTS_ENABLE
+    case sf::Event::MouseEntered:
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            sf::Vector2i mousePos = sf::Mouse::getPosition();
+            io.AddMousePosEvent(mousePos.x, mousePos.y);
+        } else {
+            sf::Vector2i mousePos = sf::Mouse::getPosition(*s_currWindowCtx->window);
+            io.AddMousePosEvent(mousePos.x, mousePos.y);
+        }
+        s_currWindowCtx->mouseHovered = true;
+        break;
+    case sf::Event::MouseLeft:
+        io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+        s_currWindowCtx->mouseHovered = false;
+        break;
+#endif // VIEWPORT_ENABLE
     default:
         break;
     }
@@ -761,8 +758,6 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
         s_currWindowCtx->lastCursor = mouse_cursor;
         updateMouseCursor(window);
     }
-
-    ImGui::GetMainViewport()->Pos = window.getPosition() + sf::Vector2i(0, 24);
 
     if (!s_currWindowCtx->mouseMoved) {
         if (sf::Touch::isDown(0)) s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
@@ -884,6 +879,17 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
                     io.AddFocusEvent(true);
                     wc->windowHasFocus = true;
                     break;
+                case sf::Event::MouseEntered:
+                    {
+                        sf::Vector2i mousePos = sf::Mouse::getPosition();
+                        io.AddMousePosEvent(mousePos.x, mousePos.y);
+                    }
+                    wc->mouseHovered = true;
+                    break;
+                case sf::Event::MouseLeft:
+                    io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+                    wc->mouseHovered = false;
+                    break;
                 default:
                     break;
                 }
@@ -892,16 +898,17 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     }
     
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
-    const ImVec2 mouse_pos_prev = io.MousePos;
+    const ImVec2 mousePosPrev = io.MousePos;
+    ImGuiID mouseViewportID = 0;
 
-    for (auto& viewport : platform_io.Viewports) {
+    for (auto* viewport : platform_io.Viewports) {
         WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
         sf::Window* window = (sf::Window*)viewport->PlatformHandle;
 
         if (window->hasFocus()) {
             if (io.WantSetMousePos) {
-                sf::Mouse::setPosition({ static_cast<int>(mouse_pos_prev.x - viewport->Pos.x),
-                                         static_cast<int>(mouse_pos_prev.y - viewport->Pos.y) },
+                sf::Mouse::setPosition({static_cast<int>(mousePosPrev.x - viewport->Pos.x),
+                                        static_cast<int>(mousePosPrev.y - viewport->Pos.y)},
                                        *window);
             }
             sf::Vector2i mousePos;
@@ -919,7 +926,14 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
                 wc->touchDown[i] = false;
             }
         }
+
+        const bool windowNoInput = (viewport->Flags & ImGuiViewportFlags_NoInputs) != 0;
+
+        if (wc->mouseHovered && !windowNoInput) mouseViewportID = viewport->ID;
     }
+
+    if (io.BackendFlags & ImGuiBackendFlags_HasMouseHoveredViewport)
+        io.AddMouseViewportEvent(mouseViewportID);
 
 #else
     if (s_currWindowCtx->windowHasFocus) {
@@ -1740,7 +1754,6 @@ void SFML_SetWindowTitle(ImGuiViewport* viewport, const char* str) {
 }
 
 void SFML_UpdateWindow(ImGuiViewport* viewport) {
-    // TODO: implement or delete
 }
 
 void SFML_RenderWindow(ImGuiViewport* viewport, void*) {
@@ -1800,7 +1813,7 @@ void SFML_UpdateMonitors() {
     // if (EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&Count))
     EnumDisplayMonitors(NULL, NULL, proc, (LPARAM)&platform_io);
 #else
-    #error "Update monitors is only implemented for windows."
+    #error "Update monitors is only implemented for Windows."
 #endif // _WIN32
 }
 
