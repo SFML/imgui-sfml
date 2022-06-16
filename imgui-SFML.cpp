@@ -13,6 +13,7 @@
 #include <SFML/Window/Cursor.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Touch.hpp>
+#include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/Window.hpp>
 
 #include <cassert>
