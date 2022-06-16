@@ -1680,7 +1680,15 @@ void updateMouseCursor(sf::Window& window) {
 #ifdef VIEWPORTS_ENABLE
 
 void SFML_CreateWindow(ImGuiViewport* viewport) {
-    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(viewport->Size.x, viewport->Size.y), "", sf::Style::None);
+#if SFML_VERSION_MAJOR >= 3
+    sf::RenderWindow* window =
+        new sf::RenderWindow(sf::VideoMode({viewport->Size.x, viewport->Size.y}), "",
+                             sf::Style::None);
+#else
+    sf::RenderWindow* window =
+        new sf::RenderWindow(sf::VideoMode(viewport->Size.x, viewport->Size.y), "",
+                             sf::Style::None);
+#endif
     window->setVisible(false);
     WindowContext* data = IM_NEW(WindowContext)(window, ImGui::GetCurrentContext(), true);
     data->windowHasFocus = true;
