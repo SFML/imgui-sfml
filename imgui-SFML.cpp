@@ -1681,9 +1681,9 @@ void updateMouseCursor(sf::Window& window) {
 
 void SFML_CreateWindow(ImGuiViewport* viewport) {
 #if SFML_VERSION_MAJOR >= 3
-    sf::RenderWindow* window =
-        new sf::RenderWindow(sf::VideoMode({viewport->Size.x, viewport->Size.y}), "",
-                             sf::Style::None);
+    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode({(unsigned)viewport->Size.x,
+                                                                   (unsigned)viewport->Size.y}),
+                                                    "", sf::Style::None);
 #else
     sf::RenderWindow* window =
         new sf::RenderWindow(sf::VideoMode(viewport->Size.x, viewport->Size.y), "",
