@@ -216,7 +216,6 @@ struct WindowContext {
 #endif
 #endif
 
-#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     bool isImContextOwner; // Context owner/main viewport
     bool isRenderWindow;
     bool mouseHovered;
@@ -224,10 +223,10 @@ struct WindowContext {
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
 
-    WindowContext(sf::RenderWindow* w, ImGuiContext* context = nullptr) 
-        : WindowContext(w, context, true) { }
+    WindowContext(sf::Window* w) 
+        : WindowContext(w, nullptr, true) { }
 
-    WindowContext(sf::Window* w, ImGuiContext* context = nullptr, bool isRenderWindow = false) 
+    WindowContext(sf::Window* w, ImGuiContext* context, bool isRenderWindow) 
         : window(w), isImContextOwner(context == nullptr), isRenderWindow(isRenderWindow)
     {
         if (context) {
@@ -266,41 +265,6 @@ struct WindowContext {
         else
             delete window;
     }
-
-#else 
-    WindowContext(const WindowContext&) = delete; // non construction-copyable
-    WindowContext& operator=(const WindowContext&) = delete; // non copyable
-
-    WindowContext(sf::Window* w) : window(w)
-    {
-        imContext = ::ImGui::CreateContext();
-
-        windowHasFocus = window->hasFocus();
-        mouseMoved = false;
-        for (int i = 0; i < 3; ++i) {
-            mousePressed[i] = false;
-            touchDown[i] = false;
-        }
-        lastCursor = ImGuiMouseCursor_COUNT;
-
-        joystickId = getConnectedJoystickId();
-        for (int i = 0; i < sf::Joystick::ButtonCount; ++i) {
-            joystickMapping[i] = ImGuiKey_None;
-        }
-
-        for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-            mouseCursorLoaded[i] = false;
-        }
-
-#ifdef ANDROID
-#ifdef USE_JNI
-        wantTextInput = false;
-#endif
-#endif
-    }
-
-    ~WindowContext() { ::ImGui::DestroyContext(imContext); }
-#endif
 };
 
 std::vector<std::unique_ptr<WindowContext>> s_windowContexts;
@@ -1767,15 +1731,15 @@ void SFML_UpdateWindow(ImGuiViewport* viewport) {
 
 void SFML_RenderWindow(ImGuiViewport* viewport, void*) {
     WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
-    if (!wc->isImContextOwner) {
-        IM_ASSERT(wc->isRenderWindow);
-        sf::RenderWindow* window = (sf::RenderWindow*)wc->window;
-        window->setActive(true);
-        window->resetGLStates();
-        window->pushGLStates();
-        RenderDrawLists(viewport->DrawData);
-        window->popGLStates();
-    }
+    if (wc->isImContextOwner) return;
+        
+    IM_ASSERT(wc->isRenderWindow);
+    sf::RenderWindow* window = (sf::RenderWindow*)wc->window;
+    window->setActive(true);
+    window->resetGLStates();
+    window->pushGLStates();
+    RenderDrawLists(viewport->DrawData);
+    window->popGLStates();
 }
 
 void SFML_SwapBuffers(ImGuiViewport* viewport, void*) {
