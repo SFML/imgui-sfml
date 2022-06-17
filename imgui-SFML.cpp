@@ -26,9 +26,6 @@
 #include <vector>
 
 
-// For multi-viewport support enable/disable
-#define IMGUI_SFML_VIEWPORTS_ENABLE
-
 #if defined(IMGUI_SFML_VIEWPORTS_ENABLE) && defined(_WIN32)
 #include <Windows.h>
 #endif
