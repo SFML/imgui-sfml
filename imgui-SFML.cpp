@@ -27,9 +27,9 @@
 
 
 // For multi-viewport support enable/disable
-#define VIEWPORTS_ENABLE
+#define IMGUI_SFML_VIEWPORTS_ENABLE
 
-#if defined(VIEWPORTS_ENABLE) && defined(_WIN32)
+#if defined(IMGUI_SFML_VIEWPORTS_ENABLE) && defined(_WIN32)
 #include <Windows.h>
 #endif
 
@@ -216,7 +216,7 @@ struct WindowContext {
 #endif
 #endif
 
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     const bool imContextOwner; // Context owner/main viewport
     const bool isRenderWindow;
     bool mouseHovered;
@@ -307,7 +307,7 @@ std::vector<std::unique_ptr<WindowContext>> s_windowContexts;
 WindowContext* s_currWindowCtx = nullptr;
 
 
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
 void SFML_UpdateMonitors();
 void SFML_InitInterface(WindowContext* windowContext);
 void SFML_ShutdownInterface();
@@ -344,7 +344,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
     io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
@@ -723,7 +723,7 @@ void ProcessEvent(const sf::Event& event) {
         io.AddFocusEvent(true);
         s_currWindowCtx->windowHasFocus = true;
         break;
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     case sf::Event::MouseEntered:
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             sf::Vector2i mousePos = sf::Mouse::getPosition();
@@ -779,7 +779,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         SFML_UpdateMonitors();
 
@@ -1002,10 +1002,10 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     SetCurrentWindow(window);
     SFML_ShutdownInterface();
-#endif // VIEWPORTS_ENABLE
+#endif // IMGUI_SFML_VIEWPORTS_ENABLE
 
     bool needReplacement = (s_currWindowCtx->window->getSystemHandle() == window.getSystemHandle());
 
@@ -1034,12 +1034,12 @@ void Shutdown(const sf::Window& window) {
 }
 
 void Shutdown() {
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
     for (auto& ctx : s_windowContexts) {
         ImGui::SetCurrentContext(ctx->imContext);
         SFML_ShutdownInterface();
     }
-#endif // VIEWPORTS_ENABLE
+#endif // IMGUI_SFML_VIEWPORTS_ENABLE
 
     s_currWindowCtx = nullptr;
     ImGui::SetCurrentContext(nullptr);
@@ -1677,7 +1677,7 @@ void updateMouseCursor(sf::Window& window) {
 }
 
 
-#ifdef VIEWPORTS_ENABLE
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
 
 void SFML_CreateWindow(ImGuiViewport* viewport) {
 #if SFML_VERSION_MAJOR >= 3
@@ -1853,6 +1853,6 @@ void SFML_ShutdownInterface() {
     ImGui::DestroyPlatformWindows();
 }
 
-#endif // VIEWPORTS_ENABLE
+#endif // IMGUI_SFML_VIEWPORTS_ENABLE
 
 } // end of anonymous namespace
