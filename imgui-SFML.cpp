@@ -217,8 +217,8 @@ struct WindowContext {
 #endif
 
 #ifdef IMGUI_SFML_VIEWPORTS_ENABLE
-    const bool imContextOwner; // Context owner/main viewport
-    const bool isRenderWindow;
+    bool isImContextOwner; // Context owner/main viewport
+    bool isRenderWindow;
     bool mouseHovered;
 
     WindowContext(const WindowContext&) = delete; // non construction-copyable
@@ -228,7 +228,7 @@ struct WindowContext {
         : WindowContext(w, context, true) { }
 
     WindowContext(sf::Window* w, ImGuiContext* context = nullptr, bool isRenderWindow = false) 
-        : window(w), imContextOwner(context == nullptr), isRenderWindow(isRenderWindow)
+        : window(w), isImContextOwner(context == nullptr), isRenderWindow(isRenderWindow)
     {
         if (context) {
             imContext = context;
@@ -261,7 +261,7 @@ struct WindowContext {
     }
 
     ~WindowContext() { 
-        if (imContextOwner)
+        if (isImContextOwner)
             ::ImGui::DestroyContext(imContext);
         else
             delete window;
@@ -785,7 +785,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
 
         for (auto& viewport : ImGui::GetPlatformIO().Viewports) {
             WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
-            if (wc->imContextOwner) continue;
+            if (wc->isImContextOwner) continue;
             sf::Event event;
 
             while (wc->window->pollEvent(event)) {
@@ -1698,7 +1698,7 @@ void SFML_CreateWindow(ImGuiViewport* viewport) {
 
 void SFML_DestroyWindow(ImGuiViewport* viewport) {
     if (WindowContext* wc = (WindowContext*)viewport->PlatformUserData) {
-        if (!wc->imContextOwner) {
+        if (!wc->isImContextOwner) {
             wc->window->close();
             IM_DELETE(wc);
         }
@@ -1727,7 +1727,7 @@ ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport) {
     MapWindowPoints(hwnd, NULL, (LPPOINT)&clientAreaRect, 2);
     return { (float)clientAreaRect.left, (float)clientAreaRect.top };
 #else
-    if (wc->imContextOwner) return wc->window->getPosition() + sf::Vector2i(0, 24);
+    if (wc->isImContextOwner) return wc->window->getPosition() + sf::Vector2i(0, 24);
     return wc->window->getPosition();
 #endif
 }
@@ -1767,7 +1767,7 @@ void SFML_UpdateWindow(ImGuiViewport* viewport) {
 
 void SFML_RenderWindow(ImGuiViewport* viewport, void*) {
     WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
-    if (!wc->imContextOwner) {
+    if (!wc->isImContextOwner) {
         IM_ASSERT(wc->isRenderWindow);
         sf::RenderWindow* window = (sf::RenderWindow*)wc->window;
         window->setActive(true);
