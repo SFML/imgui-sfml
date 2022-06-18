@@ -594,11 +594,14 @@ void ProcessEvent(const sf::Event& event) {
     if (s_currWindowCtx->windowHasFocus) {
         switch (event.type) {
         case sf::Event::MouseMoved: 
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
             if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition();
                 io.AddMousePosEvent(mousePos.x, mousePos.y);
             } 
-            else {
+            else
+#endif // IMGUI_SFML_VIEWPORTS_ENABLE
+            {
                 io.AddMousePosEvent(event.mouseMove.x, event.mouseMove.y);
             }
             s_currWindowCtx->mouseMoved = true;
@@ -726,10 +729,15 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
 
         Update(s_currWindowCtx->touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
     } else {
-        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             Update(sf::Mouse::getPosition(), static_cast<sf::Vector2f>(target.getSize()), dt);
-        else
+        }
+        else 
+#endif // IMGUI_SFML_VIEWPORTS_ENABLE
+        {
             Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+        }
     }
 }
 
