@@ -1696,7 +1696,6 @@ ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport) {
     MapWindowPoints(hwnd, NULL, (LPPOINT)&clientAreaRect, 2);
     return { (float)clientAreaRect.left, (float)clientAreaRect.top };
 #else
-    if (wc->isImContextOwner) return wc->window->getPosition() + sf::Vector2i(0, 24);
     return wc->window->getPosition();
 #endif
 }
