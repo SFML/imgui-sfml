@@ -25,10 +25,17 @@
 #include <memory>
 #include <vector>
 
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE 
+    #if defined(_WIN32)
+        #include <Windows.h>
+    #elif defined(__linux__)
+        #include <X11/Xlib.h>
+        #include <X11/extensions/Xrandr.h>
 
-#if defined(IMGUI_SFML_VIEWPORTS_ENABLE) && defined(_WIN32)
-#include <Windows.h>
+        #undef None     // collides with sf::Style::None
+    #endif
 #endif
+
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -216,21 +223,26 @@ struct WindowContext {
     bool isImContextOwner; // Context owner/main viewport
     bool isRenderWindow;
     bool mouseHovered;
+    float titleBarHeight;
 
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
 
-    WindowContext(sf::Window* w) 
-        : WindowContext(w, nullptr, true) { }
+    WindowContext(sf::Window* w) : 
+        WindowContext(w, nullptr) { }
 
-    WindowContext(sf::Window* w, ImGuiContext* context, bool isRenderWindow) 
-        : window(w), isImContextOwner(context == nullptr), isRenderWindow(isRenderWindow)
+    WindowContext(sf::Window* w, ImGuiContext* context) : 
+        window(w), isImContextOwner(context == nullptr),
+        titleBarHeight(0.f)
     {
         if (context) {
             imContext = context;
         } else {
             imContext = ::ImGui::CreateContext();
         }
+
+        isRenderWindow = dynamic_cast<sf::RenderWindow*>(w) != nullptr;
+
         windowHasFocus = window->hasFocus();
         mouseMoved = false;
         mouseHovered = false;
@@ -311,6 +323,10 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
     SFML_InitInterface(s_currWindowCtx);
     SFML_UpdateMonitors();
+
+    sf::Vector2i windowMousePos = sf::Mouse::getPosition(window);
+    sf::Vector2i globalMousePos = sf::Mouse::getPosition();
+    s_currWindowCtx->titleBarHeight = globalMousePos.y - (window.getPosition().y + windowMousePos.y);
 #endif
     io.BackendPlatformName = "imgui_impl_sfml";
 
@@ -1659,7 +1675,7 @@ void SFML_CreateWindow(ImGuiViewport* viewport) {
                              sf::Style::None);
 #endif
     window->setVisible(false);
-    WindowContext* data = IM_NEW(WindowContext)(window, ImGui::GetCurrentContext(), true);
+    WindowContext* data = IM_NEW(WindowContext)(window, ImGui::GetCurrentContext());
     data->windowHasFocus = true;
     viewport->PlatformUserData = data;
     viewport->PlatformHandle = window;
@@ -1689,14 +1705,17 @@ void SFML_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos) {
 ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport) {
     WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
 
-#ifdef _WIN32    
+#if defined(_WIN32)
     RECT clientAreaRect;
     HWND hwnd = wc->window->getSystemHandle();
     GetClientRect(hwnd, &clientAreaRect);
     MapWindowPoints(hwnd, NULL, (LPPOINT)&clientAreaRect, 2);
     return { (float)clientAreaRect.left, (float)clientAreaRect.top };
 #else
-    return wc->window->getPosition();
+    // Probably will give a bad result as sfml window origin is top left corner 
+    // of the title bar. This results that main viewport's coordinates are offsetted
+    // in reference to MousePos.
+    return wc->window->getPosition() + sf::Vector2i(0, wc->titleBarHeight);
 #endif
 }
 
@@ -1761,10 +1780,10 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT l
 #endif // _WIN32
 
 void SFML_UpdateMonitors() {
-#ifdef _WIN32
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
     platform_io.Monitors.resize(0);
 
+#if defined(_WIN32)
     MONITORENUMPROC proc = [](HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor,
                               LPARAM dwData) -> BOOL {
         ImGuiPlatformIO& platform_io = *((ImGuiPlatformIO*)dwData);
@@ -1789,8 +1808,31 @@ void SFML_UpdateMonitors() {
 
     // if (EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&Count))
     EnumDisplayMonitors(NULL, NULL, proc, (LPARAM)&platform_io);
+#elif defined(__linux__)
+    static Display* display = nullptr;
+	if (display == nullptr) {
+        if (!(display = XOpenDisplay(0))) {
+            fprintf(stderr, "Could not open X display.\n");
+            return;
+        }
+    }
+
+	XRRScreenResources* screen_res = XRRGetScreenResources(display, DefaultRootWindow(display));
+
+	int nmonitors = 0;
+	XRRGetMonitors(display, DefaultRootWindow(display), 1, &nmonitors);
+
+    for (int i = 0; i < nmonitors; i++) {
+        ImGuiPlatformMonitor monitor;
+        XRRCrtcInfo* screen_info = XRRGetCrtcInfo(display, screen_res, screen_res->crtcs[i]);
+        
+        monitor.MainPos = monitor.WorkPos = ImVec2(screen_info->x, screen_info->y);
+        monitor.MainSize = monitor.WorkSize = ImVec2(screen_info->width, screen_info->width);
+
+        platform_io.Monitors.push_back(monitor);
+    }
 #else
-    #error "Update monitors is only implemented for Windows."
+    #error "Update monitors is not implemented for this platform."
 #endif // _WIN32
 }
 
