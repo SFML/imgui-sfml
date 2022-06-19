@@ -25,17 +25,16 @@
 #include <memory>
 #include <vector>
 
-#ifdef IMGUI_SFML_VIEWPORTS_ENABLE 
-    #if defined(_WIN32)
-        #include <Windows.h>
-    #elif defined(__linux__)
-        #include <X11/Xlib.h>
-        #include <X11/extensions/Xrandr.h>
+#ifdef IMGUI_SFML_VIEWPORTS_ENABLE
+#if defined(_WIN32)
+#include <Windows.h>
+#elif defined(__linux__)
+#include <X11/Xlib.h>
+#include <X11/extensions/Xrandr.h>
 
-        #undef None     // collides with sf::Style::None
-    #endif
+#undef None // collides with sf::Style::None
 #endif
-
+#endif
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -228,13 +227,11 @@ struct WindowContext {
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
 
-    WindowContext(sf::Window* w) : 
-        WindowContext(w, nullptr) { }
+    WindowContext(sf::Window* w) : WindowContext(w, nullptr) {
+    }
 
-    WindowContext(sf::Window* w, ImGuiContext* context) : 
-        window(w), isImContextOwner(context == nullptr),
-        titleBarHeight(0.f)
-    {
+    WindowContext(sf::Window* w, ImGuiContext* context) :
+        window(w), isImContextOwner(context == nullptr), titleBarHeight(0.f) {
         if (context) {
             imContext = context;
         } else {
@@ -268,7 +265,7 @@ struct WindowContext {
 #endif
     }
 
-    ~WindowContext() { 
+    ~WindowContext() {
         if (isImContextOwner)
             ::ImGui::DestroyContext(imContext);
         else
@@ -278,7 +275,6 @@ struct WindowContext {
 
 std::vector<std::unique_ptr<WindowContext>> s_windowContexts;
 WindowContext* s_currWindowCtx = nullptr;
-
 
 #ifdef IMGUI_SFML_VIEWPORTS_ENABLE
 void SFML_UpdateMonitors();
@@ -326,7 +322,8 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 
     sf::Vector2i windowMousePos = sf::Mouse::getPosition(window);
     sf::Vector2i globalMousePos = sf::Mouse::getPosition();
-    s_currWindowCtx->titleBarHeight = globalMousePos.y - (window.getPosition().y + windowMousePos.y);
+    s_currWindowCtx->titleBarHeight =
+        globalMousePos.y - (window.getPosition().y + windowMousePos.y);
 #endif
     io.BackendPlatformName = "imgui_impl_sfml";
 
@@ -609,13 +606,12 @@ void ProcessEvent(const sf::Event& event) {
 
     if (s_currWindowCtx->windowHasFocus) {
         switch (event.type) {
-        case sf::Event::MouseMoved: 
+        case sf::Event::MouseMoved:
 #ifdef IMGUI_SFML_VIEWPORTS_ENABLE
             if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition();
                 io.AddMousePosEvent(mousePos.x, mousePos.y);
-            } 
-            else
+            } else
 #endif // IMGUI_SFML_VIEWPORTS_ENABLE
             {
                 io.AddMousePosEvent(event.mouseMove.x, event.mouseMove.y);
@@ -748,8 +744,7 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
 #ifdef IMGUI_SFML_VIEWPORTS_ENABLE
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             Update(sf::Mouse::getPosition(), static_cast<sf::Vector2f>(target.getSize()), dt);
-        }
-        else 
+        } else
 #endif // IMGUI_SFML_VIEWPORTS_ENABLE
         {
             Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
@@ -760,7 +755,7 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
 void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt) {
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
     ImGuiIO& io = ImGui::GetIO();
-    
+
     io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
@@ -776,11 +771,10 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
             while (wc->window->pollEvent(event)) {
                 if (wc->window->hasFocus()) {
                     switch (event.type) {
-                    case sf::Event::MouseMoved: 
-                        {
-                            sf::Vector2i mousePos = sf::Mouse::getPosition();
-                            io.AddMousePosEvent(mousePos.x, mousePos.y);
-                        }
+                    case sf::Event::MouseMoved: {
+                        sf::Vector2i mousePos = sf::Mouse::getPosition();
+                        io.AddMousePosEvent(mousePos.x, mousePos.y);
+                    }
                         wc->mouseMoved = true;
                         break;
                     case sf::Event::MouseButtonPressed: // fall-through
@@ -865,11 +859,10 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
                     io.AddFocusEvent(true);
                     wc->windowHasFocus = true;
                     break;
-                case sf::Event::MouseEntered:
-                    {
-                        sf::Vector2i mousePos = sf::Mouse::getPosition();
-                        io.AddMousePosEvent(mousePos.x, mousePos.y);
-                    }
+                case sf::Event::MouseEntered: {
+                    sf::Vector2i mousePos = sf::Mouse::getPosition();
+                    io.AddMousePosEvent(mousePos.x, mousePos.y);
+                }
                     wc->mouseHovered = true;
                     break;
                 case sf::Event::MouseLeft:
@@ -882,7 +875,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
             }
         }
     }
-    
+
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
     const ImVec2 mousePosPrev = io.MousePos;
     ImGuiID mouseViewportID = 0;
@@ -902,7 +895,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
                 mousePos = sf::Mouse::getPosition();
             else
                 mousePos = sf::Mouse::getPosition(*window);
-            
+
             io.AddMousePosEvent(mousePos.x, mousePos.y);
 
             for (unsigned int i = 0; i < 3; i++) {
@@ -1661,7 +1654,6 @@ void updateMouseCursor(sf::Window& window) {
     }
 }
 
-
 #ifdef IMGUI_SFML_VIEWPORTS_ENABLE
 
 void SFML_CreateWindow(ImGuiViewport* viewport) {
@@ -1705,18 +1697,11 @@ void SFML_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos) {
 ImVec2 SFML_GetWindowPos(ImGuiViewport* viewport) {
     WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
 
-#if defined(_WIN32)
-    RECT clientAreaRect;
-    HWND hwnd = wc->window->getSystemHandle();
-    GetClientRect(hwnd, &clientAreaRect);
-    MapWindowPoints(hwnd, NULL, (LPPOINT)&clientAreaRect, 2);
-    return { (float)clientAreaRect.left, (float)clientAreaRect.top };
-#else
-    // Probably will give a bad result as sfml window origin is top left corner 
-    // of the title bar. This results that main viewport's coordinates are offsetted
-    // in reference to MousePos.
+    // SFML window origin is top left corner of the title bar.
+    // This results in that main viewport's coordinates are offsetted
+    // in reference to MousePos, because ImGUi expects coordinates of 
+    // client area.
     return wc->window->getPosition() + sf::Vector2i(0, wc->titleBarHeight);
-#endif
 }
 
 void SFML_SetWindowSize(ImGuiViewport* viewport, ImVec2 size) {
@@ -1741,7 +1726,7 @@ bool SFML_GetWindowFocus(ImGuiViewport* viewport) {
 
 bool SFML_GetWindowMinimized(ImGuiViewport* viewport) {
     WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
-    return false;   // tell imgui that window is allways maximized
+    return false; // tell imgui that window is allways maximized
 }
 
 void SFML_SetWindowTitle(ImGuiViewport* viewport, const char* str) {
@@ -1755,7 +1740,7 @@ void SFML_UpdateWindow(ImGuiViewport* viewport) {
 void SFML_RenderWindow(ImGuiViewport* viewport, void*) {
     WindowContext* wc = (WindowContext*)viewport->PlatformUserData;
     if (wc->isImContextOwner) return;
-        
+
     IM_ASSERT(wc->isRenderWindow);
     sf::RenderWindow* window = (sf::RenderWindow*)wc->window;
     window->setActive(true);
@@ -1810,29 +1795,29 @@ void SFML_UpdateMonitors() {
     EnumDisplayMonitors(NULL, NULL, proc, (LPARAM)&platform_io);
 #elif defined(__linux__)
     static Display* display = nullptr;
-	if (display == nullptr) {
+    if (display == nullptr) {
         if (!(display = XOpenDisplay(0))) {
             fprintf(stderr, "Could not open X display.\n");
             return;
         }
     }
 
-	XRRScreenResources* screen_res = XRRGetScreenResources(display, DefaultRootWindow(display));
+    XRRScreenResources* screen_res = XRRGetScreenResources(display, DefaultRootWindow(display));
 
-	int nmonitors = 0;
-	XRRGetMonitors(display, DefaultRootWindow(display), 1, &nmonitors);
+    int nmonitors = 0;
+    XRRGetMonitors(display, DefaultRootWindow(display), 1, &nmonitors);
 
     for (int i = 0; i < nmonitors; i++) {
         ImGuiPlatformMonitor monitor;
         XRRCrtcInfo* screen_info = XRRGetCrtcInfo(display, screen_res, screen_res->crtcs[i]);
-        
+
         monitor.MainPos = monitor.WorkPos = ImVec2(screen_info->x, screen_info->y);
         monitor.MainSize = monitor.WorkSize = ImVec2(screen_info->width, screen_info->width);
 
         platform_io.Monitors.push_back(monitor);
     }
 #else
-    #error "Update monitors is not implemented for this platform."
+#error "Update monitors is not implemented for this platform."
 #endif // _WIN32
 }
 
@@ -1849,7 +1834,7 @@ void SFML_InitInterface(WindowContext* windowContext) {
     platform_io.Platform_GetWindowFocus = SFML_GetWindowFocus;
     platform_io.Platform_GetWindowMinimized = SFML_GetWindowMinimized;
     platform_io.Platform_SetWindowTitle = SFML_SetWindowTitle;
-    //platform_io.Platform_SetWindowAlpha = SFML_SetWindowAlpha;
+    // platform_io.Platform_SetWindowAlpha = SFML_SetWindowAlpha;
     platform_io.Platform_UpdateWindow = SFML_UpdateWindow;
     platform_io.Platform_RenderWindow = SFML_RenderWindow;
     platform_io.Platform_SwapBuffers = SFML_SwapBuffers;
