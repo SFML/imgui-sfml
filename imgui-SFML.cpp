@@ -277,6 +277,7 @@ void SetCurrentWindow(const sf::Window& window) {
     assert(found != s_windowContexts.end() &&
            "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
     s_currWindowCtx = found->get();
+    s_currWindowCtx->windowHasFocus = window.hasFocus();
     ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 }
 
