@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cmath> // abs
 #include <cstddef> // offsetof, NULL, size_t
+#include <cstdint> // uint8_t
 #include <cstring> // memcpy
 
 #include <algorithm>
@@ -1376,7 +1377,7 @@ void setClipboardText(void* /*userData*/, const char* text) {
 }
 
 const char* getClipboardText(void* /*userData*/) {
-    std::basic_string<sf::Uint8> tmp = sf::Clipboard::getString().toUtf8();
+    std::basic_string<std::uint8_t> tmp = sf::Clipboard::getString().toUtf8();
     s_clipboardText = std::string(tmp.begin(), tmp.end());
     return s_clipboardText.c_str();
 }
