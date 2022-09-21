@@ -3,6 +3,8 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <cstdint>
+
 #include "imgui-SFML_export.h"
 
 #define IM_VEC2_CLASS_EXTRA           \
@@ -20,6 +22,8 @@
 #define IM_VEC4_CLASS_EXTRA                                                                        \
     ImVec4(const sf::Color& c) : x(c.r / 255.f), y(c.g / 255.f), z(c.b / 255.f), w(c.a / 255.f) {} \
     operator sf::Color() const {                                                                   \
-        return sf::Color(static_cast<sf::Uint8>(x * 255.f), static_cast<sf::Uint8>(y * 255.f),     \
-                         static_cast<sf::Uint8>(z * 255.f), static_cast<sf::Uint8>(w * 255.f));    \
+        return sf::Color(static_cast<std::uint8_t>(x * 255.f),                                     \
+                         static_cast<std::uint8_t>(y * 255.f),                                     \
+                         static_cast<std::uint8_t>(z * 255.f),                                     \
+                         static_cast<std::uint8_t>(w * 255.f));                                    \
     }
