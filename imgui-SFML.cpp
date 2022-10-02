@@ -558,6 +558,7 @@ void ProcessEvent(const sf::Event& event) {
         switch (event.type) {
         case sf::Event::Resized:
 			io.DisplaySize = ImVec2(event.size.width, event.size.height);
+            break;
         case sf::Event::MouseMoved:
             io.AddMousePosEvent(event.mouseMove.x, event.mouseMove.y);
             s_currWindowCtx->mouseMoved = true;
