@@ -145,8 +145,7 @@ void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCurs
 void updateMouseCursor(sf::Window& window);
 
 // data
-const unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
-const unsigned int NULL_JOYSTICK_BUTTON = sf::Joystick::ButtonCount;
+constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
 
 struct StickInfo {
     sf::Joystick::Axis xAxis;
@@ -1378,7 +1377,7 @@ void setClipboardText(void* /*userData*/, const char* text) {
 
 const char* getClipboardText(void* /*userData*/) {
     std::basic_string<std::uint8_t> tmp = sf::Clipboard::getString().toUtf8();
-    s_clipboardText = std::string(tmp.begin(), tmp.end());
+    s_clipboardText.assign(tmp.begin(), tmp.end());
     return s_clipboardText.c_str();
 }
 
