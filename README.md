@@ -71,7 +71,7 @@ Integrating into your project manually
 - Add `imgui-SFML.cpp` to your build/project
 - Link OpenGL if you get linking errors
 
-Other ways to add to your project(won't recommend as the versions tend to lag behind and are not
+Other ways to add to your project
 ---
 Not recommended, as they're not maintained officially. Tend to lag behind and stay on older versions.
 
