@@ -7,10 +7,16 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <iostream>
+
 int main() {
-    sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
+    // Comment/uncomment this to disable/enable viewports
+    // Must be using docking branch of ImGui
+    //ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable 
+    //                           |  ImGuiConfigFlags_DockingEnable;
 
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
@@ -37,6 +43,12 @@ int main() {
         window.clear();
         window.draw(shape);
         ImGui::SFML::Render(window);
+        // Comment/uncomment this to disable/enable viewports
+        // Must be using docking branch of ImGui
+        //if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        //    ImGui::UpdatePlatformWindows();
+        //    ImGui::RenderPlatformWindowsDefault();
+        //}
         window.display();
     }
 

@@ -19,7 +19,7 @@ endif()
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" OFF)
-
+option(IMGUI_SFML_ENABLE_VIEWPORTS "Enable ImGui viewport support" OFF)
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
 #
@@ -124,6 +124,10 @@ if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
   else()
     message(FATAL_ERROR "IMGUI_SFML_CONFIG_DIR should be set if IMGUI_SFML_USE_DEFAULT_CONFIG is OFF")
   endif()
+endif()
+
+if(IMGUI_SFML_ENABLE_VIEWPORTS)
+  target_compile_definitions(ImGui-SFML PUBLIC IMGUI_SFML_VIEWPORTS_ENABLE)
 endif()
 
 target_compile_definitions(ImGui-SFML
