@@ -354,7 +354,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Enter;
     case sf::Keyboard::Escape:
         return ImGuiKey_Escape;
-    case sf::Keyboard::Quote:
+    case sf::Keyboard::Apostrophe:
         return ImGuiKey_Apostrophe;
     case sf::Keyboard::Comma:
         return ImGuiKey_Comma;
@@ -374,7 +374,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Backslash;
     case sf::Keyboard::RBracket:
         return ImGuiKey_RightBracket;
-    case sf::Keyboard::Tilde:
+    case sf::Keyboard::Grave:
         return ImGuiKey_GraveAccent;
     // case : return ImGuiKey_CapsLock;
     // case : return ImGuiKey_ScrollLock;
