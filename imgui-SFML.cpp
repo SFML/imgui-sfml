@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-#ifdef SFML_VERSION_MAJOR >= 3
+#if SFML_VERSION_MAJOR >= 3
 #define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Apostrophe
 #define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Grave
 #else
