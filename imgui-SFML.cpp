@@ -25,6 +25,14 @@
 #include <memory>
 #include <vector>
 
+#if SFML_VERSION_MAJOR >= 3
+#define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Apostrophe
+#define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Grave
+#else
+#define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Quote
+#define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Tilde
+#endif
+
 #ifdef ANDROID
 #ifdef USE_JNI
 
@@ -354,7 +362,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Enter;
     case sf::Keyboard::Escape:
         return ImGuiKey_Escape;
-    case sf::Keyboard::Quote:
+    case IMGUI_SFML_KEY_APOSTROPHE:
         return ImGuiKey_Apostrophe;
     case sf::Keyboard::Comma:
         return ImGuiKey_Comma;
@@ -374,7 +382,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Backslash;
     case sf::Keyboard::RBracket:
         return ImGuiKey_RightBracket;
-    case sf::Keyboard::Tilde:
+    case IMGUI_SFML_KEY_GRAVE:
         return ImGuiKey_GraveAccent;
     // case : return ImGuiKey_CapsLock;
     // case : return ImGuiKey_ScrollLock;
