@@ -22,14 +22,14 @@ Contributing
 How-to
 ----
 
-- [**Detailed tutorial on my blog**](https://eliasdaler.github.io/using-imgui-with-sfml-pt1)
-- [**Using ImGui with modern C++ and STL**](https://eliasdaler.github.io/using-imgui-with-sfml-pt2/)
+- [**Detailed tutorial on Elias Daler's blog**](https://edw.is/using-imgui-with-sfml-pt1)
+- [**Using ImGui with modern C++ and STL**](https://edw.is/using-imgui-with-sfml-pt2/)
 - [**Thread on SFML forums**](https://en.sfml-dev.org/forums/index.php?topic=20137.0). Feel free to ask your questions there.
 
 Building and integrating into your CMake project
 ---
 
-- [**CMake tutorial on my blog**](https://eliasdaler.github.io/using-cmake/)
+- [**CMake tutorial on Elias Daler's blog**](https://edw.is/using-cmake/)
 
 ```sh
 cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path with built SFML>
@@ -101,7 +101,7 @@ Using ImGui-SFML in your code
 Example code
 ----
 
-See example file [here](https://github.com/eliasdaler/imgui-sfml/blob/master/examples/minimal/main.cpp)
+See example file [here](https://github.com/SFML/imgui-sfml/blob/master/examples/minimal/main.cpp)
 
 ```cpp
 #include "imgui.h"
@@ -239,7 +239,7 @@ sf::Sprite sprite(texture);
 ImGui::Image(sprite); // the texture is displayed properly
 ```
 
-For more notes see [this issue](https://github.com/eliasdaler/imgui-sfml/issues/35).
+For more notes see [this issue](https://github.com/SFML/imgui-sfml/issues/35).
 
 Mouse cursors
 ---
@@ -265,7 +265,7 @@ ImGuiIO& io = ImGui::GetIO();
 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 ```
 
-Gamepad navigation requires more work, unless you have XInput gamepad, in which case the mapping is automatically set for you. But you can still set it up for your own gamepad easily, just take a look how it's done for the default mapping [here](https://github.com/eliasdaler/imgui-sfml/blob/navigation/imgui-SFML.cpp#L697). And then you need to do this:
+Gamepad navigation requires more work, unless you have XInput gamepad, in which case the mapping is automatically set for you. But you can still set it up for your own gamepad easily, just take a look how it's done for the default mapping [here](https://github.com/SFML/imgui-sfml/blob/navigation/imgui-SFML.cpp#L697). And then you need to do this:
 
 ```cpp
 ImGuiIO& io = ImGui::GetIO();
