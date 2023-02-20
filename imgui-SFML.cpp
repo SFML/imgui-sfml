@@ -231,7 +231,7 @@ struct WindowContext {
         lastCursor = ImGuiMouseCursor_COUNT;
 
         joystickId = getConnectedJoystickId();
-        for (int i = 0; i < sf::Joystick::ButtonCount; ++i) {
+        for (int i = 0; i < static_cast<int>(sf::Joystick::ButtonCount); ++i) {
             joystickMapping[i] = ImGuiKey_None;
         }
 
@@ -535,6 +535,8 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_F11;
     case sf::Keyboard::F12:
         return ImGuiKey_F12;
+    default:
+        break;
     }
     return ImGuiKey_None;
 }
@@ -553,6 +555,8 @@ ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code) {
     case sf::Keyboard::LSystem:
     case sf::Keyboard::RSystem:
         return ImGuiKey_ModSuper;
+    default:
+        break;
     }
     return ImGuiKey_None;
 }
@@ -585,8 +589,8 @@ void ProcessEvent(const sf::Event& event) {
         case sf::Event::TouchBegan: // fall-through
         case sf::Event::TouchEnded: {
             s_currWindowCtx->mouseMoved = false;
-            int button = event.touch.finger;
-            if (event.type == sf::Event::TouchBegan && button >= 0 && button < 3) {
+            unsigned int button = event.touch.finger;
+            if (event.type == sf::Event::TouchBegan && button < 3) {
                 s_currWindowCtx->touchDown[event.touch.finger] = true;
             }
         } break;
@@ -1164,7 +1168,7 @@ void RenderDrawLists(ImDrawData* draw_data) {
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    assert(io.Fonts->TexID != (ImTextureID)NULL); // You forgot to create and set font texture
+    assert(io.Fonts->TexID != (ImTextureID) nullptr); // You forgot to create and set font texture
 
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates !=
     // framebuffer coordinates)
@@ -1321,7 +1325,7 @@ void initDefaultJoystickMapping() {
 }
 
 void updateJoystickButtonState(ImGuiIO& io) {
-    for (int i = 0; i < sf::Joystick::ButtonCount; ++i) {
+    for (int i = 0; i < static_cast<int>(sf::Joystick::ButtonCount); ++i) {
         ImGuiKey key = s_currWindowCtx->joystickMapping[i];
         if (key != ImGuiKey_None) {
             bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId, i);
