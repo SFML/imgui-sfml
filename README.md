@@ -30,32 +30,16 @@ How-to
 
 Building and integrating into your CMake project
 ---
+It's highly recommended to use FetchContent or git submodules to get SFML and Dear ImGui into your build.
 
-- [**CMake tutorial on Elias Daler's blog**](https://edw.is/using-cmake/)
+See [this file](https://github.com/eliasdaler/imgui-sfml-fetchcontent/blob/master/dependencies/CMakeLists.txt) - if you do something similar, you can then just link to ImGui-SFML as simply as:
 
-```sh
-cmake <ImGui-SFML repo folder> -DIMGUI_DIR=<ImGui repo folder> -DSFML_DIR=<path with built SFML>
-```
-
-If you have SFML installed on your system, you don't need to set SFML_DIR during
-configuration.
-
-You can also specify `BUILD_SHARED_LIBS=ON` to build ImGui-SFML as a shared library. To build ImGui-SFML examples, set `IMGUI_SFML_BUILD_EXAMPLES=ON`. To build imgui-demo.cpp (to be able to use `ImGui::ShowDemoWindow`), set `IMGUI_SFML_IMGUI_DEMO=ON`.
-
-After the building, you can install the library on your system by running:
-```sh
-cmake --build . --target install
-```
-
-If you set `CMAKE_INSTALL_PREFIX` during configuration, you can install ImGui-SFML locally.
-
-Integrating into your project is simple.
 ```cmake
-find_package(ImGui-SFML REQUIRED)
-target_link_libraries(my_target PRIVATE ImGui-SFML::ImGui-SFML)
+target_link_libraries(game
+  PUBLIC
+    ImGui-SFML::ImGui-SFML
+)
 ```
-
-If CMake can't find ImGui-SFML on your system, just define `ImGui-SFML_DIR` before calling `find_package`.
 
 Integrating into your project manually
 ---
