@@ -22,6 +22,8 @@ Contributing
 How-to
 ----
 
+- [**CMake tutorial which also shows how to use ImGui-SFML with FetchContent**](https://edw.is/using-cmake/)
+- [**Example project which sets up ImGui-SFML with FetchContent**](https://github.com/eliasdaler/cmake-fetchcontent-tutorial-code)
 - [**Detailed tutorial on Elias Daler's blog**](https://edw.is/using-imgui-with-sfml-pt1)
 - [**Using ImGui with modern C++ and STL**](https://edw.is/using-imgui-with-sfml-pt2/)
 - [**Thread on SFML forums**](https://en.sfml-dev.org/forums/index.php?topic=20137.0). Feel free to ask your questions there.
