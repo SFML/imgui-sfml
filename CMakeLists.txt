@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 project(imgui_sfml
   LANGUAGES CXX
-  VERSION 2.5
+  VERSION 2.6
 )
 
 # In CMake 3.12+ this policy will automatically take the ImGui_ROOT and SFML_ROOT environment variables
@@ -41,7 +41,7 @@ if (IMGUI_SFML_FIND_SFML)
   if (NOT BUILD_SHARED_LIBS)
     set(SFML_STATIC_LIBRARIES ON)
   endif()
-  find_package(SFML 2.5 COMPONENTS graphics system window)
+  find_package(SFML 2.6 COMPONENTS graphics system window)
 
   if(NOT SFML_FOUND)
     message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which ccontains SFMLConfig.cmake)")

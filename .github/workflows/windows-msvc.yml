@@ -6,7 +6,7 @@ on:
 
 env:
   CMAKE_VERSION: 3.22.2
-  SFML_VERSION: 2.5.1
+  SFML_VERSION: 2.6.0
   IMGUI_VERSION: 1.87
 
 jobs:
@@ -19,9 +19,9 @@ jobs:
         config: [
           # {os: windows-2017, generator: "Visual Studio 15 2017", generator_short: VS2017, toolset: v141},
           {os: windows-2019, generator: "Visual Studio 16 2019", generator_short: VS2019, toolset: v142},
-          # {os: windows-2019, generator: "Visual Studio 16 2019", generator_short: VS2019, toolset: ClangCL}, # SFML 2.5.1 doesn't compile, fixed on branch 2.6.x
+          {os: windows-2019, generator: "Visual Studio 16 2019", generator_short: VS2019, toolset: ClangCL},
           {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: v143},
-          # {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: ClangCL}, # SFML 2.5.1 doesn't compile, fixed on branch 2.6.x
+          {os: windows-2022, generator: "Visual Studio 17 2022", generator_short: VS2022, toolset: ClangCL},
         ]
         build_type: [Debug, Release]
 

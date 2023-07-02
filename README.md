@@ -1,4 +1,4 @@
-ImGui-SFML v2.5
+ImGui-SFML
 =======
 
 Library which allows you to use [Dear ImGui](https://github.com/ocornut/imgui) with [SFML](https://github.com/SFML/SFML)
@@ -10,7 +10,7 @@ Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with b
 Dependencies
 -----
 
-* [SFML](https://github.com/SFML/SFML) >= 2.5.0
+* [SFML](https://github.com/SFML/SFML) >= 2.6.0
 * [Dear ImGui](https://github.com/ocornut/imgui) >= 1.80
 
 Contributing
