@@ -568,10 +568,12 @@ void ProcessEvent(const sf::Event& event) {
     if (s_currWindowCtx->windowHasFocus) {
         switch (event.type) {
         case sf::Event::Resized:
-            io.DisplaySize = ImVec2(event.size.width, event.size.height);
+            io.DisplaySize =
+                ImVec2(static_cast<float>(event.size.width), static_cast<float>(event.size.height));
             break;
         case sf::Event::MouseMoved:
-            io.AddMousePosEvent(event.mouseMove.x, event.mouseMove.y);
+            io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
+                                static_cast<float>(event.mouseMove.y));
             s_currWindowCtx->mouseMoved = true;
             break;
         case sf::Event::MouseButtonPressed: // fall-through
@@ -800,7 +802,8 @@ bool UpdateFontTexture() {
 
     sf::Texture& texture = s_currWindowCtx->fontTexture;
 #if SFML_VERSION_MAJOR >= 3
-    if (!texture.create(sf::Vector2u(width, height))) {
+    if (!texture.create(
+            sf::Vector2u(static_cast<unsigned>(width), static_cast<unsigned>(height)))) {
         return false;
     }
 #else
@@ -988,7 +991,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 
     const sf::Texture& texture = *texturePtr;
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    const sf::IntRect& textureRect = sprite.getTextureRect();
+    sf::FloatRect textureRect = static_cast<sf::FloatRect>(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
@@ -1053,7 +1056,7 @@ bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int f
 
     const sf::Texture& texture = *texturePtr;
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    const sf::IntRect& textureRect = sprite.getTextureRect();
+    sf::FloatRect textureRect = static_cast<sf::FloatRect>(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
@@ -1239,10 +1242,11 @@ void RenderDrawLists(ImDrawData* draw_data) {
                 clip_rect.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
                 clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
 
-                if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f &&
+                if (clip_rect.x < static_cast<float>(fb_width) &&
+                    clip_rect.y < static_cast<float>(fb_height) && clip_rect.z >= 0.0f &&
                     clip_rect.w >= 0.0f) {
                     // Apply scissor/clipping rectangle
-                    glScissor((int)clip_rect.x, (int)(fb_height - clip_rect.w),
+                    glScissor((int)clip_rect.x, (int)(static_cast<float>(fb_height) - clip_rect.w),
                               (int)(clip_rect.z - clip_rect.x), (int)(clip_rect.w - clip_rect.y));
 
                     // Bind texture, Draw
@@ -1272,7 +1276,7 @@ void RenderDrawLists(ImDrawData* draw_data) {
                (GLsizei)last_viewport[3]);
     glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2],
               (GLsizei)last_scissor_box[3]);
-    glShadeModel(last_shade_model);
+    glShadeModel((GLenum)last_shade_model);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, last_tex_env_mode);
 
 #ifdef GL_VERSION_ES_CL_1_1
@@ -1328,7 +1332,8 @@ void updateJoystickButtonState(ImGuiIO& io) {
     for (int i = 0; i < static_cast<int>(sf::Joystick::ButtonCount); ++i) {
         ImGuiKey key = s_currWindowCtx->joystickMapping[i];
         if (key != ImGuiKey_None) {
-            bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId, i);
+            bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId,
+                                                           static_cast<unsigned>(i));
             if (s_currWindowCtx->windowHasFocus || !isPressed) {
                 io.AddKeyEvent(key, isPressed);
             }
