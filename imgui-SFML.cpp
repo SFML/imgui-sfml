@@ -990,8 +990,8 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
     }
 
     const sf::Texture& texture = *texturePtr;
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    sf::FloatRect textureRect = static_cast<sf::FloatRect>(sprite.getTextureRect());
+    const sf::Vector2f textureSize(texture.getSize());
+    const sf::FloatRect textureRect(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
@@ -1055,8 +1055,8 @@ bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int f
     }
 
     const sf::Texture& texture = *texturePtr;
-    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
-    sf::FloatRect textureRect = static_cast<sf::FloatRect>(sprite.getTextureRect());
+    const sf::Vector2f textureSize(texture.getSize());
+    const sf::FloatRect textureRect(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
     ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
                (textureRect.top + textureRect.height) / textureSize.y);
