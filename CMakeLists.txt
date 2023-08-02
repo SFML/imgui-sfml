@@ -131,12 +131,6 @@ target_compile_definitions(ImGui-SFML
     IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}"
 )
 
-if(MSVC)
-  target_compile_options(ImGui-SFML PRIVATE /W3)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  target_compile_options(ImGui-SFML PRIVATE -Werror -Wall -Wextra -Wpedantic -Wshadow)
-endif()
-
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
 endif()
