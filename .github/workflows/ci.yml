@@ -88,6 +88,7 @@ jobs:
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
           -DIMGUI_SFML_BUILD_EXAMPLES=ON \
+          -DIMGUI_SFML_ENABLE_WARNINGS=ON \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 

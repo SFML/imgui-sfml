@@ -10,11 +10,11 @@
 int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
-    ImGui::SFML::Init(window);
+    if (!ImGui::SFML::Init(window)) return -1;
 
     sf::RenderWindow childWindow(sf::VideoMode(640, 480), "ImGui-SFML Child window");
     childWindow.setFramerateLimit(60);
-    ImGui::SFML::Init(childWindow);
+    if (!ImGui::SFML::Init(childWindow)) return -1;
 
     sf::Clock deltaClock;
     while (window.isOpen()) {

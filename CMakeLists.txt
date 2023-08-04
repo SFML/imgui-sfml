@@ -131,6 +131,15 @@ target_compile_definitions(ImGui-SFML
     IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}"
 )
 
+option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
+if(IMGUI_SFML_ENABLE_WARNINGS)
+  if(MSVC)
+    add_compile_options(/WX /W3)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow)
+  endif()
+endif()
+
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
 endif()
