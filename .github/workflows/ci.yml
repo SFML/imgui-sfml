@@ -82,6 +82,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
+          -DIMGUI_SFML_WARNINGS_AS_ERRORS=ON \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 
