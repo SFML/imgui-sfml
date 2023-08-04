@@ -1,0 +1,101 @@
+name: CI
+
+on: [push, pull_request, workflow_dispatch]
+
+concurrency:
+  group: environment-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{matrix.platform.name}} ${{matrix.config.name}} ${{matrix.type.name}}
+    runs-on: ${{matrix.platform.os}}
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - { name: Windows MSVC,    os: windows-2022 }
+        - { name: Windows ClangCL, os: windows-2022, flags: -T ClangCL }
+        - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: Windows MinGW,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ }
+        - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
+        - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: macOS Xcode,     os: macos-12,     flags: -GXcode }
+        config:
+        - { name: Shared, flags: -DBUILD_SHARED_LIBS=TRUE }
+        - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
+        type:
+        - { name: Release }
+        - { name: Debug }
+
+    steps:
+    - name: Install Linux Dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install ninja-build llvm xorg-dev libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev
+
+    - name: Install macOS Tools
+      if: runner.os == 'macOS'
+      run: brew install ninja
+
+    - name: Checkout ImGui
+      uses: actions/checkout@v3
+      with:
+        repository: ocornut/imgui
+        path: imgui
+        ref: v1.89.8
+
+    - name: Checkout SFML
+      uses: actions/checkout@v3
+      with:
+        repository: SFML/SFML
+        path: sfml
+        ref: 2.6.0
+
+    - name: Configure SFML
+      run: |
+        ls -lh
+        cmake -S sfml -B sfml/build \
+          -DCMAKE_INSTALL_PREFIX=sfml/install \
+          -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          ${{matrix.platform.flags}} \
+          ${{matrix.config.flags}}
+
+    - name: Build SFML
+      run: cmake --build sfml/build --config ${{matrix.type.name}} --target install
+
+    - name: Checkout ImGui-SFML
+      uses: actions/checkout@v3
+      with:
+        path: imgui-sfml
+
+    - name: Configure ImGui-SFML
+      run: |
+        cmake -S imgui-sfml -B imgui-sfml/build \
+          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
+          -DCMAKE_VERBOSE_MAKEFILE=ON \
+          -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
+          -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
+          ${{matrix.platform.flags}} \
+          ${{matrix.config.flags}}
+
+    - name: Build ImGui-SFML
+      run: cmake --build imgui-sfml/build --config ${{matrix.type.name}} --target install
+
+  clang-format:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DoozyX/clang-format-lint-action@v0.13
+        with:
+          source: '.'
+          extensions: 'h,cpp'
+          clangFormatVersion: 13
+          style: file
