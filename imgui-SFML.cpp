@@ -984,13 +984,16 @@ void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
            const sf::Color& borderColor) {
+#if SFML_VERSION_MAJOR >= 3
+    const sf::Texture& texture = sprite.getTexture();
+#else
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
         return;
     }
-
     const sf::Texture& texture = *texturePtr;
+#endif
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
     const sf::IntRect& textureRect = sprite.getTextureRect();
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
@@ -1049,13 +1052,16 @@ bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Col
 
 bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
+#if SFML_VERSION_MAJOR >= 3
+    const sf::Texture& texture = sprite.getTexture();
+#else
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
         return false;
     }
-
     const sf::Texture& texture = *texturePtr;
+#endif
     sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
     const sf::IntRect& textureRect = sprite.getTextureRect();
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
