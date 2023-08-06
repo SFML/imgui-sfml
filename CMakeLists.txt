@@ -41,7 +41,16 @@ if (IMGUI_SFML_FIND_SFML)
   if (NOT BUILD_SHARED_LIBS)
     set(SFML_STATIC_LIBRARIES ON)
   endif()
-  find_package(SFML 2.5 COMPONENTS graphics system window)
+  # Try to find SFML 2, else try to find SFML 3
+  find_package(SFML 2.5 COMPONENTS graphics window system)
+  if(SFML_FOUND)
+    set(SFML_TARGETS sfml-graphics sfml-window sfml-system)
+  else()
+    find_package(SFML 3 COMPONENTS Graphics Window System)
+    if(SFML_FOUND)
+      set(SFML_TARGETS SFML::Graphics SFML::Window SFML::System)
+    endif()
+  endif()
 
   if(NOT SFML_FOUND)
     message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which contains SFMLConfig.cmake)")
@@ -93,9 +102,7 @@ add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 
 target_link_libraries(ImGui-SFML
   PUBLIC
-    sfml-graphics
-    sfml-system
-    sfml-window
+    ${SFML_TARGETS}
     ${OPENGL_LIBRARIES}
 )
 
