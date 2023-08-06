@@ -8,7 +8,7 @@ concurrency:
 
 jobs:
   build:
-    name: ${{matrix.platform.name}} ${{matrix.config.name}} ${{matrix.type.name}}
+    name: ${{matrix.platform.name}} ${{matrix.config.name}} ${{matrix.type.name}} ${{matrix.sfml.name}}
     runs-on: ${{matrix.platform.os}}
     defaults:
       run:
@@ -31,6 +31,9 @@ jobs:
         type:
         - { name: Release }
         - { name: Debug }
+        sfml:
+        - { name: SFML v2, tag: 2.6.0 }
+        - { name: SFML v3, tag: master }
 
     steps:
     - name: Install Linux Dependencies
@@ -55,7 +58,7 @@ jobs:
       with:
         repository: SFML/SFML
         path: sfml
-        ref: 2.6.0
+        ref: ${{matrix.sfml.tag}}
 
     - name: Configure SFML
       run: |
