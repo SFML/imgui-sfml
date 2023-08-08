@@ -811,7 +811,7 @@ bool UpdateFontTexture() {
         return false;
     }
 #else
-    if (!texture.create(width, height)) {
+    if (!texture.create(static_cast<unsigned>(width), static_cast<unsigned>(height))) {
         return false;
     }
 #endif
