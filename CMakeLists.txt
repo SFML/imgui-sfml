@@ -44,7 +44,7 @@ if (IMGUI_SFML_FIND_SFML)
   find_package(SFML 2.5 COMPONENTS graphics system window)
 
   if(NOT SFML_FOUND)
-    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which ccontains SFMLConfig.cmake)")
+    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which contains SFMLConfig.cmake)")
   endif()
 endif()
 
@@ -130,6 +130,12 @@ target_compile_definitions(ImGui-SFML
   PUBLIC
     IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}"
 )
+
+if(MSVC)
+  target_compile_options(ImGui-SFML PRIVATE /W3)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  target_compile_options(ImGui-SFML PRIVATE -Werror -Wall -Wextra -Wpedantic -Wshadow)
+endif()
 
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
