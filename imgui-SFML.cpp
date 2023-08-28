@@ -321,7 +321,11 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 void SetCurrentWindow(const sf::Window& window) {
     auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
                               [&](std::unique_ptr<WindowContext>& ctx) {
+#if SFML_VERSION_MAJOR >= 3
+                                  return ctx->window->getNativeHandle() == window.getNativeHandle();
+#else
                                   return ctx->window->getSystemHandle() == window.getSystemHandle();
+#endif
                               });
     assert(found != s_windowContexts.end() &&
            "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
@@ -762,12 +766,20 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
+#if SFML_VERSION_MAJOR >= 3
+    bool needReplacement = (s_currWindowCtx->window->getNativeHandle() == window.getNativeHandle());
+#else
     bool needReplacement = (s_currWindowCtx->window->getSystemHandle() == window.getSystemHandle());
+#endif
 
     // remove window's context
     auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
                               [&](std::unique_ptr<WindowContext>& ctx) {
+#if SFML_VERSION_MAJOR >= 3
+                                  return ctx->window->getNativeHandle() == window.getNativeHandle();
+#else
                                   return ctx->window->getSystemHandle() == window.getSystemHandle();
+#endif
                               });
     assert(found != s_windowContexts.end() &&
            "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
