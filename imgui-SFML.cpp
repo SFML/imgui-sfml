@@ -29,13 +29,8 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#if SFML_VERSION_MAJOR >= 3
-#define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Apostrophe
-#define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Grave
-#else
 #define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Quote
 #define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Tilde
-#endif
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -784,16 +779,9 @@ bool UpdateFontTexture() {
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     sf::Texture& texture = s_currWindowCtx->fontTexture;
-#if SFML_VERSION_MAJOR >= 3
-    if (!texture.create(
-            sf::Vector2u(static_cast<unsigned>(width), static_cast<unsigned>(height)))) {
-        return false;
-    }
-#else
     if (!texture.create(static_cast<unsigned>(width), static_cast<unsigned>(height))) {
         return false;
     }
-#endif
 
     texture.update(pixels);
 
@@ -966,16 +954,12 @@ void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-#if SFML_VERSION_MAJOR >= 3
-    const sf::Texture& texture = sprite.getTexture();
-#else
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
         return;
     }
     const sf::Texture& texture = *texturePtr;
-#endif
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
@@ -1032,16 +1016,12 @@ bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Col
 
 bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
-#if SFML_VERSION_MAJOR >= 3
-    const sf::Texture& texture = sprite.getTexture();
-#else
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
         return false;
     }
     const sf::Texture& texture = *texturePtr;
-#endif
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
