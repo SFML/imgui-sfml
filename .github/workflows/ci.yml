@@ -32,6 +32,12 @@ jobs:
         - { name: Release }
         - { name: Debug }
 
+        exclude:
+        - platform: { name: Windows MSVC }
+          config: { name: Shared }
+        - platform: { name: Windows ClangCL }
+          config: { name: Shared }
+
     steps:
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
@@ -81,6 +87,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
+          -DIMGUI_SFML_BUILD_EXAMPLES=ON \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 
