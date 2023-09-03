@@ -16,13 +16,13 @@ State of Development
 Dependencies
 -----
 
-* [SFML](https://github.com/SFML/SFML) >= 2.5.0
+* [SFML](https://github.com/SFML/SFML) >= 3.0.0
 * [Dear ImGui](https://github.com/ocornut/imgui) >= 1.80
 
 Contributing
 -----
 
-* The code is written in C++11 (stable SFML is still C++03, Dear ImGui has started using C++11 since 2022)
+* The code is written in C++17 (SFML 3 uses C++17, Dear ImGui has started using C++11 since 2022)
 * The code should be formatted via [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) using `.clang-format` provided in the root of this repository
 
 How-to

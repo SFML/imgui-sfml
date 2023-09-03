@@ -1,16 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
-project(imgui_sfml VERSION 2.6 LANGUAGES CXX)
-
-# In CMake 3.12+ this policy will automatically take the ImGui_ROOT and SFML_ROOT environment variables
-# into account as hints for the find_package calls.
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW)
-endif()
-# In CMake 3.13+ this policy enables you to define normal variables with option names as if you defined
-# these options. Useful for add_subdirectory(ImGui-SFML)
-if(POLICY CMP0077)
-  cmake_policy(SET CMP0077 NEW)
-endif()
+cmake_minimum_required(VERSION 3.22)
+project(imgui_sfml VERSION 3.0.0 LANGUAGES CXX)
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
@@ -37,11 +26,7 @@ if(IMGUI_SFML_FIND_SFML)
   if(NOT BUILD_SHARED_LIBS)
     set(SFML_STATIC_LIBRARIES ON)
   endif()
-  find_package(SFML 2.5 COMPONENTS graphics)
-
-  if(NOT SFML_FOUND)
-    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which contains SFMLConfig.cmake)")
-  endif()
+  find_package(SFML 3 REQUIRED COMPONENTS Graphics)
 endif()
 
 # ImGui does not provide native support for CMakeLists, workaround for now to have
@@ -88,7 +73,7 @@ add_library(ImGui-SFML
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 
 target_link_libraries(ImGui-SFML PUBLIC
-  sfml-graphics
+  SFML::Graphics
   OpenGL::GL
 )
 

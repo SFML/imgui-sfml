@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron:  '15 9 * * 2'
 
 concurrency:
   group: environment-${{github.ref}}
@@ -61,7 +66,7 @@ jobs:
       with:
         repository: SFML/SFML
         path: sfml
-        ref: 2.6.0
+        ref: master
 
     - name: Configure SFML
       run: |

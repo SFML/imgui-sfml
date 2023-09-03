@@ -9,12 +9,6 @@
 
 #include "imgui-SFML_export.h"
 
-#if __cplusplus >= 201703L // C++17 and above
-#define IMGUI_SFML_NODISCARD [[nodiscard]]
-#else
-#define IMGUI_SFML_NODISCARD
-#endif
-
 namespace sf {
 class Event;
 class RenderTarget;
@@ -27,12 +21,11 @@ class Window;
 
 namespace ImGui {
 namespace SFML {
-IMGUI_SFML_NODISCARD IMGUI_SFML_API bool Init(sf::RenderWindow& window,
-                                              bool loadDefaultFont = true);
-IMGUI_SFML_NODISCARD IMGUI_SFML_API bool Init(sf::Window& window, sf::RenderTarget& target,
-                                              bool loadDefaultFont = true);
-IMGUI_SFML_NODISCARD IMGUI_SFML_API bool Init(sf::Window& window, const sf::Vector2f& displaySize,
-                                              bool loadDefaultFont = true);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::RenderWindow& window, bool loadDefaultFont = true);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, sf::RenderTarget& target,
+                                       bool loadDefaultFont = true);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, const sf::Vector2f& displaySize,
+                                       bool loadDefaultFont = true);
 
 IMGUI_SFML_API void SetCurrentWindow(const sf::Window& window);
 IMGUI_SFML_API void ProcessEvent(const sf::Event& event); // DEPRECATED: use (window,
@@ -52,7 +45,7 @@ IMGUI_SFML_API void Shutdown(const sf::Window& window);
 // Shuts down all ImGui contexts
 IMGUI_SFML_API void Shutdown();
 
-IMGUI_SFML_NODISCARD IMGUI_SFML_API bool UpdateFontTexture();
+[[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture();
 IMGUI_SFML_API sf::Texture& GetFontTexture();
 
 // joystick functions

@@ -29,13 +29,8 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#if SFML_VERSION_MAJOR >= 3
 #define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Apostrophe
 #define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Grave
-#else
-#define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Quote
-#define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Tilde
-#endif
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -300,7 +295,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 void SetCurrentWindow(const sf::Window& window) {
     auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
                               [&](std::unique_ptr<WindowContext>& ctx) {
-                                  return ctx->window->getSystemHandle() == window.getSystemHandle();
+                                  return ctx->window->getNativeHandle() == window.getNativeHandle();
                               });
     assert(found != s_windowContexts.end() &&
            "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
@@ -741,12 +736,12 @@ void Render() {
 }
 
 void Shutdown(const sf::Window& window) {
-    bool needReplacement = (s_currWindowCtx->window->getSystemHandle() == window.getSystemHandle());
+    bool needReplacement = (s_currWindowCtx->window->getNativeHandle() == window.getNativeHandle());
 
     // remove window's context
     auto found = std::find_if(s_windowContexts.begin(), s_windowContexts.end(),
                               [&](std::unique_ptr<WindowContext>& ctx) {
-                                  return ctx->window->getSystemHandle() == window.getSystemHandle();
+                                  return ctx->window->getNativeHandle() == window.getNativeHandle();
                               });
     assert(found != s_windowContexts.end() &&
            "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
@@ -784,16 +779,10 @@ bool UpdateFontTexture() {
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     sf::Texture& texture = s_currWindowCtx->fontTexture;
-#if SFML_VERSION_MAJOR >= 3
     if (!texture.create(
             sf::Vector2u(static_cast<unsigned>(width), static_cast<unsigned>(height)))) {
         return false;
     }
-#else
-    if (!texture.create(static_cast<unsigned>(width), static_cast<unsigned>(height))) {
-        return false;
-    }
-#endif
 
     texture.update(pixels);
 
@@ -966,16 +955,7 @@ void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-#if SFML_VERSION_MAJOR >= 3
     const sf::Texture& texture = sprite.getTexture();
-#else
-    const sf::Texture* texturePtr = sprite.getTexture();
-    // sprite without texture cannot be drawn
-    if (!texturePtr) {
-        return;
-    }
-    const sf::Texture& texture = *texturePtr;
-#endif
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
@@ -1032,16 +1012,7 @@ bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Col
 
 bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
-#if SFML_VERSION_MAJOR >= 3
     const sf::Texture& texture = sprite.getTexture();
-#else
-    const sf::Texture* texturePtr = sprite.getTexture();
-    // sprite without texture cannot be drawn
-    if (!texturePtr) {
-        return false;
-    }
-    const sf::Texture& texture = *texturePtr;
-#endif
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
     ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
