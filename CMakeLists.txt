@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-
-project(imgui_sfml
-  LANGUAGES CXX
-  VERSION 2.6
-)
+project(imgui_sfml VERSION 2.6 LANGUAGES CXX)
 
 # In CMake 3.12+ this policy will automatically take the ImGui_ROOT and SFML_ROOT environment variables
 # into account as hints for the find_package calls.
@@ -37,11 +33,11 @@ set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header
 # For FindImGui.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-if (IMGUI_SFML_FIND_SFML)
-  if (NOT BUILD_SHARED_LIBS)
+if(IMGUI_SFML_FIND_SFML)
+  if(NOT BUILD_SHARED_LIBS)
     set(SFML_STATIC_LIBRARIES ON)
   endif()
-  find_package(SFML 2.5 COMPONENTS graphics system window)
+  find_package(SFML 2.5 COMPONENTS graphics)
 
   if(NOT SFML_FOUND)
     message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which contains SFMLConfig.cmake)")
@@ -70,14 +66,14 @@ set(IMGUI_PUBLIC_HEADERS
   ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
 )
 
-if (IMGUI_SFML_IMGUI_DEMO)
+if(IMGUI_SFML_IMGUI_DEMO)
   list(APPEND IMGUI_SOURCES ${IMGUI_DEMO_SOURCES})
 endif()
 
 # CMake 3.11 and later prefer to choose GLVND, but we choose legacy OpenGL just because it's safer
 # (unless the OpenGL_GL_PREFERENCE was explicitly set)
 # See CMP0072 for more details (cmake --help-policy CMP0072)
-if ((NOT ${CMAKE_VERSION} VERSION_LESS 3.11) AND (NOT OpenGL_GL_PREFERENCE))
+if((NOT ${CMAKE_VERSION} VERSION_LESS 3.11) AND (NOT OpenGL_GL_PREFERENCE))
   set(OpenGL_GL_PREFERENCE "LEGACY")
 endif()
 
@@ -91,45 +87,32 @@ add_library(ImGui-SFML
 # Add pretty alias
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 
-target_link_libraries(ImGui-SFML
-  PUBLIC
-    sfml-graphics
-    sfml-system
-    sfml-window
-    OpenGL::GL
+target_link_libraries(ImGui-SFML PUBLIC
+  sfml-graphics
+  OpenGL::GL
 )
 
 include(GNUInstallDirs)
 
-target_include_directories(ImGui-SFML
-  PUBLIC
-    $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+target_include_directories(ImGui-SFML PUBLIC
+  $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
-  if (IMGUI_SFML_CONFIG_DIR)
-    target_include_directories(ImGui-SFML
-      PUBLIC
-        $<BUILD_INTERFACE:${IMGUI_SFML_CONFIG_DIR}>
-    )
+  if(IMGUI_SFML_CONFIG_DIR)
+    target_include_directories(ImGui-SFML PUBLIC $<BUILD_INTERFACE:${IMGUI_SFML_CONFIG_DIR}>)
 
-    if (IMGUI_SFML_CONFIG_INSTALL_DIR)
-      target_include_directories(ImGui-SFML
-        PUBLIC
-          $<INSTALL_INTERFACE:${IMGUI_SFML_CONFIG_INSTALL_DIR}>
-      )
+    if(IMGUI_SFML_CONFIG_INSTALL_DIR)
+      target_include_directories(ImGui-SFML PUBLIC $<INSTALL_INTERFACE:${IMGUI_SFML_CONFIG_INSTALL_DIR}>)
     endif()
   else()
     message(FATAL_ERROR "IMGUI_SFML_CONFIG_DIR should be set if IMGUI_SFML_USE_DEFAULT_CONFIG is OFF")
   endif()
 endif()
 
-target_compile_definitions(ImGui-SFML
-  PUBLIC
-    IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}"
-)
+target_compile_definitions(ImGui-SFML PUBLIC IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}")
 
 option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
 if(IMGUI_SFML_ENABLE_WARNINGS)
@@ -146,32 +129,23 @@ endif()
 
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(ImGui-SFML PRIVATE IMGUI_SFML_SHARED_LIB)
-  set_target_properties(ImGui-SFML PROPERTIES
-    DEFINE_SYMBOL "IMGUI_SFML_EXPORTS"
-  )
-  set_target_properties(ImGui-SFML PROPERTIES
-    DEBUG_POSTFIX "_d"
-  )
+  set_target_properties(ImGui-SFML PROPERTIES DEFINE_SYMBOL "IMGUI_SFML_EXPORTS")
+  set_target_properties(ImGui-SFML PROPERTIES DEBUG_POSTFIX "_d")
 endif()
 
 set(IMGUI_SFML_PUBLIC_HEADERS
-  "${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h"
-  "${CMAKE_CURRENT_LIST_DIR}/imgui-SFML_export.h"
+  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h
+  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML_export.h
 )
 
-if (IMGUI_SFML_USE_DEFAULT_CONFIG OR
-    (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DIR}"))
-  list(APPEND IMGUI_SFML_PUBLIC_HEADERS
-    "${IMGUI_SFML_CONFIG_DIR}/${IMGUI_SFML_CONFIG_NAME}"
-  )
+if(IMGUI_SFML_USE_DEFAULT_CONFIG OR (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DIR}"))
+  list(APPEND IMGUI_SFML_PUBLIC_HEADERS "${IMGUI_SFML_CONFIG_DIR}/${IMGUI_SFML_CONFIG_NAME}")
 # If user set IMGUI_SFML_CONFIG_INSTALL_DIR, it means that they'll install file themselves
 endif()
 
 list(APPEND IMGUI_SFML_PUBLIC_HEADERS "${IMGUI_PUBLIC_HEADERS}")
 
-set_target_properties(ImGui-SFML PROPERTIES
-  PUBLIC_HEADER "${IMGUI_SFML_PUBLIC_HEADERS}"
-)
+set_target_properties(ImGui-SFML PROPERTIES PUBLIC_HEADER "${IMGUI_SFML_PUBLIC_HEADERS}")
 
 # Set minimum required standard
 target_compile_features(ImGui-SFML PUBLIC cxx_std_11)
