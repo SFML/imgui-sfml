@@ -7,6 +7,12 @@ Library which allows you to use [Dear ImGui](https://github.com/ocornut/imgui) w
 
 Based on [this repository](https://github.com/Mischa-Alff/imgui-backends) with big improvements and changes.
 
+State of Development
+-----
+
+-   The [`master`](https://github.com/SFML/imgui-sfml/tree/master) branch contains work in progress supporting SFML 3. The SFML 3 API is not stable so this branch is not stable either.
+-   The [`2.6.x`](https://github.com/SFML/imgui-sfml/tree/2.6.x) branch contains work targeting SFML 2 and is thus stable.
+
 Dependencies
 -----
 
