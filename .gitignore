@@ -1,3 +1,1 @@
-Ignore folders named build
-build/**
-Build/**
+build
