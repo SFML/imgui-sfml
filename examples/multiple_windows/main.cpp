@@ -84,6 +84,4 @@ int main() {
             childWindow.display();
         }
     }
-
-    return 0;
 }
