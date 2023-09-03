@@ -263,7 +263,7 @@ bool Init(sf::RenderWindow& window, bool loadDefaultFont) {
 }
 
 bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
-    return Init(window, static_cast<sf::Vector2f>(target.getSize()), loadDefaultFont);
+    return Init(window, sf::Vector2f(target.getSize()), loadDefaultFont);
 }
 
 bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont) {
@@ -677,9 +677,9 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
     if (!s_currWindowCtx->mouseMoved) {
         if (sf::Touch::isDown(0)) s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
 
-        Update(s_currWindowCtx->touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
+        Update(s_currWindowCtx->touchPos, sf::Vector2f(target.getSize()), dt);
     } else {
-        Update(sf::Mouse::getPosition(window), static_cast<sf::Vector2f>(target.getSize()), dt);
+        Update(sf::Mouse::getPosition(window), sf::Vector2f(target.getSize()), dt);
     }
 }
 
@@ -942,7 +942,7 @@ void SetRTriggerAxis(sf::Joystick::Axis rTriggerAxis) {
 /////////////// Image Overloads for sf::Texture
 
 void Image(const sf::Texture& texture, const sf::Color& tintColor, const sf::Color& borderColor) {
-    Image(texture, static_cast<sf::Vector2f>(texture.getSize()), tintColor, borderColor);
+    Image(texture, sf::Vector2f(texture.getSize()), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Color& tintColor,
@@ -956,7 +956,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Color
 /////////////// Image Overloads for sf::RenderTexture
 void Image(const sf::RenderTexture& texture, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-    Image(texture, static_cast<sf::Vector2f>(texture.getSize()), tintColor, borderColor);
+    Image(texture, sf::Vector2f(texture.getSize()), tintColor, borderColor);
 }
 
 void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf::Color& tintColor,
@@ -1005,8 +1005,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 
 bool ImageButton(const sf::Texture& texture, const int framePadding, const sf::Color& bgColor,
                  const sf::Color& tintColor) {
-    return ImageButton(texture, static_cast<sf::Vector2f>(texture.getSize()), framePadding, bgColor,
-                       tintColor);
+    return ImageButton(texture, sf::Vector2f(texture.getSize()), framePadding, bgColor, tintColor);
 }
 
 bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding,
@@ -1021,8 +1020,7 @@ bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int
 
 bool ImageButton(const sf::RenderTexture& texture, const int framePadding, const sf::Color& bgColor,
                  const sf::Color& tintColor) {
-    return ImageButton(texture, static_cast<sf::Vector2f>(texture.getSize()), framePadding, bgColor,
-                       tintColor);
+    return ImageButton(texture, sf::Vector2f(texture.getSize()), framePadding, bgColor, tintColor);
 }
 
 bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size, const int framePadding,
