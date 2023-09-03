@@ -121,10 +121,8 @@ int closeKeyboardIME() {
 #endif
 #endif
 
-#if __cplusplus >= 201103L // C++11 and above
 static_assert(sizeof(GLuint) <= sizeof(ImTextureID),
               "ImTextureID is not large enough to fit GLuint.");
-#endif
 
 namespace {
 // various helper functions
@@ -269,12 +267,6 @@ bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
 }
 
 bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont) {
-#if __cplusplus < 201103L // runtime assert when using earlier than C++11 as no
-                          // static_assert support
-    assert(sizeof(GLuint) <= sizeof(ImTextureID)); // ImTextureID is not large enough to fit
-                                                   // GLuint.
-#endif
-
     s_windowContexts.emplace_back(new WindowContext(&window));
 
     s_currWindowCtx = s_windowContexts.back().get();
