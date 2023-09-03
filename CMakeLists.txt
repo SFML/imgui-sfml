@@ -96,7 +96,7 @@ target_link_libraries(ImGui-SFML
     sfml-graphics
     sfml-system
     sfml-window
-    ${OPENGL_LIBRARIES}
+    OpenGL::GL
 )
 
 include(GNUInstallDirs)
