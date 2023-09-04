@@ -53,6 +53,15 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
+option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
+if(IMGUI_SFML_ENABLE_WARNINGS)
+  if(MSVC)
+    add_compile_options(/WX /W3)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow)
+  endif()
+endif()
+
 add_library(ImGui-SFML imgui-SFML.cpp)
 
 # Add pretty alias
@@ -84,15 +93,6 @@ if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
 endif()
 
 target_compile_definitions(ImGui-SFML PUBLIC IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}")
-
-option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
-if(IMGUI_SFML_ENABLE_WARNINGS)
-  if(MSVC)
-    add_compile_options(/WX /W3)
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow)
-  endif()
-endif()
 
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
