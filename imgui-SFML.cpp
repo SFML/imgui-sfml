@@ -158,31 +158,18 @@ void updateMouseCursor(sf::Window& window);
 constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
 
 struct StickInfo {
-    sf::Joystick::Axis xAxis;
-    sf::Joystick::Axis yAxis;
+    sf::Joystick::Axis xAxis{sf::Joystick::X};
+    sf::Joystick::Axis yAxis{sf::Joystick::Y};
 
-    bool xInverted;
-    bool yInverted;
+    bool xInverted{false};
+    bool yInverted{false};
 
-    float threshold;
-
-    StickInfo() {
-        xAxis = sf::Joystick::X;
-        yAxis = sf::Joystick::Y;
-        xInverted = false;
-        yInverted = false;
-        threshold = 15;
-    }
+    float threshold{15};
 };
 
 struct TriggerInfo {
-    sf::Joystick::Axis axis;
-    float threshold;
-
-    TriggerInfo() {
-        axis = sf::Joystick::Z;
-        threshold = 0;
-    }
+    sf::Joystick::Axis axis{sf::Joystick::Z};
+    float threshold{0};
 };
 
 struct WindowContext {
