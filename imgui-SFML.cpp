@@ -17,7 +17,7 @@
 
 #include <cassert>
 #include <cmath> // abs
-#include <cstddef> // offsetof, NULL, size_t
+#include <cstddef> // offsetof, nullptr, size_t
 #include <cstdint> // uint8_t
 #include <cstring> // memcpy
 
@@ -51,7 +51,7 @@ int openKeyboardIME() {
     JavaVMAttachArgs attachargs;
     attachargs.version = JNI_VERSION_1_6;
     attachargs.name = "NativeThread";
-    attachargs.group = NULL;
+    attachargs.group = nullptr;
     jint res = vm->AttachCurrentThread(&env, &attachargs);
     if (res == JNI_ERR) return EXIT_FAILURE;
 
@@ -88,7 +88,7 @@ int closeKeyboardIME() {
     JavaVMAttachArgs attachargs;
     attachargs.version = JNI_VERSION_1_6;
     attachargs.name = "NativeThread";
-    attachargs.group = NULL;
+    attachargs.group = nullptr;
     jint res = vm->AttachCurrentThread(&env, &attachargs);
     if (res == JNI_ERR) return EXIT_FAILURE;
 
@@ -1108,7 +1108,7 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
 }
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
-    ImTextureID textureID = (ImTextureID)NULL;
+    ImTextureID textureID = nullptr;
     std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
     return textureID;
 }
