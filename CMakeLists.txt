@@ -58,7 +58,7 @@ if(IMGUI_SFML_ENABLE_WARNINGS)
   if(MSVC)
     add_compile_options(/WX /W3)
   elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow)
+    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion)
   endif()
 endif()
 
