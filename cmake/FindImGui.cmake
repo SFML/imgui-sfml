@@ -56,6 +56,7 @@ add_library(ImGui
 )
 add_library(ImGui::ImGui ALIAS ImGui)
 target_include_directories(ImGui SYSTEM PUBLIC $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>)
+target_compile_features(ImGui PUBLIC cxx_std_17)
 
 set(IMGUI_PUBLIC_HEADERS
   ${IMGUI_INCLUDE_DIR}/imconfig.h
