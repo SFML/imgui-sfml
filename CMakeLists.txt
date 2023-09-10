@@ -14,12 +14,12 @@ option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 # If you set IMGUI_SFML_CONFIG_INSTALL_DIR, ImGui-SFML won't install your custom config, because
 # you might want to do it yourself
 option(IMGUI_SFML_USE_DEFAULT_CONFIG "Use default imconfig-SFML.h" ON)
-set(IMGUI_SFML_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE PATH "Path to a directory containing user ImGui config")
+set(IMGUI_SFML_CONFIG_DIR ${PROJECT_SOURCE_DIR} CACHE PATH "Path to a directory containing user ImGui config")
 set(IMGUI_SFML_CONFIG_NAME "imconfig-SFML.h" CACHE STRING "Name of a custom user ImGui config header")
 set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header will be installed")
 
 # For FindImGui.cmake
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if(IMGUI_SFML_FIND_SFML)
   if(NOT BUILD_SHARED_LIBS)
@@ -71,7 +71,7 @@ target_link_libraries(ImGui-SFML PUBLIC
 include(GNUInstallDirs)
 
 target_include_directories(ImGui-SFML PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -100,8 +100,8 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 set(IMGUI_SFML_PUBLIC_HEADERS
-  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h
-  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML_export.h
+  ${PROJECT_SOURCE_DIR}/imgui-SFML.h
+  ${PROJECT_SOURCE_DIR}/imgui-SFML_export.h
 )
 
 if(IMGUI_SFML_USE_DEFAULT_CONFIG OR (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DIR}"))
