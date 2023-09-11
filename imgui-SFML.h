@@ -136,4 +136,4 @@ IMGUI_SFML_API void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& c
                                    float rounding = 0.0f, int rounding_corners = 0x0F);
 } // end of namespace ImGui
 
-#endif //# IMGUI_SFML_H
+#endif // # IMGUI_SFML_H
