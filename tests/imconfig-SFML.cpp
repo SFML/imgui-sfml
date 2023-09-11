@@ -16,7 +16,7 @@ TEST_CASE("IM_VEC2_CLASS_EXTRA") {
     }
 
     SECTION("To sf::Vector2f") {
-        // TODO Fix for other sf::Vector2 specializations
+        CHECK(sf::Vector2i(ImVec2(1.1f, 2.2f)) == sf::Vector2i(1, 2));
         CHECK(sf::Vector2f(ImVec2(1.1f, 2.2f)) == sf::Vector2f(1.1f, 2.2f));
     }
 }
