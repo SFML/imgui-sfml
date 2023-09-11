@@ -15,6 +15,7 @@ endif()
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
+option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
@@ -84,6 +85,18 @@ add_library(ImGui-SFML
   ${IMGUI_SOURCES}
 )
 
+if(IMGUI_SFML_ENABLE_WARNINGS)
+  if(MSVC)
+    set(IMGUI_SFML_WARNINGS /WX /W3)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+    set(IMGUI_SFML_WARNINGS -Werror -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion)
+  endif()
+endif()
+
+foreach(WARNING ${IMGUI_SFML_WARNINGS})
+  set_property(SOURCE imgui-SFML.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " ${WARNING}")
+endforeach()
+
 # Add pretty alias
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 
@@ -114,15 +127,6 @@ endif()
 
 target_compile_definitions(ImGui-SFML PUBLIC IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}")
 
-option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
-if(IMGUI_SFML_ENABLE_WARNINGS)
-  if(MSVC)
-    add_compile_options(/WX /W3)
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow)
-  endif()
-endif()
-
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
 endif()
@@ -149,6 +153,8 @@ set_target_properties(ImGui-SFML PROPERTIES PUBLIC_HEADER "${IMGUI_SFML_PUBLIC_H
 
 # Set minimum required standard
 target_compile_features(ImGui-SFML PUBLIC cxx_std_11)
+
+add_compile_options(${IMGUI_SFML_WARNINGS})
 
 if(IMGUI_SFML_BUILD_EXAMPLES)
   add_subdirectory(examples)
