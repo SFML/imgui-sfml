@@ -3,6 +3,7 @@ project(imgui_sfml VERSION 3.0.0 LANGUAGES CXX)
 
 option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
+option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
@@ -39,6 +40,21 @@ endif()
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
 find_package(ImGui 1.87 REQUIRED)
 
+# these headers will be installed alongside ImGui-SFML
+set(IMGUI_PUBLIC_HEADERS
+  ${IMGUI_INCLUDE_DIR}/imconfig.h
+  ${IMGUI_INCLUDE_DIR}/imgui.h
+  ${IMGUI_INCLUDE_DIR}/imgui_internal.h # not actually public, but users might need it
+  ${IMGUI_INCLUDE_DIR}/imstb_rectpack.h
+  ${IMGUI_INCLUDE_DIR}/imstb_textedit.h
+  ${IMGUI_INCLUDE_DIR}/imstb_truetype.h
+  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
+)
+
+if(IMGUI_SFML_IMGUI_DEMO)
+  list(APPEND IMGUI_SOURCES ${IMGUI_DEMO_SOURCES})
+endif()
+
 # CMake 3.11 and later prefer to choose GLVND, but we choose legacy OpenGL just because it's safer
 # (unless the OpenGL_GL_PREFERENCE was explicitly set)
 # See CMP0072 for more details (cmake --help-policy CMP0072)
@@ -48,16 +64,10 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
-if(IMGUI_SFML_ENABLE_WARNINGS)
-  if(MSVC)
-    add_compile_options(/WX /W3)
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow -Wsign-conversion -Wconversion)
-  endif()
-endif()
-
-add_library(ImGui-SFML imgui-SFML.cpp)
+add_library(ImGui-SFML
+  imgui-SFML.cpp
+  ${IMGUI_SOURCES}
+)
 
 # Add pretty alias
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
@@ -65,12 +75,12 @@ add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 target_link_libraries(ImGui-SFML PUBLIC
   SFML::Graphics
   OpenGL::GL
-  ImGui::ImGui
 )
 
 include(GNUInstallDirs)
 
 target_include_directories(ImGui-SFML PUBLIC
+  $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
@@ -88,6 +98,15 @@ if(NOT IMGUI_SFML_USE_DEFAULT_CONFIG)
 endif()
 
 target_compile_definitions(ImGui-SFML PUBLIC IMGUI_USER_CONFIG="${IMGUI_SFML_CONFIG_NAME}")
+
+option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
+if(IMGUI_SFML_ENABLE_WARNINGS)
+  if(MSVC)
+    add_compile_options(/WX /W3)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wshadow)
+  endif()
+endif()
 
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
@@ -109,6 +128,8 @@ if(IMGUI_SFML_USE_DEFAULT_CONFIG OR (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DI
 # If user set IMGUI_SFML_CONFIG_INSTALL_DIR, it means that they'll install file themselves
 endif()
 
+list(APPEND IMGUI_SFML_PUBLIC_HEADERS "${IMGUI_PUBLIC_HEADERS}")
+
 set_target_properties(ImGui-SFML PROPERTIES PUBLIC_HEADER "${IMGUI_SFML_PUBLIC_HEADERS}")
 
 # Set minimum required standard
@@ -119,7 +140,7 @@ if(IMGUI_SFML_BUILD_EXAMPLES)
 endif()
 
 # installation rules
-install(TARGETS ImGui-SFML ImGui
+install(TARGETS ImGui-SFML
   EXPORT ImGui-SFML
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

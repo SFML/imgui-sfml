@@ -4,10 +4,10 @@
 #
 # This will define the following variables
 # IMGUI_FOUND
-# IMGUI_INCLUDE_DIR
+# IMGUI_INCLUDE_DIRS
+# IMGUI_SOURCES
+# IMGUI_DEMO_SOURCES
 # IMGUI_VERSION
-#
-# To use this module, link to the ImGui::ImGui target
 
 list(APPEND IMGUI_SEARCH_PATH
   ${IMGUI_DIR}
@@ -22,6 +22,18 @@ find_path(IMGUI_INCLUDE_DIR
 if(NOT IMGUI_INCLUDE_DIR)
   message(FATAL_ERROR "IMGUI imgui.cpp not found. Set IMGUI_DIR to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
+
+set(IMGUI_SOURCES
+  ${IMGUI_INCLUDE_DIR}/imgui.cpp
+  ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
+  ${IMGUI_INCLUDE_DIR}/imgui_tables.cpp
+  ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
+  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.cpp
+)
+
+set(IMGUI_DEMO_SOURCES
+  ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp
+)
 
 # Extract version from header
 file(
@@ -45,26 +57,3 @@ else()
   set(IMGUI_FOUND TRUE)
   message(STATUS "Found ImGui v${IMGUI_VERSION} in ${IMGUI_INCLUDE_DIR}")
 endif()
-
-add_library(ImGui
-  ${IMGUI_INCLUDE_DIR}/imgui.cpp
-  ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
-  ${IMGUI_INCLUDE_DIR}/imgui_tables.cpp
-  ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
-  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.cpp
-  ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp
-)
-add_library(ImGui::ImGui ALIAS ImGui)
-target_include_directories(ImGui SYSTEM PUBLIC $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>)
-target_compile_features(ImGui PUBLIC cxx_std_17)
-
-set(IMGUI_PUBLIC_HEADERS
-  ${IMGUI_INCLUDE_DIR}/imconfig.h
-  ${IMGUI_INCLUDE_DIR}/imgui.h
-  ${IMGUI_INCLUDE_DIR}/imgui_internal.h # not actually public, but users might need it
-  ${IMGUI_INCLUDE_DIR}/imstb_rectpack.h
-  ${IMGUI_INCLUDE_DIR}/imstb_textedit.h
-  ${IMGUI_INCLUDE_DIR}/imstb_truetype.h
-  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
-)
-set_target_properties(ImGui PROPERTIES PUBLIC_HEADER "${IMGUI_PUBLIC_HEADERS}")
