@@ -37,14 +37,6 @@ jobs:
         - { name: Release }
         - { name: Debug }
 
-        exclude:
-        - platform: { name: Windows MSVC }
-          config: { name: Shared }
-        - platform: { name: Windows ClangCL }
-          config: { name: Shared }
-        - platform: { name: Windows Clang }
-          config: { name: Shared }
-
     steps:
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
