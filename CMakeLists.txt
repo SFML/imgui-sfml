@@ -143,7 +143,7 @@ if(NOT PROJECT_IS_TOP_LEVEL)
   return()
 endif()
 
-option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
+option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui-SFML examples" OFF)
 if(IMGUI_SFML_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
