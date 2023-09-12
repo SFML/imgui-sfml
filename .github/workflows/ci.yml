@@ -62,6 +62,8 @@ jobs:
         cmake -S sfml -B sfml/build \
           -DCMAKE_INSTALL_PREFIX=sfml/install \
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          -DSFML_BUILD_AUDIO=OFF \
+          -DSFML_BUILD_NETWORK=OFF \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 
