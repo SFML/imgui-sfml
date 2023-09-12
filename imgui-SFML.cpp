@@ -29,9 +29,6 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#define IMGUI_SFML_KEY_APOSTROPHE sf::Keyboard::Quote
-#define IMGUI_SFML_KEY_GRAVE sf::Keyboard::Tilde
-
 #ifdef ANDROID
 #ifdef USE_JNI
 
@@ -340,7 +337,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Enter;
     case sf::Keyboard::Escape:
         return ImGuiKey_Escape;
-    case IMGUI_SFML_KEY_APOSTROPHE:
+    case sf::Keyboard::Quote:
         return ImGuiKey_Apostrophe;
     case sf::Keyboard::Comma:
         return ImGuiKey_Comma;
@@ -360,7 +357,7 @@ ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
         return ImGuiKey_Backslash;
     case sf::Keyboard::RBracket:
         return ImGuiKey_RightBracket;
-    case IMGUI_SFML_KEY_GRAVE:
+    case sf::Keyboard::Tilde:
         return ImGuiKey_GraveAccent;
     // case : return ImGuiKey_CapsLock;
     // case : return ImGuiKey_ScrollLock;
