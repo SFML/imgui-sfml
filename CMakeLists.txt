@@ -15,12 +15,12 @@ option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
 # If you set IMGUI_SFML_CONFIG_INSTALL_DIR, ImGui-SFML won't install your custom config, because
 # you might want to do it yourself
 option(IMGUI_SFML_USE_DEFAULT_CONFIG "Use default imconfig-SFML.h" ON)
-set(IMGUI_SFML_CONFIG_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE PATH "Path to a directory containing user ImGui config")
+set(IMGUI_SFML_CONFIG_DIR ${PROJECT_SOURCE_DIR} CACHE PATH "Path to a directory containing user ImGui config")
 set(IMGUI_SFML_CONFIG_NAME imconfig-SFML.h CACHE STRING "Name of a custom user ImGui config header")
 set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header will be installed")
 
 # For FindImGui.cmake
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if(IMGUI_SFML_FIND_SFML)
   if(NOT BUILD_SHARED_LIBS)
@@ -75,7 +75,7 @@ add_library(ImGui-SFML imgui-SFML.cpp ${IMGUI_SOURCES})
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 target_include_directories(ImGui-SFML PUBLIC
   $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_compile_features(ImGui-SFML PUBLIC cxx_std_11)
@@ -117,8 +117,8 @@ target_compile_definitions(ImGui-SFML PUBLIC IMGUI_USER_CONFIG="${IMGUI_SFML_CON
 
 # Collect public headers
 set(IMGUI_SFML_PUBLIC_HEADERS
-  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML.h
-  ${CMAKE_CURRENT_LIST_DIR}/imgui-SFML_export.h
+  ${PROJECT_SOURCE_DIR}/imgui-SFML.h
+  ${PROJECT_SOURCE_DIR}/imgui-SFML_export.h
   ${IMGUI_PUBLIC_HEADERS}
 )
 if(IMGUI_SFML_USE_DEFAULT_CONFIG OR (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DIR}"))
