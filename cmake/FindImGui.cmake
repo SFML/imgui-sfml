@@ -51,9 +51,9 @@ string(REGEX REPLACE ".*\"(.*)\".*" "\\1" IMGUI_VERSION "${IMGUI_VERSION}")
 
 # Check required version
 if(${IMGUI_VERSION} VERSION_LESS ${ImGui_FIND_VERSION})
-  set(IMGUI_FOUND FALSE)
+  set(IMGUI_FOUND OFF)
   message(FATAL_ERROR "ImGui at with at least v${ImGui_FIND_VERSION} was requested, but only v${IMGUI_VERSION} was found")
 else()
-  set(IMGUI_FOUND TRUE)
+  set(IMGUI_FOUND ON)
   message(STATUS "Found ImGui v${IMGUI_VERSION} in ${IMGUI_INCLUDE_DIR}")
 endif()
