@@ -88,7 +88,7 @@ endif()
 # Add compiler warnings
 if(IMGUI_SFML_ENABLE_WARNINGS)
   if(MSVC)
-    set(IMGUI_SFML_WARNINGS /WX /W3)
+    set(IMGUI_SFML_WARNINGS /WX /W4 /permissive-)
   elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
     set(IMGUI_SFML_WARNINGS -Werror -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion)
   endif()
