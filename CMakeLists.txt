@@ -26,11 +26,7 @@ if(IMGUI_SFML_FIND_SFML)
   if(NOT BUILD_SHARED_LIBS)
     set(SFML_STATIC_LIBRARIES ON)
   endif()
-  find_package(SFML 2.5 COMPONENTS graphics)
-
-  if(NOT SFML_FOUND)
-    message(FATAL_ERROR "SFML 2 directory not found. Set SFML_DIR to directory where SFML was built (or one which contains SFMLConfig.cmake)")
-  endif()
+  find_package(SFML 2.5 REQUIRED COMPONENTS graphics)
 endif()
 
 # ImGui does not provide native support for CMakeLists, workaround for now to have
