@@ -78,9 +78,10 @@ jobs:
     - name: Configure ImGui-SFML
       run: |
         cmake -S imgui-sfml -B imgui-sfml/build \
+          -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          -DCMAKE_CXX_EXTENSIONS=OFF \
           -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
-          -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
           -DIMGUI_SFML_BUILD_EXAMPLES=ON \
