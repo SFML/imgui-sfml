@@ -31,8 +31,8 @@ jobs:
         - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: macOS Xcode,     os: macos-12,     flags: -GXcode }
         config:
-        - { name: Shared, flags: -DBUILD_SHARED_LIBS=TRUE }
-        - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
+        - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON }
+        - { name: Static, flags: -DBUILD_SHARED_LIBS=OFF }
         type:
         - { name: Release }
         - { name: Debug }
@@ -67,6 +67,8 @@ jobs:
         cmake -S sfml -B sfml/build \
           -DCMAKE_INSTALL_PREFIX=sfml/install \
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          -DSFML_BUILD_AUDIO=OFF \
+          -DSFML_BUILD_NETWORK=OFF \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 
@@ -81,9 +83,10 @@ jobs:
     - name: Configure ImGui-SFML
       run: |
         cmake -S imgui-sfml -B imgui-sfml/build \
+          -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          -DCMAKE_CXX_EXTENSIONS=OFF \
           -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
-          -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
           -DIMGUI_SFML_BUILD_EXAMPLES=ON \
@@ -99,9 +102,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: DoozyX/clang-format-lint-action@v0.13
+      - uses: DoozyX/clang-format-lint-action@v0.16.2
         with:
           source: '.'
           extensions: 'h,cpp'
-          clangFormatVersion: 13
+          clangFormatVersion: 16
           style: file
