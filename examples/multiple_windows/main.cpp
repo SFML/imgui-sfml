@@ -19,7 +19,7 @@ int main() {
     sf::Clock deltaClock;
     while (window.isOpen()) {
         // Main window event processing
-        sf::Event event;
+        sf::Event event{};
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::Closed) {

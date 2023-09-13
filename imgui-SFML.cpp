@@ -177,14 +177,14 @@ struct WindowContext {
 
     bool windowHasFocus;
     bool mouseMoved{false};
-    bool mousePressed[3];
-    ImGuiMouseCursor lastCursor;
+    bool mousePressed[3] = {false};
+    ImGuiMouseCursor lastCursor{ImGuiMouseCursor_COUNT};
 
-    bool touchDown[3];
+    bool touchDown[3] = {false};
     sf::Vector2i touchPos;
 
-    unsigned int joystickId;
-    ImGuiKey joystickMapping[sf::Joystick::ButtonCount];
+    unsigned int joystickId{getConnectedJoystickId()};
+    ImGuiKey joystickMapping[sf::Joystick::ButtonCount] = {ImGuiKey_None};
     StickInfo dPadInfo;
     StickInfo lStickInfo;
     StickInfo rStickInfo;
@@ -192,41 +192,19 @@ struct WindowContext {
     TriggerInfo rTriggerInfo;
 
     sf::Cursor mouseCursors[ImGuiMouseCursor_COUNT];
-    bool mouseCursorLoaded[ImGuiMouseCursor_COUNT];
+    bool mouseCursorLoaded[ImGuiMouseCursor_COUNT] = {ImGuiKey_None};
 
 #ifdef ANDROID
 #ifdef USE_JNI
-    bool wantTextInput;
+    bool wantTextInput{false};
 #endif
 #endif
+
+    WindowContext(const sf::Window* w) : window(w), windowHasFocus(window->hasFocus()) {}
+    ~WindowContext() { ImGui::DestroyContext(imContext); }
 
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
-
-    WindowContext(const sf::Window* w) : window(w), windowHasFocus(window->hasFocus()) {
-        for (int i = 0; i < 3; ++i) {
-            mousePressed[i] = false;
-            touchDown[i] = false;
-        }
-        lastCursor = ImGuiMouseCursor_COUNT;
-
-        joystickId = getConnectedJoystickId();
-        for (int i = 0; i < static_cast<int>(sf::Joystick::ButtonCount); ++i) {
-            joystickMapping[i] = ImGuiKey_None;
-        }
-
-        for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-            mouseCursorLoaded[i] = false;
-        }
-
-#ifdef ANDROID
-#ifdef USE_JNI
-        wantTextInput = false;
-#endif
-#endif
-    }
-
-    ~WindowContext() { ImGui::DestroyContext(imContext); }
 };
 
 std::vector<std::unique_ptr<WindowContext>> s_windowContexts;
