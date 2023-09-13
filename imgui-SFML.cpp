@@ -170,13 +170,13 @@ struct TriggerInfo {
 
 struct WindowContext {
     const sf::Window* window;
-    ImGuiContext* imContext;
+    ImGuiContext* imContext{ImGui::CreateContext()};
 
     sf::Texture fontTexture; // internal font atlas which is used if user doesn't set a custom
                              // sf::Texture.
 
     bool windowHasFocus;
-    bool mouseMoved;
+    bool mouseMoved{false};
     bool mousePressed[3];
     ImGuiMouseCursor lastCursor;
 
@@ -203,12 +203,7 @@ struct WindowContext {
     WindowContext(const WindowContext&) = delete; // non construction-copyable
     WindowContext& operator=(const WindowContext&) = delete; // non copyable
 
-    WindowContext(const sf::Window* w) {
-        window = w;
-        imContext = ImGui::CreateContext();
-
-        windowHasFocus = window->hasFocus();
-        mouseMoved = false;
+    WindowContext(const sf::Window* w) : window(w), windowHasFocus(window->hasFocus()) {
         for (int i = 0; i < 3; ++i) {
             mousePressed[i] = false;
             touchDown[i] = false;
