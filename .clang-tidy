@@ -26,7 +26,6 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -modernize-avoid-c-arrays,
   -modernize-loop-convert,
-  -modernize-return-braced-init-list,
   -modernize-use-trailing-return-type,
   -performance-no-int-to-ptr,
   -readability-avoid-const-params-in-decls,

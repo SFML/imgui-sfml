@@ -834,16 +834,16 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color, float rou
 
 namespace {
 ImColor toImColor(sf::Color c) {
-    return ImColor(static_cast<int>(c.r), static_cast<int>(c.g), static_cast<int>(c.b),
-                   static_cast<int>(c.a));
+    return {static_cast<int>(c.r), static_cast<int>(c.g), static_cast<int>(c.b),
+            static_cast<int>(c.a)};
 }
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect) {
     const ImVec2 pos = ImGui::GetCursorScreenPos();
-    return ImVec2(rect.left + pos.x, rect.top + pos.y);
+    return {rect.left + pos.x, rect.top + pos.y};
 }
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
     const ImVec2 pos = ImGui::GetCursorScreenPos();
-    return ImVec2(rect.left + rect.width + pos.x, rect.top + rect.height + pos.y);
+    return {rect.left + rect.width + pos.x, rect.top + rect.height + pos.y};
 }
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
