@@ -146,6 +146,10 @@ std::string s_clipboardText;
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
 void updateMouseCursor(sf::Window& window);
 
+// Key mappings
+ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code);
+ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code);
+
 // data
 constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
 
@@ -303,237 +307,6 @@ void SetCurrentWindow(const sf::Window& window) {
 void ProcessEvent(const sf::Window& window, const sf::Event& event) {
     SetCurrentWindow(window);
     ProcessEvent(event);
-}
-
-ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
-    switch (code) {
-    case sf::Keyboard::Tab:
-        return ImGuiKey_Tab;
-    case sf::Keyboard::Left:
-        return ImGuiKey_LeftArrow;
-    case sf::Keyboard::Right:
-        return ImGuiKey_RightArrow;
-    case sf::Keyboard::Up:
-        return ImGuiKey_UpArrow;
-    case sf::Keyboard::Down:
-        return ImGuiKey_DownArrow;
-    case sf::Keyboard::PageUp:
-        return ImGuiKey_PageUp;
-    case sf::Keyboard::PageDown:
-        return ImGuiKey_PageDown;
-    case sf::Keyboard::Home:
-        return ImGuiKey_Home;
-    case sf::Keyboard::End:
-        return ImGuiKey_End;
-    case sf::Keyboard::Insert:
-        return ImGuiKey_Insert;
-    case sf::Keyboard::Delete:
-        return ImGuiKey_Delete;
-    case sf::Keyboard::Backspace:
-        return ImGuiKey_Backspace;
-    case sf::Keyboard::Space:
-        return ImGuiKey_Space;
-    case sf::Keyboard::Enter:
-        return ImGuiKey_Enter;
-    case sf::Keyboard::Escape:
-        return ImGuiKey_Escape;
-    case sf::Keyboard::Quote:
-        return ImGuiKey_Apostrophe;
-    case sf::Keyboard::Comma:
-        return ImGuiKey_Comma;
-    case sf::Keyboard::Hyphen:
-        return ImGuiKey_Minus;
-    case sf::Keyboard::Period:
-        return ImGuiKey_Period;
-    case sf::Keyboard::Slash:
-        return ImGuiKey_Slash;
-    case sf::Keyboard::Semicolon:
-        return ImGuiKey_Semicolon;
-    case sf::Keyboard::Equal:
-        return ImGuiKey_Equal;
-    case sf::Keyboard::LBracket:
-        return ImGuiKey_LeftBracket;
-    case sf::Keyboard::Backslash:
-        return ImGuiKey_Backslash;
-    case sf::Keyboard::RBracket:
-        return ImGuiKey_RightBracket;
-    case sf::Keyboard::Tilde:
-        return ImGuiKey_GraveAccent;
-    // case : return ImGuiKey_CapsLock;
-    // case : return ImGuiKey_ScrollLock;
-    // case : return ImGuiKey_NumLock;
-    // case : return ImGuiKey_PrintScreen;
-    case sf::Keyboard::Pause:
-        return ImGuiKey_Pause;
-    case sf::Keyboard::Numpad0:
-        return ImGuiKey_Keypad0;
-    case sf::Keyboard::Numpad1:
-        return ImGuiKey_Keypad1;
-    case sf::Keyboard::Numpad2:
-        return ImGuiKey_Keypad2;
-    case sf::Keyboard::Numpad3:
-        return ImGuiKey_Keypad3;
-    case sf::Keyboard::Numpad4:
-        return ImGuiKey_Keypad4;
-    case sf::Keyboard::Numpad5:
-        return ImGuiKey_Keypad5;
-    case sf::Keyboard::Numpad6:
-        return ImGuiKey_Keypad6;
-    case sf::Keyboard::Numpad7:
-        return ImGuiKey_Keypad7;
-    case sf::Keyboard::Numpad8:
-        return ImGuiKey_Keypad8;
-    case sf::Keyboard::Numpad9:
-        return ImGuiKey_Keypad9;
-    // case : return ImGuiKey_KeypadDecimal;
-    case sf::Keyboard::Divide:
-        return ImGuiKey_KeypadDivide;
-    case sf::Keyboard::Multiply:
-        return ImGuiKey_KeypadMultiply;
-    case sf::Keyboard::Subtract:
-        return ImGuiKey_KeypadSubtract;
-    case sf::Keyboard::Add:
-        return ImGuiKey_KeypadAdd;
-    // case : return ImGuiKey_KeypadEnter;
-    // case : return ImGuiKey_KeypadEqual;
-    case sf::Keyboard::LControl:
-        return ImGuiKey_LeftCtrl;
-    case sf::Keyboard::LShift:
-        return ImGuiKey_LeftShift;
-    case sf::Keyboard::LAlt:
-        return ImGuiKey_LeftAlt;
-    case sf::Keyboard::LSystem:
-        return ImGuiKey_LeftSuper;
-    case sf::Keyboard::RControl:
-        return ImGuiKey_RightCtrl;
-    case sf::Keyboard::RShift:
-        return ImGuiKey_RightShift;
-    case sf::Keyboard::RAlt:
-        return ImGuiKey_RightAlt;
-    case sf::Keyboard::RSystem:
-        return ImGuiKey_RightSuper;
-    case sf::Keyboard::Menu:
-        return ImGuiKey_Menu;
-    case sf::Keyboard::Num0:
-        return ImGuiKey_0;
-    case sf::Keyboard::Num1:
-        return ImGuiKey_1;
-    case sf::Keyboard::Num2:
-        return ImGuiKey_2;
-    case sf::Keyboard::Num3:
-        return ImGuiKey_3;
-    case sf::Keyboard::Num4:
-        return ImGuiKey_4;
-    case sf::Keyboard::Num5:
-        return ImGuiKey_5;
-    case sf::Keyboard::Num6:
-        return ImGuiKey_6;
-    case sf::Keyboard::Num7:
-        return ImGuiKey_7;
-    case sf::Keyboard::Num8:
-        return ImGuiKey_8;
-    case sf::Keyboard::Num9:
-        return ImGuiKey_9;
-    case sf::Keyboard::A:
-        return ImGuiKey_A;
-    case sf::Keyboard::B:
-        return ImGuiKey_B;
-    case sf::Keyboard::C:
-        return ImGuiKey_C;
-    case sf::Keyboard::D:
-        return ImGuiKey_D;
-    case sf::Keyboard::E:
-        return ImGuiKey_E;
-    case sf::Keyboard::F:
-        return ImGuiKey_F;
-    case sf::Keyboard::G:
-        return ImGuiKey_G;
-    case sf::Keyboard::H:
-        return ImGuiKey_H;
-    case sf::Keyboard::I:
-        return ImGuiKey_I;
-    case sf::Keyboard::J:
-        return ImGuiKey_J;
-    case sf::Keyboard::K:
-        return ImGuiKey_K;
-    case sf::Keyboard::L:
-        return ImGuiKey_L;
-    case sf::Keyboard::M:
-        return ImGuiKey_M;
-    case sf::Keyboard::N:
-        return ImGuiKey_N;
-    case sf::Keyboard::O:
-        return ImGuiKey_O;
-    case sf::Keyboard::P:
-        return ImGuiKey_P;
-    case sf::Keyboard::Q:
-        return ImGuiKey_Q;
-    case sf::Keyboard::R:
-        return ImGuiKey_R;
-    case sf::Keyboard::S:
-        return ImGuiKey_S;
-    case sf::Keyboard::T:
-        return ImGuiKey_T;
-    case sf::Keyboard::U:
-        return ImGuiKey_U;
-    case sf::Keyboard::V:
-        return ImGuiKey_V;
-    case sf::Keyboard::W:
-        return ImGuiKey_W;
-    case sf::Keyboard::X:
-        return ImGuiKey_X;
-    case sf::Keyboard::Y:
-        return ImGuiKey_Y;
-    case sf::Keyboard::Z:
-        return ImGuiKey_Z;
-    case sf::Keyboard::F1:
-        return ImGuiKey_F1;
-    case sf::Keyboard::F2:
-        return ImGuiKey_F2;
-    case sf::Keyboard::F3:
-        return ImGuiKey_F3;
-    case sf::Keyboard::F4:
-        return ImGuiKey_F4;
-    case sf::Keyboard::F5:
-        return ImGuiKey_F5;
-    case sf::Keyboard::F6:
-        return ImGuiKey_F6;
-    case sf::Keyboard::F7:
-        return ImGuiKey_F7;
-    case sf::Keyboard::F8:
-        return ImGuiKey_F8;
-    case sf::Keyboard::F9:
-        return ImGuiKey_F9;
-    case sf::Keyboard::F10:
-        return ImGuiKey_F10;
-    case sf::Keyboard::F11:
-        return ImGuiKey_F11;
-    case sf::Keyboard::F12:
-        return ImGuiKey_F12;
-    default:
-        break;
-    }
-    return ImGuiKey_None;
-}
-
-ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code) {
-    switch (code) {
-    case sf::Keyboard::LControl:
-    case sf::Keyboard::RControl:
-        return ImGuiKey_ModCtrl;
-    case sf::Keyboard::LShift:
-    case sf::Keyboard::RShift:
-        return ImGuiKey_ModShift;
-    case sf::Keyboard::LAlt:
-    case sf::Keyboard::RAlt:
-        return ImGuiKey_ModAlt;
-    case sf::Keyboard::LSystem:
-    case sf::Keyboard::RSystem:
-        return ImGuiKey_ModSuper;
-    default:
-        break;
-    }
-    return ImGuiKey_None;
 }
 
 void ProcessEvent(const sf::Event& event) {
@@ -1385,6 +1158,237 @@ void updateMouseCursor(sf::Window& window) {
             window.setMouseCursor(c);
         }
     }
+}
+
+ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code) {
+    switch (code) {
+    case sf::Keyboard::Tab:
+        return ImGuiKey_Tab;
+    case sf::Keyboard::Left:
+        return ImGuiKey_LeftArrow;
+    case sf::Keyboard::Right:
+        return ImGuiKey_RightArrow;
+    case sf::Keyboard::Up:
+        return ImGuiKey_UpArrow;
+    case sf::Keyboard::Down:
+        return ImGuiKey_DownArrow;
+    case sf::Keyboard::PageUp:
+        return ImGuiKey_PageUp;
+    case sf::Keyboard::PageDown:
+        return ImGuiKey_PageDown;
+    case sf::Keyboard::Home:
+        return ImGuiKey_Home;
+    case sf::Keyboard::End:
+        return ImGuiKey_End;
+    case sf::Keyboard::Insert:
+        return ImGuiKey_Insert;
+    case sf::Keyboard::Delete:
+        return ImGuiKey_Delete;
+    case sf::Keyboard::Backspace:
+        return ImGuiKey_Backspace;
+    case sf::Keyboard::Space:
+        return ImGuiKey_Space;
+    case sf::Keyboard::Enter:
+        return ImGuiKey_Enter;
+    case sf::Keyboard::Escape:
+        return ImGuiKey_Escape;
+    case sf::Keyboard::Quote:
+        return ImGuiKey_Apostrophe;
+    case sf::Keyboard::Comma:
+        return ImGuiKey_Comma;
+    case sf::Keyboard::Hyphen:
+        return ImGuiKey_Minus;
+    case sf::Keyboard::Period:
+        return ImGuiKey_Period;
+    case sf::Keyboard::Slash:
+        return ImGuiKey_Slash;
+    case sf::Keyboard::Semicolon:
+        return ImGuiKey_Semicolon;
+    case sf::Keyboard::Equal:
+        return ImGuiKey_Equal;
+    case sf::Keyboard::LBracket:
+        return ImGuiKey_LeftBracket;
+    case sf::Keyboard::Backslash:
+        return ImGuiKey_Backslash;
+    case sf::Keyboard::RBracket:
+        return ImGuiKey_RightBracket;
+    case sf::Keyboard::Tilde:
+        return ImGuiKey_GraveAccent;
+    // case : return ImGuiKey_CapsLock;
+    // case : return ImGuiKey_ScrollLock;
+    // case : return ImGuiKey_NumLock;
+    // case : return ImGuiKey_PrintScreen;
+    case sf::Keyboard::Pause:
+        return ImGuiKey_Pause;
+    case sf::Keyboard::Numpad0:
+        return ImGuiKey_Keypad0;
+    case sf::Keyboard::Numpad1:
+        return ImGuiKey_Keypad1;
+    case sf::Keyboard::Numpad2:
+        return ImGuiKey_Keypad2;
+    case sf::Keyboard::Numpad3:
+        return ImGuiKey_Keypad3;
+    case sf::Keyboard::Numpad4:
+        return ImGuiKey_Keypad4;
+    case sf::Keyboard::Numpad5:
+        return ImGuiKey_Keypad5;
+    case sf::Keyboard::Numpad6:
+        return ImGuiKey_Keypad6;
+    case sf::Keyboard::Numpad7:
+        return ImGuiKey_Keypad7;
+    case sf::Keyboard::Numpad8:
+        return ImGuiKey_Keypad8;
+    case sf::Keyboard::Numpad9:
+        return ImGuiKey_Keypad9;
+    // case : return ImGuiKey_KeypadDecimal;
+    case sf::Keyboard::Divide:
+        return ImGuiKey_KeypadDivide;
+    case sf::Keyboard::Multiply:
+        return ImGuiKey_KeypadMultiply;
+    case sf::Keyboard::Subtract:
+        return ImGuiKey_KeypadSubtract;
+    case sf::Keyboard::Add:
+        return ImGuiKey_KeypadAdd;
+    // case : return ImGuiKey_KeypadEnter;
+    // case : return ImGuiKey_KeypadEqual;
+    case sf::Keyboard::LControl:
+        return ImGuiKey_LeftCtrl;
+    case sf::Keyboard::LShift:
+        return ImGuiKey_LeftShift;
+    case sf::Keyboard::LAlt:
+        return ImGuiKey_LeftAlt;
+    case sf::Keyboard::LSystem:
+        return ImGuiKey_LeftSuper;
+    case sf::Keyboard::RControl:
+        return ImGuiKey_RightCtrl;
+    case sf::Keyboard::RShift:
+        return ImGuiKey_RightShift;
+    case sf::Keyboard::RAlt:
+        return ImGuiKey_RightAlt;
+    case sf::Keyboard::RSystem:
+        return ImGuiKey_RightSuper;
+    case sf::Keyboard::Menu:
+        return ImGuiKey_Menu;
+    case sf::Keyboard::Num0:
+        return ImGuiKey_0;
+    case sf::Keyboard::Num1:
+        return ImGuiKey_1;
+    case sf::Keyboard::Num2:
+        return ImGuiKey_2;
+    case sf::Keyboard::Num3:
+        return ImGuiKey_3;
+    case sf::Keyboard::Num4:
+        return ImGuiKey_4;
+    case sf::Keyboard::Num5:
+        return ImGuiKey_5;
+    case sf::Keyboard::Num6:
+        return ImGuiKey_6;
+    case sf::Keyboard::Num7:
+        return ImGuiKey_7;
+    case sf::Keyboard::Num8:
+        return ImGuiKey_8;
+    case sf::Keyboard::Num9:
+        return ImGuiKey_9;
+    case sf::Keyboard::A:
+        return ImGuiKey_A;
+    case sf::Keyboard::B:
+        return ImGuiKey_B;
+    case sf::Keyboard::C:
+        return ImGuiKey_C;
+    case sf::Keyboard::D:
+        return ImGuiKey_D;
+    case sf::Keyboard::E:
+        return ImGuiKey_E;
+    case sf::Keyboard::F:
+        return ImGuiKey_F;
+    case sf::Keyboard::G:
+        return ImGuiKey_G;
+    case sf::Keyboard::H:
+        return ImGuiKey_H;
+    case sf::Keyboard::I:
+        return ImGuiKey_I;
+    case sf::Keyboard::J:
+        return ImGuiKey_J;
+    case sf::Keyboard::K:
+        return ImGuiKey_K;
+    case sf::Keyboard::L:
+        return ImGuiKey_L;
+    case sf::Keyboard::M:
+        return ImGuiKey_M;
+    case sf::Keyboard::N:
+        return ImGuiKey_N;
+    case sf::Keyboard::O:
+        return ImGuiKey_O;
+    case sf::Keyboard::P:
+        return ImGuiKey_P;
+    case sf::Keyboard::Q:
+        return ImGuiKey_Q;
+    case sf::Keyboard::R:
+        return ImGuiKey_R;
+    case sf::Keyboard::S:
+        return ImGuiKey_S;
+    case sf::Keyboard::T:
+        return ImGuiKey_T;
+    case sf::Keyboard::U:
+        return ImGuiKey_U;
+    case sf::Keyboard::V:
+        return ImGuiKey_V;
+    case sf::Keyboard::W:
+        return ImGuiKey_W;
+    case sf::Keyboard::X:
+        return ImGuiKey_X;
+    case sf::Keyboard::Y:
+        return ImGuiKey_Y;
+    case sf::Keyboard::Z:
+        return ImGuiKey_Z;
+    case sf::Keyboard::F1:
+        return ImGuiKey_F1;
+    case sf::Keyboard::F2:
+        return ImGuiKey_F2;
+    case sf::Keyboard::F3:
+        return ImGuiKey_F3;
+    case sf::Keyboard::F4:
+        return ImGuiKey_F4;
+    case sf::Keyboard::F5:
+        return ImGuiKey_F5;
+    case sf::Keyboard::F6:
+        return ImGuiKey_F6;
+    case sf::Keyboard::F7:
+        return ImGuiKey_F7;
+    case sf::Keyboard::F8:
+        return ImGuiKey_F8;
+    case sf::Keyboard::F9:
+        return ImGuiKey_F9;
+    case sf::Keyboard::F10:
+        return ImGuiKey_F10;
+    case sf::Keyboard::F11:
+        return ImGuiKey_F11;
+    case sf::Keyboard::F12:
+        return ImGuiKey_F12;
+    default:
+        break;
+    }
+    return ImGuiKey_None;
+}
+
+ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code) {
+    switch (code) {
+    case sf::Keyboard::LControl:
+    case sf::Keyboard::RControl:
+        return ImGuiKey_ModCtrl;
+    case sf::Keyboard::LShift:
+    case sf::Keyboard::RShift:
+        return ImGuiKey_ModShift;
+    case sf::Keyboard::LAlt:
+    case sf::Keyboard::RAlt:
+        return ImGuiKey_ModAlt;
+    case sf::Keyboard::LSystem:
+    case sf::Keyboard::RSystem:
+        return ImGuiKey_ModSuper;
+    default:
+        break;
+    }
+    return ImGuiKey_None;
 }
 
 } // end of anonymous namespace
