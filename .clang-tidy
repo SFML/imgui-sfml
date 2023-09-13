@@ -14,7 +14,6 @@ Checks: >
   -cppcoreguidelines-avoid-c-arrays,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-avoid-non-const-global-variables,
-  -cppcoreguidelines-init-variables,
   -cppcoreguidelines-owning-memory,
   -cppcoreguidelines-prefer-member-initializer,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,

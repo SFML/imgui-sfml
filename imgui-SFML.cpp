@@ -544,9 +544,9 @@ bool UpdateFontTexture() {
     assert(s_currWindowCtx);
 
     ImGuiIO& io = ImGui::GetIO();
-    unsigned char* pixels;
-    int width;
-    int height;
+    unsigned char* pixels = nullptr;
+    int width = 0;
+    int height = 0;
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
@@ -608,7 +608,7 @@ void SetJoystickMapping(int key, unsigned int joystickButton) {
     assert(s_currWindowCtx);
     // This function now expects ImGuiKey_* values.
     // For partial backwards compatibility, also expect some ImGuiNavInput_* values.
-    ImGuiKey finalKey;
+    ImGuiKey finalKey = 0;
     switch (key) {
     case ImGuiNavInput_Activate:
         finalKey = ImGuiKey_GamepadFaceDown;
@@ -852,7 +852,7 @@ ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
     return textureID;
 }
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID) {
-    GLuint glTextureHandle;
+    GLuint glTextureHandle = 0;
     std::memcpy(&glTextureHandle, &textureID, sizeof(GLuint));
     return glTextureHandle;
 }
@@ -921,7 +921,7 @@ void RenderDrawLists(ImDrawData* draw_data) {
 
     // Backup GL state
     // Backup GL state
-    GLint last_texture;
+    GLint last_texture = 0;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     GLint last_polygon_mode[2];
     glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
@@ -929,9 +929,9 @@ void RenderDrawLists(ImDrawData* draw_data) {
     glGetIntegerv(GL_VIEWPORT, last_viewport);
     GLint last_scissor_box[4];
     glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
-    GLint last_shade_model;
+    GLint last_shade_model = 0;
     glGetIntegerv(GL_SHADE_MODEL, &last_shade_model);
-    GLint last_tex_env_mode;
+    GLint last_tex_env_mode = 0;
     glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &last_tex_env_mode);
 
 #ifdef GL_VERSION_ES_CL_1_1
