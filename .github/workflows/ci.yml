@@ -80,6 +80,7 @@ jobs:
         cmake -S imgui-sfml -B imgui-sfml/build \
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DCMAKE_CXX_EXTENSIONS=OFF \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
           -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
@@ -91,6 +92,10 @@ jobs:
 
     - name: Build ImGui-SFML
       run: cmake --build imgui-sfml/build --config ${{matrix.type.name}} --target install
+
+    - name: Run clang-tidy
+      if: matrix.platform.name == 'Linux Clang' && matrix.config.name == 'Static' && matrix.type.name == 'Debug'
+      run: cmake --build imgui-sfml/build --target tidy
 
   clang-format:
     runs-on: ubuntu-22.04

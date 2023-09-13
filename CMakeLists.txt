@@ -147,3 +147,8 @@ option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui-SFML examples" OFF)
 if(IMGUI_SFML_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
+
+add_custom_target(tidy
+  COMMAND run-clang-tidy -quiet -p ${CMAKE_BINARY_DIR} *.cpp examples/**/*.cpp
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
