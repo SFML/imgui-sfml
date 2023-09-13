@@ -17,7 +17,7 @@ Dependencies
 -----
 
 * [SFML](https://github.com/SFML/SFML) >= 2.5.0
-* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.80
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.87
 
 Contributing
 -----
