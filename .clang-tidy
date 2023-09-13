@@ -25,7 +25,6 @@ Checks: >
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
   -performance-no-int-to-ptr,
-  -readability-avoid-const-params-in-decls,
   -readability-braces-around-statements,
   -readability-function-cognitive-complexity,
   -readability-identifier-length,
