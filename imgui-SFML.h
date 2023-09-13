@@ -28,8 +28,6 @@ namespace SFML {
                                        bool loadDefaultFont = true);
 
 IMGUI_SFML_API void SetCurrentWindow(const sf::Window& window);
-IMGUI_SFML_API void ProcessEvent(const sf::Event& event); // DEPRECATED: use (window,
-                                                          // event) overload
 IMGUI_SFML_API void ProcessEvent(const sf::Window& window, const sf::Event& event);
 
 IMGUI_SFML_API void Update(sf::RenderWindow& window, sf::Time dt);

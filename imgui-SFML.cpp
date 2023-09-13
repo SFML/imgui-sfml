@@ -279,10 +279,6 @@ void SetCurrentWindow(const sf::Window& window) {
 
 void ProcessEvent(const sf::Window& window, const sf::Event& event) {
     SetCurrentWindow(window);
-    ProcessEvent(event);
-}
-
-void ProcessEvent(const sf::Event& event) {
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
     ImGuiIO& io = ImGui::GetIO();
 
