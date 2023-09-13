@@ -279,7 +279,14 @@ void SetCurrentWindow(const sf::Window& window) {
 
 void ProcessEvent(const sf::Window& window, const sf::Event& event) {
     SetCurrentWindow(window);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
     ProcessEvent(event);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 void ProcessEvent(const sf::Event& event) {
