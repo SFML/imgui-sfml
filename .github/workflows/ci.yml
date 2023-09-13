@@ -80,6 +80,7 @@ jobs:
         cmake -S imgui-sfml -B imgui-sfml/build \
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DCMAKE_CXX_EXTENSIONS=OFF \
+          -DCMAKE_CXX_STANDARD=11 \
           -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
           -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
