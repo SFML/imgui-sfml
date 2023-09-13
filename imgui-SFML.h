@@ -44,7 +44,7 @@ IMGUI_SFML_API void Update(sf::Window& window, sf::RenderTarget& target, sf::Tim
 IMGUI_SFML_API void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
                            sf::Time dt);
 
-IMGUI_SFML_API void Render(sf::RenderWindow& target);
+IMGUI_SFML_API void Render(sf::RenderWindow& window);
 IMGUI_SFML_API void Render(sf::RenderTarget& target);
 IMGUI_SFML_API void Render();
 
