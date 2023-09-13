@@ -82,7 +82,7 @@ endif()
 # Add compiler warnings
 if(IMGUI_SFML_ENABLE_WARNINGS)
   if(MSVC)
-    set(IMGUI_SFML_WARNINGS /WX /W3)
+    set(IMGUI_SFML_WARNINGS /WX /W4 /permissive-)
   elseif(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
     set(IMGUI_SFML_WARNINGS -Werror -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion)
   endif()
@@ -137,13 +137,12 @@ if(NOT PROJECT_IS_TOP_LEVEL)
   return()
 endif()
 
-option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui_SFML examples" OFF)
+option(IMGUI_SFML_BUILD_EXAMPLES "Build ImGui-SFML examples" OFF)
 if(IMGUI_SFML_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-option(IMGUI_SFML_BUILD_TESTING "Build ImGui_SFML tests" OFF)
-if(IMGUI_SFML_BUILD_TESTING)
-  enable_testing()
-  add_subdirectory(tests)
-endif()
+add_custom_target(tidy
+  COMMAND run-clang-tidy -quiet -p ${CMAKE_BINARY_DIR} *.cpp examples/**/*.cpp
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
