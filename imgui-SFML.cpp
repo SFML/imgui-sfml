@@ -545,7 +545,8 @@ bool UpdateFontTexture() {
 
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
-    int width, height;
+    int width;
+    int height;
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
