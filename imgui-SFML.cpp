@@ -588,7 +588,7 @@ void SetJoystickMapping(int key, unsigned int joystickButton) {
     assert(s_currWindowCtx);
     // This function now expects ImGuiKey_* values.
     // For partial backwards compatibility, also expect some ImGuiNavInput_* values.
-    ImGuiKey finalKey = 0;
+    ImGuiKey finalKey{};
     switch (key) {
     case ImGuiNavInput_Activate:
         finalKey = ImGuiKey_GamepadFaceDown;
