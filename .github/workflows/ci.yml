@@ -24,7 +24,7 @@ jobs:
         - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
         - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS Xcode,     os: macos-12,     flags: -GXcode }
+        - { name: macOS Clang,     os: macos-12,     flags: -GNinja }
         config:
         - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON }
         - { name: Static, flags: -DBUILD_SHARED_LIBS=OFF }
