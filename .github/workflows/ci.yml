@@ -11,13 +11,14 @@ concurrency:
   group: environment-${{github.ref}}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     name: ${{matrix.platform.name}} ${{matrix.config.name}} ${{matrix.type.name}}
     runs-on: ${{matrix.platform.os}}
-    defaults:
-      run:
-        shell: bash
 
     strategy:
       fail-fast: false
@@ -26,12 +27,11 @@ jobs:
         - { name: Windows MSVC,    os: windows-2022 }
         - { name: Windows ClangCL, os: windows-2022, flags: -T ClangCL }
         - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: Windows MinGW,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ }
         - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
         - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS Xcode,     os: macos-12,     flags: -GXcode }
+        - { name: macOS Clang,     os: macos-12,     flags: -GNinja -DIMGUI_SFML_BUILD_TESTING=OFF }
         config:
-        - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON }
+        - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON -DIMGUI_SFML_BUILD_TESTING=OFF }
         - { name: Static, flags: -DBUILD_SHARED_LIBS=OFF }
         type:
         - { name: Release }
@@ -92,6 +92,7 @@ jobs:
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
           -DIMGUI_SFML_BUILD_EXAMPLES=ON \
+          -DIMGUI_SFML_BUILD_TESTING=ON \
           -DIMGUI_SFML_ENABLE_WARNINGS=ON \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
@@ -102,6 +103,9 @@ jobs:
     - name: Run clang-tidy
       if: matrix.platform.name == 'Linux Clang' && matrix.config.name == 'Static' && matrix.type.name == 'Debug'
       run: cmake --build imgui-sfml/build --target tidy
+
+    - name: Test ImGui-SFML
+      run: ctest --test-dir imgui-sfml/build --config ${{matrix.type.name}} --output-on-failure
 
   clang-format:
     runs-on: ubuntu-22.04
