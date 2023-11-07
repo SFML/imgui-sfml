@@ -38,15 +38,17 @@ jobs:
         - { name: Debug }
 
     steps:
+    - name: Get CMake and Ninja
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: ${{ runner.os == 'Windows' && '3.24' || '3.22' }}
+        ninjaVersion: latest
+
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
       run: |
         sudo apt update
-        sudo apt install ninja-build llvm xorg-dev libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev
-
-    - name: Install macOS Tools
-      if: runner.os == 'macOS'
-      run: brew install ninja
+        sudo apt install llvm xorg-dev libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev
 
     - name: Checkout ImGui
       uses: actions/checkout@v3
