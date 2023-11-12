@@ -295,7 +295,8 @@ void ProcessEvent(const sf::Event& event) {
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
     ImGuiIO& io = ImGui::GetIO();
 
-    if (s_currWindowCtx->windowHasFocus) {
+    //if (s_currWindowCtx->windowHasFocus)
+    {
         switch (event.type) {
         case sf::Event::Resized:
             io.DisplaySize =
@@ -306,6 +307,11 @@ void ProcessEvent(const sf::Event& event) {
             break;
         case sf::Event::MouseLeft:
             s_currWindowCtx->windowIsHovered = false;
+            break;
+            case sf::Event::MouseMoved:
+                io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
+                                    static_cast<float>(event.mouseMove.y));
+            s_currWindowCtx->mouseMoved = true;
             break;
         }
     }
@@ -323,6 +329,7 @@ void ProcessEvent(const sf::Event& event) {
                 io.MouseWheelH += event.mouseWheelScroll.delta;
             }
             break;
+
         }
     }
     if (s_currWindowCtx->windowHasFocus)
@@ -330,11 +337,6 @@ void ProcessEvent(const sf::Event& event) {
         ImGuiIO& io = ImGui::GetIO();
 
         switch (event.type) {
-        case sf::Event::MouseMoved:
-            io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
-                                static_cast<float>(event.mouseMove.y));
-            s_currWindowCtx->mouseMoved = true;
-            break;
         case sf::Event::MouseButtonPressed: // fall-through
         case sf::Event::MouseButtonReleased: {
             const int button = event.mouseButton.button;
