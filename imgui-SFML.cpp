@@ -177,11 +177,9 @@ struct WindowContext {
 
     bool windowHasFocus;
     bool mouseMoved{false};
-    bool mousePressed[3] = {false};
     ImGuiMouseCursor lastCursor{ImGuiMouseCursor_COUNT};
     bool windowIsHovered = {false};
 
-    bool touchDown[3] = {false};
     sf::Vector2i touchPos;
 
     unsigned int joystickId{getConnectedJoystickId()};
@@ -340,11 +338,13 @@ void ProcessEvent(const sf::Event& event) {
         case sf::Event::MouseButtonPressed: // fall-through
         case sf::Event::MouseButtonReleased: {
             const int button = event.mouseButton.button;
-            if (button >= 0 && button < 3) {
-                if (event.type == sf::Event::MouseButtonPressed) {
-                    s_currWindowCtx->mousePressed[event.mouseButton.button] = true;
+            if (button >= 0 && button < 3)
+                {
+                if (event.type == sf::Event::MouseButtonPressed)
+                {
                     io.AddMouseButtonEvent(button, true);
-                } else {
+                } else
+                {
                     io.AddMouseButtonEvent(button, false);
                 }
             }
@@ -352,10 +352,6 @@ void ProcessEvent(const sf::Event& event) {
         case sf::Event::TouchBegan: // fall-through
         case sf::Event::TouchEnded: {
             s_currWindowCtx->mouseMoved = false;
-            const unsigned int button = event.touch.finger;
-            if (event.type == sf::Event::TouchBegan && button < 3) {
-                s_currWindowCtx->touchDown[event.touch.finger] = true;
-            }
         } break;
         case sf::Event::KeyPressed: // fall-through
         case sf::Event::KeyReleased: {
@@ -455,13 +451,6 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
             sf::Mouse::setPosition(newMousePos);
         } else {
             io.MousePos = ImVec2(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-        }
-        for (unsigned int i = 0; i < 3; i++) {
-            io.MouseDown[i] = s_currWindowCtx->touchDown[i] || sf::Touch::isDown(i) ||
-                              s_currWindowCtx->mousePressed[i] ||
-                              sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
-            s_currWindowCtx->mousePressed[i] = false;
-            s_currWindowCtx->touchDown[i] = false;
         }
     }
 
