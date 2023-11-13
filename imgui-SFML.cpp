@@ -328,6 +328,7 @@ void ProcessEvent(const sf::Event& event) {
 
         }
     }
+    
     if (s_currWindowCtx->windowHasFocus)
     {
         ImGuiIO& io = ImGui::GetIO();
