@@ -263,7 +263,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     }
 
     s_currWindowCtx->windowHasFocus = window.hasFocus();
-    // TODO : initialize windowIsHovered
+    // TODO : initialize s_currWindowCtx->windowIsHovered
     return true;
 }
 
