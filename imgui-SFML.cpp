@@ -307,7 +307,7 @@ void ProcessEvent(const sf::Event& event) {
         s_currWindowCtx->windowIsHovered = false;
         break;
     case sf::Event::MouseMoved:
-		io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
+        io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
                             static_cast<float>(event.mouseMove.y));
         s_currWindowCtx->mouseMoved = true;
         break;
@@ -316,7 +316,6 @@ void ProcessEvent(const sf::Event& event) {
     }
 
     if (s_currWindowCtx->windowIsHovered) {
-
         switch (event.type) {
         case sf::Event::MouseWheelScrolled:
             if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel ||
