@@ -307,7 +307,8 @@ void ProcessEvent(const sf::Event& event) {
         s_currWindowCtx->windowIsHovered = false;
         break;
     case sf::Event::MouseMoved:
-        io.AddMousePosEvent(static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y));
+		io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
+                            static_cast<float>(event.mouseMove.y));
         s_currWindowCtx->mouseMoved = true;
         break;
     default:
@@ -325,8 +326,8 @@ void ProcessEvent(const sf::Event& event) {
                 io.MouseWheelH += event.mouseWheelScroll.delta;
             }
             break;
-            default:
-                break;
+        default:
+            break;
         }
     }
 
@@ -338,8 +339,7 @@ void ProcessEvent(const sf::Event& event) {
             if (button >= 0 && button < 3) {
                 if (event.type == sf::Event::MouseButtonPressed) {
                     io.AddMouseButtonEvent(button, true);
-                } else
-                {
+                } else {
                     io.AddMouseButtonEvent(button, false);
                 }
             }
