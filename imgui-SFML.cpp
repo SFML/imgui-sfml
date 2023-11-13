@@ -314,7 +314,6 @@ void ProcessEvent(const sf::Event& event) {
     }
     
     if (s_currWindowCtx->windowIsHovered) {
-        ImGuiIO& io = ImGui::GetIO();
 
         switch (event.type) {
         case sf::Event::MouseWheelScrolled:
@@ -331,8 +330,6 @@ void ProcessEvent(const sf::Event& event) {
 
     if (s_currWindowCtx->windowHasFocus)
     {
-        ImGuiIO& io = ImGui::GetIO();
-
         switch (event.type) {
         case sf::Event::MouseButtonPressed: // fall-through
         case sf::Event::MouseButtonReleased: {
