@@ -306,13 +306,12 @@ void ProcessEvent(const sf::Event& event) {
     case sf::Event::MouseLeft:
         s_currWindowCtx->windowIsHovered = false;
         break;
-        case sf::Event::MouseMoved:
-            io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
-                                static_cast<float>(event.mouseMove.y));
+    case sf::Event::MouseMoved:
+        io.AddMousePosEvent(static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y));
         s_currWindowCtx->mouseMoved = true;
         break;
-        default:
-            break;
+    default:
+        break;
     }
 
     if (s_currWindowCtx->windowIsHovered) {
@@ -337,8 +336,7 @@ void ProcessEvent(const sf::Event& event) {
         case sf::Event::MouseButtonReleased: {
             const int button = event.mouseButton.button;
             if (button >= 0 && button < 3) {
-                if (event.type == sf::Event::MouseButtonPressed)
-                {
+                if (event.type == sf::Event::MouseButtonPressed) {
                     io.AddMouseButtonEvent(button, true);
                 } else
                 {
@@ -440,8 +438,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
-    if (s_currWindowCtx->windowIsHovered ||
-        s_currWindowCtx->windowHasFocus) {
+    if (s_currWindowCtx->windowIsHovered || s_currWindowCtx->windowHasFocus) {
         if (io.WantSetMousePos) {
             const sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x),
                                            static_cast<int>(io.MousePos.y));
