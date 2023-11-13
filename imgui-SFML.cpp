@@ -311,8 +311,10 @@ void ProcessEvent(const sf::Event& event) {
                                 static_cast<float>(event.mouseMove.y));
         s_currWindowCtx->mouseMoved = true;
         break;
+        default:
+            break;
     }
-    
+
     if (s_currWindowCtx->windowIsHovered) {
 
         switch (event.type) {
@@ -324,18 +326,17 @@ void ProcessEvent(const sf::Event& event) {
                 io.MouseWheelH += event.mouseWheelScroll.delta;
             }
             break;
-
+            default:
+                break;
         }
     }
 
-    if (s_currWindowCtx->windowHasFocus)
-    {
+    if (s_currWindowCtx->windowHasFocus) {
         switch (event.type) {
         case sf::Event::MouseButtonPressed: // fall-through
         case sf::Event::MouseButtonReleased: {
             const int button = event.mouseButton.button;
-            if (button >= 0 && button < 3)
-                {
+            if (button >= 0 && button < 3) {
                 if (event.type == sf::Event::MouseButtonPressed)
                 {
                     io.AddMouseButtonEvent(button, true);
@@ -440,8 +441,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     io.DeltaTime = dt.asSeconds();
 
     if (s_currWindowCtx->windowIsHovered ||
-        s_currWindowCtx->windowHasFocus)
-    {
+        s_currWindowCtx->windowHasFocus) {
         if (io.WantSetMousePos) {
             const sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x),
                                            static_cast<int>(io.MousePos.y));
