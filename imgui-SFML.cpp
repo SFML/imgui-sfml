@@ -295,27 +295,23 @@ void ProcessEvent(const sf::Event& event) {
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
     ImGuiIO& io = ImGui::GetIO();
 
-    //if (s_currWindowCtx->windowHasFocus)
-    {
-        switch (event.type) {
-        case sf::Event::Resized:
-            io.DisplaySize =
-                ImVec2(static_cast<float>(event.size.width), static_cast<float>(event.size.height));
-            break;
-        case sf::Event::MouseEntered:
-            s_currWindowCtx->windowIsHovered = true;
-            break;
-        case sf::Event::MouseLeft:
-            s_currWindowCtx->windowIsHovered = false;
-            break;
-            case sf::Event::MouseMoved:
-                io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
-                                    static_cast<float>(event.mouseMove.y));
-            s_currWindowCtx->mouseMoved = true;
-            break;
-        }
+    switch (event.type) {
+    case sf::Event::Resized:
+        io.DisplaySize =
+            ImVec2(static_cast<float>(event.size.width), static_cast<float>(event.size.height));
+        break;
+    case sf::Event::MouseEntered:
+        s_currWindowCtx->windowIsHovered = true;
+        break;
+    case sf::Event::MouseLeft:
+        s_currWindowCtx->windowIsHovered = false;
+        break;
+        case sf::Event::MouseMoved:
+            io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
+                                static_cast<float>(event.mouseMove.y));
+        s_currWindowCtx->mouseMoved = true;
+        break;
     }
-    
     
     if (s_currWindowCtx->windowIsHovered) {
         ImGuiIO& io = ImGui::GetIO();
