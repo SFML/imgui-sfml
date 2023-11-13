@@ -328,7 +328,7 @@ void ProcessEvent(const sf::Event& event) {
 
         }
     }
-    
+
     if (s_currWindowCtx->windowHasFocus)
     {
         ImGuiIO& io = ImGui::GetIO();
@@ -442,7 +442,8 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
     io.DeltaTime = dt.asSeconds();
 
-    if (s_currWindowCtx->windowIsHovered || s_currWindowCtx->windowHasFocus)
+    if (s_currWindowCtx->windowIsHovered ||
+        s_currWindowCtx->windowHasFocus)
     {
         if (io.WantSetMousePos) {
             const sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x),
