@@ -113,7 +113,8 @@ IMGUI_SFML_API bool ImageButton(const sf::Texture& texture, const sf::Vector2f& 
                                 int framePadding = -1,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
-IMGUI_SFML_API bool ImageButton(const char *id, const sf::Texture& texture, const sf::Vector2f& size,
+IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
+                                const sf::Vector2f& size,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
 
@@ -125,7 +126,8 @@ IMGUI_SFML_API bool ImageButton(const sf::RenderTexture& texture, const sf::Vect
                                 int framePadding = -1,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
-IMGUI_SFML_API bool ImageButton(const char *id, const sf::RenderTexture& texture, const sf::Vector2f& size,
+IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture,
+                                const sf::Vector2f& size,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
 

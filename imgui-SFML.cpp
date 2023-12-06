@@ -740,8 +740,8 @@ bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int
 }
 
 IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
-                                const sf::Vector2f& size,
-                                const sf::Color& bgColor, const sf::Color& tintColor) {
+                                const sf::Vector2f& size, const sf::Color& bgColor,
+                                const sf::Color& tintColor) {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
     return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
@@ -767,8 +767,8 @@ bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size, con
 }
 
 IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture,
-                                const sf::Vector2f& size,
-                                const sf::Color& bgColor, const sf::Color& tintColor) {
+                                const sf::Vector2f& size, const sf::Color& bgColor,
+                                const sf::Color& tintColor) {
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
 
@@ -807,8 +807,7 @@ bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int f
 }
 
 IMGUI_SFML_API bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
-                                const sf::Color& bgColor,
-                                const sf::Color& tintColor) {
+                                const sf::Color& bgColor, const sf::Color& tintColor) {
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
@@ -822,8 +821,8 @@ IMGUI_SFML_API bool ImageButton(const char* id, const sf::Sprite& sprite, const 
                      (textureRect.top + textureRect.height) / textureSize.y);
 
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), uv0, uv1,
-                              toImColor(bgColor), toImColor(tintColor));
+    return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(bgColor),
+                              toImColor(tintColor));
 }
 
 /////////////// Draw_list Overloads
