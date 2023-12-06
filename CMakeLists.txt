@@ -32,13 +32,14 @@ endif()
 # ImGui does not provide native support for CMakeLists, workaround for now to have
 # users specify IMGUI_DIR. Waiting for this PR to get merged...
 #    https://github.com/ocornut/imgui/pull/1713
+set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/imgui")
 if(NOT IMGUI_DIR)
   set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
   message(FATAL_ERROR "ImGui directory not found. Set IMGUI_DIR to imgui's top-level path (containing 'imgui.h' and other files).\n")
 endif()
 
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
-find_package(ImGui 1.87 REQUIRED)
+find_package(ImGui 1.89 REQUIRED)
 
 # These headers will be installed alongside ImGui-SFML
 set(IMGUI_PUBLIC_HEADERS
