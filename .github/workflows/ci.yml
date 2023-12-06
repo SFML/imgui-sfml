@@ -50,7 +50,7 @@ jobs:
       with:
         repository: ocornut/imgui
         path: imgui
-        ref: v1.87
+        ref: v1.89
 
     - name: Checkout SFML
       uses: actions/checkout@v3
