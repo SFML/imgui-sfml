@@ -726,19 +726,6 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 
 /////////////// Image Button Overloads for sf::Texture
 
-bool ImageButton(const sf::Texture& texture, const int framePadding, const sf::Color& bgColor,
-                 const sf::Color& tintColor) {
-    return ImageButton(texture, sf::Vector2f(texture.getSize()), framePadding, bgColor, tintColor);
-}
-
-bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size, const int framePadding,
-                 const sf::Color& bgColor, const sf::Color& tintColor) {
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-
-    return ImGui::ImageButton(textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
-                              framePadding, toImColor(bgColor), toImColor(tintColor));
-}
-
 IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
                                 const sf::Vector2f& size, const sf::Color& bgColor,
                                 const sf::Color& tintColor) {
@@ -749,22 +736,6 @@ IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
 }
 
 /////////////// Image Button Overloads for sf::RenderTexture
-
-bool ImageButton(const sf::RenderTexture& texture, const int framePadding, const sf::Color& bgColor,
-                 const sf::Color& tintColor) {
-    return ImageButton(texture, sf::Vector2f(texture.getSize()), framePadding, bgColor, tintColor);
-}
-
-bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size, const int framePadding,
-                 const sf::Color& bgColor, const sf::Color& tintColor) {
-    ImTextureID textureID =
-        convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
-
-    return ImGui::ImageButton(textureID, ImVec2(size.x, size.y), ImVec2(0, 1),
-                              ImVec2(1, 0), // flipped vertically, because textures in
-                                            // sf::RenderTexture are stored this way
-                              framePadding, toImColor(bgColor), toImColor(tintColor));
-}
 
 IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture,
                                 const sf::Vector2f& size, const sf::Color& bgColor,
@@ -779,32 +750,6 @@ IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture
 }
 
 /////////////// Image Button Overloads for sf::Sprite
-
-bool ImageButton(const sf::Sprite& sprite, const int framePadding, const sf::Color& bgColor,
-                 const sf::Color& tintColor) {
-    const sf::FloatRect spriteSize = sprite.getGlobalBounds();
-    return ImageButton(sprite, sf::Vector2f(spriteSize.width, spriteSize.height), framePadding,
-                       bgColor, tintColor);
-}
-
-bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size, const int framePadding,
-                 const sf::Color& bgColor, const sf::Color& tintColor) {
-    const sf::Texture* texturePtr = sprite.getTexture();
-    // sprite without texture cannot be drawn
-    if (!texturePtr) {
-        return false;
-    }
-    const sf::Texture& texture = *texturePtr;
-    const sf::Vector2f textureSize(texture.getSize());
-    const sf::FloatRect textureRect(sprite.getTextureRect());
-    const ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
-    const ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
-                     (textureRect.top + textureRect.height) / textureSize.y);
-
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    return ImGui::ImageButton(textureID, ImVec2(size.x, size.y), uv0, uv1, framePadding,
-                              toImColor(bgColor), toImColor(tintColor));
-}
 
 IMGUI_SFML_API bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
                                 const sf::Color& bgColor, const sf::Color& tintColor) {
