@@ -726,9 +726,8 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 
 /////////////// Image Button Overloads for sf::Texture
 
-bool ImageButton(const char* id, const sf::Texture& texture,
-                                const sf::Vector2f& size, const sf::Color& bgColor,
-                                const sf::Color& tintColor) {
+bool ImageButton(const char* id, const sf::Texture& texture, const sf::Vector2f& size,
+                 const sf::Color& bgColor, const sf::Color& tintColor) {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
     return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
@@ -737,9 +736,8 @@ bool ImageButton(const char* id, const sf::Texture& texture,
 
 /////////////// Image Button Overloads for sf::RenderTexture
 
-bool ImageButton(const char* id, const sf::RenderTexture& texture,
-                                const sf::Vector2f& size, const sf::Color& bgColor,
-                                const sf::Color& tintColor) {
+bool ImageButton(const char* id, const sf::RenderTexture& texture, const sf::Vector2f& size,
+                 const sf::Color& bgColor, const sf::Color& tintColor) {
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
 
@@ -752,7 +750,7 @@ bool ImageButton(const char* id, const sf::RenderTexture& texture,
 /////////////// Image Button Overloads for sf::Sprite
 
 bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
-                                const sf::Color& bgColor, const sf::Color& tintColor) {
+                 const sf::Color& bgColor, const sf::Color& tintColor) {
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
     if (!texturePtr) {
