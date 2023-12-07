@@ -90,29 +90,19 @@ IMGUI_SFML_API void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
                           const sf::Color& borderColor = sf::Color::Transparent);
 
 // ImageButton overloads for sf::Texture
-IMGUI_SFML_API bool ImageButton(const sf::Texture& texture, int framePadding = -1,
-                                const sf::Color& bgColor = sf::Color::Transparent,
-                                const sf::Color& tintColor = sf::Color::White);
-IMGUI_SFML_API bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size,
-                                int framePadding = -1,
+IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
+                                const sf::Vector2f& size,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
 
 // ImageButton overloads for sf::RenderTexture
-IMGUI_SFML_API bool ImageButton(const sf::RenderTexture& texture, int framePadding = -1,
-                                const sf::Color& bgColor = sf::Color::Transparent,
-                                const sf::Color& tintColor = sf::Color::White);
-IMGUI_SFML_API bool ImageButton(const sf::RenderTexture& texture, const sf::Vector2f& size,
-                                int framePadding = -1,
+IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture,
+                                const sf::Vector2f& size,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
 
 // ImageButton overloads for sf::Sprite
-IMGUI_SFML_API bool ImageButton(const sf::Sprite& sprite, int framePadding = -1,
-                                const sf::Color& bgColor = sf::Color::Transparent,
-                                const sf::Color& tintColor = sf::Color::White);
-IMGUI_SFML_API bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
-                                int framePadding = -1,
+IMGUI_SFML_API bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
                                 const sf::Color& bgColor = sf::Color::Transparent,
                                 const sf::Color& tintColor = sf::Color::White);
 

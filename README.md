@@ -17,7 +17,7 @@ Dependencies
 -----
 
 * [SFML](https://github.com/SFML/SFML) >= 3.0.0
-* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.87
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.89
 
 Contributing
 -----
@@ -259,7 +259,7 @@ Gamepad navigation requires more work, unless you have XInput gamepad, in which 
 
 ```cpp
 ImGuiIO& io = ImGui::GetIO();
-io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 ```
 By default, the first active joystick is used for navigation, but you can set joystick id explicitly like this:
 ```cpp
@@ -269,9 +269,16 @@ ImGui::SFML::SetActiveJoystickId(5);
 High DPI screens
 ----
 
-As SFML is not currently DPI aware, your GUI may show at the incorrect scale. This is particularly noticeable on Apple systems with Retina displays.
+As SFML is not currently DPI aware, your GUI may show at the incorrect scale. This is particularly noticeable on systems with "Retina" / "4K" / "UHD" displays.
 
-To fix this on macOS, you can create an app bundle (as opposed to just the exe) then modify the info.plist so that "High Resolution Capable" is set to "NO".
+To work around this on macOS, you can create an app bundle (as opposed to just the exe) then modify the info.plist so that "High Resolution Capable" is set to "NO".
+
+Another option to help ameliorate this, at least for getting started and for the common ImGui use-case of "developer/debug/building UI", is to explore `FontGlobalScale`:
+
+```cpp
+ImGuiIO& io = ImGui::GetIO();
+io.FontGlobalScale = 2.0; // or any other value hardcoded or loaded from your config logic
+```
 
 License
 ---
