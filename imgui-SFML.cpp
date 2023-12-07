@@ -726,7 +726,7 @@ void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& 
 
 /////////////// Image Button Overloads for sf::Texture
 
-IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
+bool ImageButton(const char* id, const sf::Texture& texture,
                                 const sf::Vector2f& size, const sf::Color& bgColor,
                                 const sf::Color& tintColor) {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
@@ -737,7 +737,7 @@ IMGUI_SFML_API bool ImageButton(const char* id, const sf::Texture& texture,
 
 /////////////// Image Button Overloads for sf::RenderTexture
 
-IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture,
+bool ImageButton(const char* id, const sf::RenderTexture& texture,
                                 const sf::Vector2f& size, const sf::Color& bgColor,
                                 const sf::Color& tintColor) {
     ImTextureID textureID =
@@ -751,7 +751,7 @@ IMGUI_SFML_API bool ImageButton(const char* id, const sf::RenderTexture& texture
 
 /////////////// Image Button Overloads for sf::Sprite
 
-IMGUI_SFML_API bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
+bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
                                 const sf::Color& bgColor, const sf::Color& tintColor) {
     const sf::Texture* texturePtr = sprite.getTexture();
     // sprite without texture cannot be drawn
