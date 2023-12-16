@@ -154,8 +154,8 @@ ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code);
 constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
 
 struct StickInfo {
-    sf::Joystick::Axis xAxis{sf::Joystick::X};
-    sf::Joystick::Axis yAxis{sf::Joystick::Y};
+    sf::Joystick::Axis xAxis{sf::Joystick::Axis::X};
+    sf::Joystick::Axis yAxis{sf::Joystick::Axis::Y};
 
     bool xInverted{false};
     bool yInverted{false};
@@ -164,7 +164,7 @@ struct StickInfo {
 };
 
 struct TriggerInfo {
-    sf::Joystick::Axis axis{sf::Joystick::Z};
+    sf::Joystick::Axis axis{sf::Joystick::Axis::Z};
     float threshold{0};
 };
 
@@ -248,14 +248,14 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.GetClipboardTextFn = getClipboardText;
 
     // load mouse cursors
-    loadMouseCursor(ImGuiMouseCursor_Arrow, sf::Cursor::Arrow);
-    loadMouseCursor(ImGuiMouseCursor_TextInput, sf::Cursor::Text);
-    loadMouseCursor(ImGuiMouseCursor_ResizeAll, sf::Cursor::SizeAll);
-    loadMouseCursor(ImGuiMouseCursor_ResizeNS, sf::Cursor::SizeVertical);
-    loadMouseCursor(ImGuiMouseCursor_ResizeEW, sf::Cursor::SizeHorizontal);
-    loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::SizeBottomLeftTopRight);
-    loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::SizeTopLeftBottomRight);
-    loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Hand);
+    loadMouseCursor(ImGuiMouseCursor_Arrow, sf::Cursor::Type::Arrow);
+    loadMouseCursor(ImGuiMouseCursor_TextInput, sf::Cursor::Type::Text);
+    loadMouseCursor(ImGuiMouseCursor_ResizeAll, sf::Cursor::Type::SizeAll);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNS, sf::Cursor::Type::SizeVertical);
+    loadMouseCursor(ImGuiMouseCursor_ResizeEW, sf::Cursor::Type::SizeHorizontal);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::Type::SizeBottomLeftTopRight);
+    loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::Type::SizeTopLeftBottomRight);
+    loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Type::Hand);
 
     if (loadDefaultFont) {
         // this will load default font automatically
@@ -294,10 +294,11 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event) {
             break;
         case sf::Event::MouseButtonPressed: // fall-through
         case sf::Event::MouseButtonReleased: {
-            const int button = event.mouseButton.button;
+            const int button = static_cast<int>(event.mouseButton.button);
             if (button >= 0 && button < 3) {
                 if (event.type == sf::Event::MouseButtonPressed) {
-                    s_currWindowCtx->mousePressed[event.mouseButton.button] = true;
+                    s_currWindowCtx->mousePressed[static_cast<int>(event.mouseButton.button)] =
+                        true;
                     io.AddMouseButtonEvent(button, true);
                 } else {
                     io.AddMouseButtonEvent(button, false);
@@ -313,10 +314,10 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event) {
             }
         } break;
         case sf::Event::MouseWheelScrolled:
-            if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel ||
-                (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel && io.KeyShift)) {
+            if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Vertical ||
+                (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Horizontal && io.KeyShift)) {
                 io.AddMouseWheelEvent(0, event.mouseWheelScroll.delta);
-            } else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel) {
+            } else if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Horizontal) {
                 io.AddMouseWheelEvent(event.mouseWheelScroll.delta, 0);
             }
             break;
@@ -984,20 +985,20 @@ void initDefaultJoystickMapping() {
     ImGui::SFML::SetJoystickMapping(ImGuiKey_GamepadL3, 9);
     ImGui::SFML::SetJoystickMapping(ImGuiKey_GamepadR3, 10);
 
-    ImGui::SFML::SetDPadXAxis(sf::Joystick::PovX);
+    ImGui::SFML::SetDPadXAxis(sf::Joystick::Axis::PovX);
     // D-pad Y axis is inverted on Windows
 #ifdef _WIN32
-    ImGui::SFML::SetDPadYAxis(sf::Joystick::PovY, true);
+    ImGui::SFML::SetDPadYAxis(sf::Joystick::Axis::PovY, true);
 #else
-    ImGui::SFML::SetDPadYAxis(sf::Joystick::PovY);
+    ImGui::SFML::SetDPadYAxis(sf::Joystick::Axis::PovY);
 #endif
 
-    ImGui::SFML::SetLStickXAxis(sf::Joystick::X);
-    ImGui::SFML::SetLStickYAxis(sf::Joystick::Y);
-    ImGui::SFML::SetRStickXAxis(sf::Joystick::U);
-    ImGui::SFML::SetRStickYAxis(sf::Joystick::V);
-    ImGui::SFML::SetLTriggerAxis(sf::Joystick::Z);
-    ImGui::SFML::SetRTriggerAxis(sf::Joystick::R);
+    ImGui::SFML::SetLStickXAxis(sf::Joystick::Axis::X);
+    ImGui::SFML::SetLStickYAxis(sf::Joystick::Axis::Y);
+    ImGui::SFML::SetRStickXAxis(sf::Joystick::Axis::U);
+    ImGui::SFML::SetRStickYAxis(sf::Joystick::Axis::V);
+    ImGui::SFML::SetLTriggerAxis(sf::Joystick::Axis::Z);
+    ImGui::SFML::SetRTriggerAxis(sf::Joystick::Axis::R);
 
     ImGui::SFML::SetJoystickDPadThreshold(5.f);
     ImGui::SFML::SetJoystickLStickThreshold(5.f);
