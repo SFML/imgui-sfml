@@ -1079,7 +1079,7 @@ void setClipboardText(void* /*userData*/, const char* text) {
 }
 
 const char* getClipboardText(void* /*userData*/) {
-    std::basic_string<std::uint8_t> tmp = sf::Clipboard::getString().toUtf8();
+    auto tmp = sf::Clipboard::getString().toUtf8();
     s_clipboardText.assign(tmp.begin(), tmp.end());
     return s_clipboardText.c_str();
 }
