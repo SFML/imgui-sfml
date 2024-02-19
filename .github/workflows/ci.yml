@@ -51,14 +51,14 @@ jobs:
         sudo apt install llvm xorg-dev libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev
 
     - name: Checkout ImGui
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: ocornut/imgui
         path: imgui
         ref: v1.89
 
     - name: Checkout SFML
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: SFML/SFML
         path: sfml
@@ -78,7 +78,7 @@ jobs:
       run: cmake --build sfml/build --config ${{matrix.type.name}} --target install
 
     - name: Checkout ImGui-SFML
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: imgui-sfml
 
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: DoozyX/clang-format-lint-action@v0.16.2
         with:
           source: '.'
