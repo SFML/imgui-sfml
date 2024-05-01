@@ -283,100 +283,80 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event) {
     ImGuiIO& io = ImGui::GetIO();
 
     if (s_currWindowCtx->windowHasFocus) {
-        switch (event.type) {
-        case sf::Event::Resized:
+        if (const auto* resized = event.getIf<sf::Event::Resized>()) {
             io.DisplaySize =
-                ImVec2(static_cast<float>(event.size.width), static_cast<float>(event.size.height));
-            break;
-        case sf::Event::MouseMoved:
-            io.AddMousePosEvent(static_cast<float>(event.mouseMove.x),
-                                static_cast<float>(event.mouseMove.y));
+                ImVec2(static_cast<float>(resized->size.x), static_cast<float>(resized->size.y));
+        } else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>()) {
+            io.AddMousePosEvent(static_cast<float>(mouseMoved->position.x),
+                                static_cast<float>(mouseMoved->position.y));
             s_currWindowCtx->mouseMoved = true;
-            break;
-        case sf::Event::MouseButtonPressed: // fall-through
-        case sf::Event::MouseButtonReleased: {
-            const int button = static_cast<int>(event.mouseButton.button);
+        } else if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>()) {
+            const int button = static_cast<int>(mouseButtonPressed->button);
             if (button >= 0 && button < 3) {
-                if (event.type == sf::Event::MouseButtonPressed) {
-                    s_currWindowCtx->mousePressed[static_cast<int>(event.mouseButton.button)] =
-                        true;
-                    io.AddMouseButtonEvent(button, true);
-                } else {
-                    io.AddMouseButtonEvent(button, false);
-                }
+                s_currWindowCtx->mousePressed[static_cast<int>(mouseButtonPressed->button)] = true;
+                io.AddMouseButtonEvent(button, true);
             }
-        } break;
-        case sf::Event::TouchBegan: // fall-through
-        case sf::Event::TouchEnded: {
+        } else if (const auto* mouseButtonReleased =
+                       event.getIf<sf::Event::MouseButtonReleased>()) {
+            const int button = static_cast<int>(mouseButtonReleased->button);
+            if (button >= 0 && button < 3) io.AddMouseButtonEvent(button, false);
+        } else if (const auto* touchBegan = event.getIf<sf::Event::TouchBegan>()) {
             s_currWindowCtx->mouseMoved = false;
-            const unsigned int button = event.touch.finger;
-            if (event.type == sf::Event::TouchBegan && button < 3) {
-                s_currWindowCtx->touchDown[event.touch.finger] = true;
+            const unsigned int button = touchBegan->finger;
+            if (button < 3) s_currWindowCtx->touchDown[touchBegan->finger] = true;
+        } else if (event.is<sf::Event::TouchEnded>()) {
+            s_currWindowCtx->mouseMoved = false;
+        } else if (const auto* mouseWheelScrolled = event.getIf<sf::Event::MouseWheelScrolled>()) {
+            if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical ||
+                (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal && io.KeyShift)) {
+                io.AddMouseWheelEvent(0, mouseWheelScrolled->delta);
+            } else if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal) {
+                io.AddMouseWheelEvent(mouseWheelScrolled->delta, 0);
             }
-        } break;
-        case sf::Event::MouseWheelScrolled:
-            if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Vertical ||
-                (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Horizontal && io.KeyShift)) {
-                io.AddMouseWheelEvent(0, event.mouseWheelScroll.delta);
-            } else if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Horizontal) {
-                io.AddMouseWheelEvent(event.mouseWheelScroll.delta, 0);
-            }
-            break;
-        case sf::Event::KeyPressed: // fall-through
-        case sf::Event::KeyReleased: {
-            const bool down = (event.type == sf::Event::KeyPressed);
-
-            const ImGuiKey mod = keycodeToImGuiMod(event.key.code);
+        }
+        const auto handleKeyChanged = [&io](const sf::Event::KeyChanged& keyChanged, bool down) {
+            const ImGuiKey mod = keycodeToImGuiMod(keyChanged.code);
             // The modifier booleans are not reliable when it's the modifier
             // itself that's being pressed. Detect these presses directly.
             if (mod != ImGuiKey_None) {
                 io.AddKeyEvent(mod, down);
             } else {
-                io.AddKeyEvent(ImGuiKey_ModCtrl, event.key.control);
-                io.AddKeyEvent(ImGuiKey_ModShift, event.key.shift);
-                io.AddKeyEvent(ImGuiKey_ModAlt, event.key.alt);
-                io.AddKeyEvent(ImGuiKey_ModSuper, event.key.system);
+                io.AddKeyEvent(ImGuiKey_ModCtrl, keyChanged.control);
+                io.AddKeyEvent(ImGuiKey_ModShift, keyChanged.shift);
+                io.AddKeyEvent(ImGuiKey_ModAlt, keyChanged.alt);
+                io.AddKeyEvent(ImGuiKey_ModSuper, keyChanged.system);
             }
 
-            const ImGuiKey key = keycodeToImGuiKey(event.key.code);
+            const ImGuiKey key = keycodeToImGuiKey(keyChanged.code);
             io.AddKeyEvent(key, down);
-            io.SetKeyEventNativeData(key, static_cast<int>(event.key.code), -1);
-        } break;
-        case sf::Event::TextEntered:
+            io.SetKeyEventNativeData(key, static_cast<int>(keyChanged.code), -1);
+        };
+        if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
+            handleKeyChanged(*keyPressed, true);
+        } else if (const auto* keyReleased = event.getIf<sf::Event::KeyReleased>()) {
+            handleKeyChanged(*keyReleased, false);
+        } else if (const auto* textEntered = event.getIf<sf::Event::TextEntered>()) {
             // Don't handle the event for unprintable characters
-            if (event.text.unicode < ' ' || event.text.unicode == 127) {
-                break;
-            }
-            io.AddInputCharacter(event.text.unicode);
-            break;
-        case sf::Event::JoystickConnected:
-            if (s_currWindowCtx->joystickId == NULL_JOYSTICK_ID) {
-                s_currWindowCtx->joystickId = event.joystickConnect.joystickId;
-            }
-            break;
-        case sf::Event::JoystickDisconnected:
-            if (s_currWindowCtx->joystickId == event.joystickConnect.joystickId) { // used gamepad
-                                                                                   // was
-                                                                                   // disconnected
+            if (!(textEntered->unicode < ' ' || textEntered->unicode == 127))
+                io.AddInputCharacter(textEntered->unicode);
+        } else if (const auto* joystickConnected = event.getIf<sf::Event::JoystickConnected>()) {
+            if (s_currWindowCtx->joystickId == NULL_JOYSTICK_ID)
+                s_currWindowCtx->joystickId = joystickConnected->joystickId;
+        } else if (const auto* joystickDisconnected =
+                       event.getIf<sf::Event::JoystickDisconnected>()) {
+            if (s_currWindowCtx->joystickId == joystickDisconnected->joystickId)
+                // used gamepad was disconnected
                 s_currWindowCtx->joystickId = getConnectedJoystickId();
-            }
-            break;
-        default:
-            break;
         }
     }
 
-    switch (event.type) {
-    case sf::Event::LostFocus: {
+    if (event.is<sf::Event::FocusLost>()) {
         io.AddFocusEvent(false);
         s_currWindowCtx->windowHasFocus = false;
-    } break;
-    case sf::Event::GainedFocus:
+    }
+    if (event.is<sf::Event::FocusGained>()) {
         io.AddFocusEvent(true);
         s_currWindowCtx->windowHasFocus = true;
-        break;
-    default:
-        break;
     }
 }
 
