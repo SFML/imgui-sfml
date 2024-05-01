@@ -19,7 +19,7 @@ int main() {
         sf::Event event{};
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(window, event);
-            if (event.type == sf::Event::Closed) {
+            if (event.is<sf::Event::Closed>()) {
                 if (childWindow.isOpen()) {
                     childWindow.close();
                 }
@@ -33,7 +33,7 @@ int main() {
         if (childWindow.isOpen()) {
             while (childWindow.pollEvent(event)) {
                 ImGui::SFML::ProcessEvent(childWindow, event);
-                if (event.type == sf::Event::Closed) {
+                if (event.is<sf::Event::Closed>()) {
                     childWindow.close();
                     ImGui::SFML::Shutdown(childWindow);
                 }
