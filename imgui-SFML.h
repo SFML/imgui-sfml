@@ -10,7 +10,7 @@
 #include "imgui-SFML_export.h"
 
 namespace sf {
-struct Event;
+class Event;
 class RenderTarget;
 class RenderTexture;
 class RenderWindow;
