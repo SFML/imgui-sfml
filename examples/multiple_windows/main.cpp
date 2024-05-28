@@ -16,8 +16,7 @@ int main() {
     sf::Clock deltaClock;
     while (window.isOpen()) {
         // Main window event processing
-        sf::Event event{};
-        while (window.pollEvent(event)) {
+        while (const auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, event);
             if (event.is<sf::Event::Closed>()) {
                 if (childWindow.isOpen()) {
@@ -31,7 +30,7 @@ int main() {
 
         // Child window event processing
         if (childWindow.isOpen()) {
-            while (childWindow.pollEvent(event)) {
+            while (const auto event = childWindow.pollEvent()) {
                 ImGui::SFML::ProcessEvent(childWindow, event);
                 if (event.is<sf::Event::Closed>()) {
                     childWindow.close();

@@ -14,8 +14,7 @@ int main() {
 
     sf::Clock deltaClock;
     while (window.isOpen()) {
-        sf::Event event{};
-        while (window.pollEvent(event)) {
+        while (const auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, event);
 
             if (event.is<sf::Event::Closed>()) {
