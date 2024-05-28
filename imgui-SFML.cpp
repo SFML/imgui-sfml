@@ -191,8 +191,7 @@ struct WindowContext {
     TriggerInfo lTriggerInfo;
     TriggerInfo rTriggerInfo;
 
-    sf::Cursor mouseCursors[ImGuiMouseCursor_COUNT];
-    bool mouseCursorLoaded[ImGuiMouseCursor_COUNT] = {ImGuiKey_None};
+    std::optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -1065,8 +1064,7 @@ const char* getClipboardText(void* /*userData*/) {
 }
 
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType) {
-    s_currWindowCtx->mouseCursorLoaded[imguiCursorType] =
-        s_currWindowCtx->mouseCursors[imguiCursorType].loadFromSystem(sfmlCursorType);
+    s_currWindowCtx->mouseCursors[imguiCursorType] = sf::Cursor::loadFromSystem(sfmlCursorType);
 }
 
 void updateMouseCursor(sf::Window& window) {
@@ -1078,9 +1076,9 @@ void updateMouseCursor(sf::Window& window) {
         } else {
             window.setMouseCursorVisible(true);
 
-            const sf::Cursor& c = s_currWindowCtx->mouseCursorLoaded[cursor] ?
-                                      s_currWindowCtx->mouseCursors[cursor] :
-                                      s_currWindowCtx->mouseCursors[ImGuiMouseCursor_Arrow];
+            const sf::Cursor& c = s_currWindowCtx->mouseCursors[cursor] ?
+                                      *s_currWindowCtx->mouseCursors[cursor] :
+                                      *s_currWindowCtx->mouseCursors[ImGuiMouseCursor_Arrow];
             window.setMouseCursor(c);
         }
     }
