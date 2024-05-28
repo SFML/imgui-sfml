@@ -73,8 +73,7 @@ Using ImGui-SFML in your code
     - Poll and process events:
 
         ```cpp
-        sf::Event event;
-        while (window.pollEvent(event)) {
+        while (const auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, event);
             ...
         }
@@ -114,8 +113,7 @@ int main() {
 
     sf::Clock deltaClock;
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
+        while (const auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, event);
 
             if (event.type == sf::Event::Closed) {
