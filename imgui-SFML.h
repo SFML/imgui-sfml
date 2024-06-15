@@ -7,6 +7,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Joystick.hpp>
 
+#include <optional>
+
 #include "imgui-SFML_export.h"
 
 namespace sf {
@@ -44,7 +46,7 @@ IMGUI_SFML_API void Shutdown(const sf::Window& window);
 IMGUI_SFML_API void Shutdown();
 
 [[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture();
-IMGUI_SFML_API sf::Texture& GetFontTexture();
+IMGUI_SFML_API std::optional<sf::Texture>& GetFontTexture();
 
 // joystick functions
 IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);
