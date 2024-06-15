@@ -172,8 +172,8 @@ struct WindowContext {
     const sf::Window* window;
     ImGuiContext* imContext{ImGui::CreateContext()};
 
-    sf::Texture fontTexture; // internal font atlas which is used if user doesn't set a custom
-                             // sf::Texture.
+    std::optional<sf::Texture> fontTexture; // internal font atlas which is used if user doesn't set
+                                            // a custom sf::Texture.
 
     bool windowHasFocus;
     bool mouseMoved{false};
@@ -499,20 +499,24 @@ bool UpdateFontTexture() {
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    sf::Texture& texture = s_currWindowCtx->fontTexture;
-    if (!texture.create({static_cast<unsigned>(width), static_cast<unsigned>(height)})) {
+    auto newTexture =
+        sf::Texture::create({static_cast<unsigned>(width), static_cast<unsigned>(height)});
+
+    if (!newTexture.has_value()) {
         return false;
     }
 
-    texture.update(pixels);
+    newTexture->update(pixels);
 
-    ImTextureID texID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImTextureID texID = convertGLTextureHandleToImTextureID(newTexture->getNativeHandle());
     io.Fonts->SetTexID(texID);
+
+    s_currWindowCtx->fontTexture = std::move(newTexture);
 
     return true;
 }
 
-sf::Texture& GetFontTexture() {
+std::optional<sf::Texture>& GetFontTexture() {
     assert(s_currWindowCtx);
     return s_currWindowCtx->fontTexture;
 }
