@@ -17,8 +17,6 @@
 
 #include <cassert>
 #include <cmath> // abs
-#include <cstddef> // offsetof, nullptr, size_t
-#include <cstdint> // uint8_t
 #include <cstring> // memcpy
 
 #include <algorithm>
@@ -119,8 +117,18 @@ static_assert(sizeof(GLuint) <= sizeof(ImTextureID),
 namespace {
 // various helper functions
 ImColor toImColor(sf::Color c);
+ImVec2 toImVec2(const sf::Vector2f& v);
+sf::Vector2f toSfVector2f(const ImVec2& v);
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
+
+struct SpriteTextureData {
+    ImVec2 uv0;
+    ImVec2 uv1;
+    ImTextureID textureID{};
+};
+
+SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite);
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
@@ -240,7 +248,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     initDefaultJoystickMapping();
 
     // init rendering
-    io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
+    io.DisplaySize = toImVec2(displaySize);
 
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
@@ -388,7 +396,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(displaySize.x, displaySize.y);
+    io.DisplaySize = toImVec2(displaySize);
     io.DeltaTime = dt.asSeconds();
 
     if (s_currWindowCtx->windowHasFocus) {
@@ -649,8 +657,8 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Color
            const sf::Color& borderColor) {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
-    ImGui::Image(textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
-                 toImColor(tintColor), toImColor(borderColor));
+    ImGui::Image(textureID, toImVec2(size), ImVec2(0, 0), ImVec2(1, 1), toImColor(tintColor),
+                 toImColor(borderColor));
 }
 
 /////////////// Image Overloads for sf::RenderTexture
@@ -664,32 +672,23 @@ void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf:
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
 
-    ImGui::Image(textureID, ImVec2(size.x, size.y), ImVec2(0, 1),
-                 ImVec2(1, 0), // flipped vertically, because textures in sf::RenderTexture are
-                               // stored this way
+    ImGui::Image(textureID, toImVec2(size), ImVec2(0, 1), ImVec2(1, 0), // flipped vertically,
+                                                                        // because textures in
+                                                                        // sf::RenderTexture are
+                                                                        // stored this way
                  toImColor(tintColor), toImColor(borderColor));
 }
 
 /////////////// Image Overloads for sf::Sprite
 
 void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color& borderColor) {
-    const sf::FloatRect bounds = sprite.getGlobalBounds();
-    Image(sprite, sf::Vector2f(bounds.width, bounds.height), tintColor, borderColor);
+    Image(sprite, sprite.getGlobalBounds().size, tintColor, borderColor);
 }
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-    const sf::Texture& texture = sprite.getTexture();
-    const sf::Vector2f textureSize(texture.getSize());
-    const sf::FloatRect textureRect(sprite.getTextureRect());
-    const ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
-    const ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
-                     (textureRect.top + textureRect.height) / textureSize.y);
-
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-
-    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(tintColor),
-                 toImColor(borderColor));
+    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
+    ImGui::Image(textureID, toImVec2(size), uv0, uv1, toImColor(tintColor), toImColor(borderColor));
 }
 
 /////////////// Image Button Overloads for sf::Texture
@@ -698,7 +697,7 @@ bool ImageButton(const char* id, const sf::Texture& texture, const sf::Vector2f&
                  const sf::Color& bgColor, const sf::Color& tintColor) {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
-    return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1),
+    return ImGui::ImageButton(id, textureID, toImVec2(size), ImVec2(0, 0), ImVec2(1, 1),
                               toImColor(bgColor), toImColor(tintColor));
 }
 
@@ -709,7 +708,7 @@ bool ImageButton(const char* id, const sf::RenderTexture& texture, const sf::Vec
     ImTextureID textureID =
         convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
 
-    return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), ImVec2(0, 1),
+    return ImGui::ImageButton(id, textureID, toImVec2(size), ImVec2(0, 1),
                               ImVec2(1, 0), // flipped vertically, because textures in
                                             // sf::RenderTexture are stored this way
                               toImColor(bgColor), toImColor(tintColor));
@@ -719,15 +718,8 @@ bool ImageButton(const char* id, const sf::RenderTexture& texture, const sf::Vec
 
 bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
                  const sf::Color& bgColor, const sf::Color& tintColor) {
-    const sf::Texture& texture = sprite.getTexture();
-    const sf::Vector2f textureSize(texture.getSize());
-    const sf::FloatRect textureRect(sprite.getTextureRect());
-    const ImVec2 uv0(textureRect.left / textureSize.x, textureRect.top / textureSize.y);
-    const ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
-                     (textureRect.top + textureRect.height) / textureSize.y);
-
-    ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
-    return ImGui::ImageButton(id, textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(bgColor),
+    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
+    return ImGui::ImageButton(id, textureID, toImVec2(size), uv0, uv1, toImColor(bgColor),
                               toImColor(tintColor));
 }
 
@@ -763,13 +755,27 @@ ImColor toImColor(sf::Color c) {
     return {static_cast<int>(c.r), static_cast<int>(c.g), static_cast<int>(c.b),
             static_cast<int>(c.a)};
 }
+ImVec2 toImVec2(const sf::Vector2f& v) {
+    return {v.x, v.y};
+}
+sf::Vector2f toSfVector2f(const ImVec2& v) {
+    return {v.x, v.y};
+}
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect) {
-    const ImVec2 pos = ImGui::GetCursorScreenPos();
-    return {rect.left + pos.x, rect.top + pos.y};
+    return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position);
 }
 ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
-    const ImVec2 pos = ImGui::GetCursorScreenPos();
-    return {rect.left + rect.width + pos.x, rect.top + rect.height + pos.y};
+    return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position + rect.size);
+}
+
+SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite) {
+    const sf::Texture& texture(sprite.getTexture());
+    const sf::Vector2f textureSize(texture.getSize());
+    const sf::FloatRect textureRect(sprite.getTextureRect());
+
+    return {toImVec2(textureRect.position.cwiseDiv(textureSize)),
+            toImVec2((textureRect.position + textureRect.size).cwiseDiv(textureSize)),
+            convertGLTextureHandleToImTextureID(texture.getNativeHandle())};
 }
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
