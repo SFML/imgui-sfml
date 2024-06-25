@@ -17,8 +17,8 @@ int main() {
     while (window.isOpen()) {
         // Main window event processing
         while (const auto event = window.pollEvent()) {
-            ImGui::SFML::ProcessEvent(window, event);
-            if (event.is<sf::Event::Closed>()) {
+            ImGui::SFML::ProcessEvent(window, *event);
+            if (event->is<sf::Event::Closed>()) {
                 if (childWindow.isOpen()) {
                     childWindow.close();
                 }
@@ -31,8 +31,8 @@ int main() {
         // Child window event processing
         if (childWindow.isOpen()) {
             while (const auto event = childWindow.pollEvent()) {
-                ImGui::SFML::ProcessEvent(childWindow, event);
-                if (event.is<sf::Event::Closed>()) {
+                ImGui::SFML::ProcessEvent(childWindow, *event);
+                if (event->is<sf::Event::Closed>()) {
                     childWindow.close();
                     ImGui::SFML::Shutdown(childWindow);
                 }
