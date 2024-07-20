@@ -321,7 +321,7 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event) {
                 io.AddMouseWheelEvent(mouseWheelScrolled->delta, 0);
             }
         }
-        const auto handleKeyChanged = [&io](const sf::Event::KeyChanged& keyChanged, bool down) {
+        const auto handleKeyChanged = [&io](const auto& keyChanged, bool down) {
             const ImGuiKey mod = keycodeToImGuiMod(keyChanged.code);
             // The modifier booleans are not reliable when it's the modifier
             // itself that's being pressed. Detect these presses directly.
