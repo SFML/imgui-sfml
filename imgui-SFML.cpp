@@ -507,16 +507,14 @@ bool UpdateFontTexture() {
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    auto newTexture =
-        sf::Texture::create({static_cast<unsigned>(width), static_cast<unsigned>(height)});
-
-    if (!newTexture.has_value()) {
+    sf::Texture newTexture;
+    if (!newTexture.resize({static_cast<unsigned>(width), static_cast<unsigned>(height)})) {
         return false;
     }
 
-    newTexture->update(pixels);
+    newTexture.update(pixels);
 
-    ImTextureID texID = convertGLTextureHandleToImTextureID(newTexture->getNativeHandle());
+    ImTextureID texID = convertGLTextureHandleToImTextureID(newTexture.getNativeHandle());
     io.Fonts->SetTexID(texID);
 
     s_currWindowCtx->fontTexture = std::move(newTexture);
@@ -1074,7 +1072,7 @@ const char* getClipboardText(void* /*userData*/) {
 }
 
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType) {
-    s_currWindowCtx->mouseCursors[imguiCursorType] = sf::Cursor::loadFromSystem(sfmlCursorType);
+    s_currWindowCtx->mouseCursors[imguiCursorType] = sf::Cursor::createFromSystem(sfmlCursorType);
 }
 
 void updateMouseCursor(sf::Window& window) {
