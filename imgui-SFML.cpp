@@ -771,8 +771,8 @@ SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite) {
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
 
-    return {toImVec2(textureRect.position.cwiseDiv(textureSize)),
-            toImVec2((textureRect.position + textureRect.size).cwiseDiv(textureSize)),
+    return {toImVec2(textureRect.position.componentWiseDiv(textureSize)),
+            toImVec2((textureRect.position + textureRect.size).componentWiseDiv(textureSize)),
             convertGLTextureHandleToImTextureID(texture.getNativeHandle())};
 }
 
