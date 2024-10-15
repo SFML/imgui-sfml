@@ -894,7 +894,7 @@ SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite)
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle)
 {
-    ImTextureID textureID = nullptr;
+    ImTextureID textureID{};
     std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
     return textureID;
 }
