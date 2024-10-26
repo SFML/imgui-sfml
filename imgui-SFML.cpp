@@ -590,24 +590,22 @@ void SetJoystickMapping(int key, unsigned int joystickButton) {
     // For partial backwards compatibility, also expect some ImGuiNavInput_* values.
     ImGuiKey finalKey{};
     switch (key) {
-    case ImGuiNavInput_Activate:
+    case ImGuiKey_GamepadFaceDown:
         finalKey = ImGuiKey_GamepadFaceDown;
         break;
-    case ImGuiNavInput_Cancel:
+    case ImGuiKey_GamepadFaceRight:
         finalKey = ImGuiKey_GamepadFaceRight;
         break;
-    case ImGuiNavInput_Input:
+    case ImGuiKey_GamepadFaceUp:
         finalKey = ImGuiKey_GamepadFaceUp;
         break;
-    case ImGuiNavInput_Menu:
+    case ImGuiKey_GamepadFaceLeft:
         finalKey = ImGuiKey_GamepadFaceLeft;
         break;
-    case ImGuiNavInput_FocusPrev:
-    case ImGuiNavInput_TweakSlow:
+    case ImGuiKey_GamepadL1:
         finalKey = ImGuiKey_GamepadL1;
         break;
-    case ImGuiNavInput_FocusNext:
-    case ImGuiNavInput_TweakFast:
+    case ImGuiKey_GamepadR1:
         finalKey = ImGuiKey_GamepadR1;
         break;
     default:
@@ -920,11 +918,11 @@ void RenderDrawLists(ImDrawData* draw_data) {
         const ImDrawVert* vtx_buffer = cmd_list->VtxBuffer.Data;
         const ImDrawIdx* idx_buffer = cmd_list->IdxBuffer.Data;
         glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert),
-                        (const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, pos)));
+                        (const GLvoid*)((const char*)vtx_buffer + offsetof(ImDrawVert, pos)));
         glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert),
-                          (const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, uv)));
+                          (const GLvoid*)((const char*)vtx_buffer + offsetof(ImDrawVert, uv)));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert),
-                       (const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, col)));
+                       (const GLvoid*)((const char*)vtx_buffer + offsetof(ImDrawVert, col)));
 
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++) {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
