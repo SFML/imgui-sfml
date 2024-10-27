@@ -118,11 +118,11 @@ static_assert(sizeof(GLuint) <= sizeof(ImTextureID), "ImTextureID is not large e
 namespace
 {
 // various helper functions
-ImColor      toImColor(sf::Color c);
-ImVec2       toImVec2(const sf::Vector2f& v);
-sf::Vector2f toSfVector2f(const ImVec2& v);
-ImVec2       getTopLeftAbsolute(const sf::FloatRect& rect);
-ImVec2       getDownRightAbsolute(const sf::FloatRect& rect);
+[[nodiscard]] ImColor      toImColor(sf::Color c);
+[[nodiscard]] ImVec2       toImVec2(const sf::Vector2f& v);
+[[nodiscard]] sf::Vector2f toSfVector2f(const ImVec2& v);
+[[nodiscard]] ImVec2       getTopLeftAbsolute(const sf::FloatRect& rect);
+[[nodiscard]] ImVec2       getDownRightAbsolute(const sf::FloatRect& rect);
 
 struct SpriteTextureData
 {
@@ -131,10 +131,10 @@ struct SpriteTextureData
     ImTextureID textureID{};
 };
 
-SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite);
+[[nodiscard]] SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite);
 
-ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
-GLuint      convertImTextureIDToGLTextureHandle(ImTextureID textureID);
+[[nodiscard]] ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
+[[nodiscard]] GLuint      convertImTextureIDToGLTextureHandle(ImTextureID textureID);
 
 void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prototype
 
@@ -142,24 +142,24 @@ void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prot
 void initDefaultJoystickMapping();
 
 // Returns first id of connected joystick
-unsigned int getConnectedJoystickId();
+[[nodiscard]] unsigned int getConnectedJoystickId();
 
 void updateJoystickButtonState(ImGuiIO& io);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickAxisState(ImGuiIO& io);
 
 // clipboard functions
-void        setClipboardText(void* userData, const char* text);
-const char* getClipboardText(void* userData);
-std::string s_clipboardText;
+void                      setClipboardText(void* userData, const char* text);
+[[nodiscard]] const char* getClipboardText(void* userData);
+std::string               s_clipboardText;
 
 // mouse cursors
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
 void updateMouseCursor(sf::Window& window);
 
 // Key mappings
-ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code);
-ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code);
+[[nodiscard]] ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code);
+[[nodiscard]] ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code);
 
 // data
 constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
