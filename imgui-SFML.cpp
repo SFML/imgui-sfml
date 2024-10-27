@@ -445,7 +445,7 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
         else if (const auto* textEntered = event.getIf<sf::Event::TextEntered>())
         {
             // Don't handle the event for unprintable characters
-            if (!(textEntered->unicode < ' ' || textEntered->unicode == 127))
+            if (textEntered->unicode >= ' ' && textEntered->unicode != 127)
                 io.AddInputCharacter(textEntered->unicode);
         }
         else if (const auto* joystickConnected = event.getIf<sf::Event::JoystickConnected>())
