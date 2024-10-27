@@ -862,7 +862,7 @@ namespace
 {
 ImColor toImColor(sf::Color c)
 {
-    return {static_cast<int>(c.r), static_cast<int>(c.g), static_cast<int>(c.b), static_cast<int>(c.a)};
+    return {int{c.r}, int{c.g}, int{c.b}, int{c.a}};
 }
 ImVec2 toImVec2(const sf::Vector2f& v)
 {
