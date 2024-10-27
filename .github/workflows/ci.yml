@@ -29,7 +29,7 @@ jobs:
         - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_CXX_COMPILER=clang++ }
         - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
         - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS Clang,     os: macos-12,     flags: -GNinja -DIMGUI_SFML_BUILD_TESTING=OFF }
+        - { name: macOS Clang,     os: macos-13,     flags: -GNinja -DIMGUI_SFML_BUILD_TESTING=OFF }
         config:
         - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON -DIMGUI_SFML_BUILD_TESTING=OFF }
         - { name: Static, flags: -DBUILD_SHARED_LIBS=OFF }
