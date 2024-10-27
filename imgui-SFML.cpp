@@ -1097,7 +1097,7 @@ void RenderDrawLists(ImDrawData* draw_data)
 
 unsigned int getConnectedJoystickId()
 {
-    for (unsigned int i = 0; i < (unsigned int)sf::Joystick::Count; ++i)
+    for (unsigned int i = 0; i < sf::Joystick::Count; ++i)
     {
         if (sf::Joystick::isConnected(i))
             return i;
