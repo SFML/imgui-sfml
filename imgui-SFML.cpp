@@ -246,9 +246,7 @@ bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont)
 
 bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont)
 {
-    s_windowContexts.emplace_back(std::make_unique<WindowContext>(&window));
-
-    s_currWindowCtx = s_windowContexts.back().get();
+    s_currWindowCtx = s_windowContexts.emplace_back(std::make_unique<WindowContext>(&window)).get();
     ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 
     ImGuiIO& io = ImGui::GetIO();
