@@ -1144,12 +1144,12 @@ void initDefaultJoystickMapping()
 
 void updateJoystickButtonState(ImGuiIO& io)
 {
-    for (int i = 0; i < static_cast<int>(sf::Joystick::ButtonCount); ++i)
+    for (unsigned int i = 0; i < sf::Joystick::ButtonCount; ++i)
     {
         const ImGuiKey key = s_currWindowCtx->joystickMapping[i];
         if (key != ImGuiKey_None)
         {
-            const bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId, static_cast<unsigned>(i));
+            const bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId, i);
             if (s_currWindowCtx->windowHasFocus || !isPressed)
             {
                 io.AddKeyEvent(key, isPressed);
