@@ -118,11 +118,44 @@ static_assert(sizeof(GLuint) <= sizeof(ImTextureID), "ImTextureID is not large e
 namespace
 {
 // various helper functions
-[[nodiscard]] ImColor      toImColor(sf::Color c);
-[[nodiscard]] ImVec2       toImVec2(const sf::Vector2f& v);
-[[nodiscard]] sf::Vector2f toSfVector2f(const ImVec2& v);
-[[nodiscard]] ImVec2       getTopLeftAbsolute(const sf::FloatRect& rect);
-[[nodiscard]] ImVec2       getDownRightAbsolute(const sf::FloatRect& rect);
+[[nodiscard]] ImColor toImColor(sf::Color c)
+{
+    return {int{c.r}, int{c.g}, int{c.b}, int{c.a}};
+}
+
+[[nodiscard]] ImVec2 toImVec2(const sf::Vector2f& v)
+{
+    return {v.x, v.y};
+}
+
+[[nodiscard]] sf::Vector2f toSfVector2f(const ImVec2& v)
+{
+    return {v.x, v.y};
+}
+
+[[nodiscard]] ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect)
+{
+    return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position);
+}
+
+[[nodiscard]] ImVec2 getDownRightAbsolute(const sf::FloatRect& rect)
+{
+    return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position + rect.size);
+}
+
+[[nodiscard]] ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle)
+{
+    ImTextureID textureID{};
+    std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
+    return textureID;
+}
+
+[[nodiscard]] GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID)
+{
+    GLuint glTextureHandle = 0;
+    std::memcpy(&glTextureHandle, &textureID, sizeof(GLuint));
+    return glTextureHandle;
+}
 
 struct SpriteTextureData
 {
@@ -131,27 +164,55 @@ struct SpriteTextureData
     ImTextureID textureID{};
 };
 
-[[nodiscard]] SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite);
+[[nodiscard]] SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite)
+{
+    const sf::Texture&  texture(sprite.getTexture());
+    const sf::Vector2f  textureSize(texture.getSize());
+    const sf::FloatRect textureRect(sprite.getTextureRect());
 
-[[nodiscard]] ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
-[[nodiscard]] GLuint      convertImTextureIDToGLTextureHandle(ImTextureID textureID);
+    return {toImVec2(textureRect.position.componentWiseDiv(textureSize)),
+            toImVec2((textureRect.position + textureRect.size).componentWiseDiv(textureSize)),
+            convertGLTextureHandleToImTextureID(texture.getNativeHandle())};
+}
 
 void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prototype
 
 // Default mapping is XInput gamepad mapping
 void initDefaultJoystickMapping();
 
+// data
+constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
+
 // Returns first id of connected joystick
-[[nodiscard]] unsigned int getConnectedJoystickId();
+[[nodiscard]] unsigned int getConnectedJoystickId()
+{
+    for (unsigned int i = 0; i < sf::Joystick::Count; ++i)
+    {
+        if (sf::Joystick::isConnected(i))
+            return i;
+    }
+
+    return NULL_JOYSTICK_ID;
+}
 
 void updateJoystickButtonState(ImGuiIO& io);
 void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickAxisState(ImGuiIO& io);
 
 // clipboard functions
-void                      setClipboardText(void* userData, const char* text);
-[[nodiscard]] const char* getClipboardText(void* userData);
-std::string               s_clipboardText;
+void setClipboardText(void* /*userData*/, const char* text)
+{
+    sf::Clipboard::setString(sf::String::fromUtf8(text, text + std::strlen(text)));
+}
+
+[[nodiscard]] const char* getClipboardText(void* /*userData*/)
+{
+    static std::string s_clipboardText;
+
+    auto tmp = sf::Clipboard::getString().toUtf8();
+    s_clipboardText.assign(tmp.begin(), tmp.end());
+    return s_clipboardText.c_str();
+}
 
 // mouse cursors
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
@@ -160,9 +221,6 @@ void updateMouseCursor(sf::Window& window);
 // Key mappings
 [[nodiscard]] ImGuiKey keycodeToImGuiKey(sf::Keyboard::Key code);
 [[nodiscard]] ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code);
-
-// data
-constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
 
 struct StickInfo
 {
@@ -858,51 +916,6 @@ void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color, float rou
 
 namespace
 {
-ImColor toImColor(sf::Color c)
-{
-    return {int{c.r}, int{c.g}, int{c.b}, int{c.a}};
-}
-ImVec2 toImVec2(const sf::Vector2f& v)
-{
-    return {v.x, v.y};
-}
-sf::Vector2f toSfVector2f(const ImVec2& v)
-{
-    return {v.x, v.y};
-}
-ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect)
-{
-    return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position);
-}
-ImVec2 getDownRightAbsolute(const sf::FloatRect& rect)
-{
-    return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position + rect.size);
-}
-
-SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite)
-{
-    const sf::Texture&  texture(sprite.getTexture());
-    const sf::Vector2f  textureSize(texture.getSize());
-    const sf::FloatRect textureRect(sprite.getTextureRect());
-
-    return {toImVec2(textureRect.position.componentWiseDiv(textureSize)),
-            toImVec2((textureRect.position + textureRect.size).componentWiseDiv(textureSize)),
-            convertGLTextureHandleToImTextureID(texture.getNativeHandle())};
-}
-
-ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle)
-{
-    ImTextureID textureID{};
-    std::memcpy(&textureID, &glTextureHandle, sizeof(GLuint));
-    return textureID;
-}
-GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID)
-{
-    GLuint glTextureHandle = 0;
-    std::memcpy(&glTextureHandle, &textureID, sizeof(GLuint));
-    return glTextureHandle;
-}
-
 // copied from imgui/backends/imgui_impl_opengl2.cpp
 void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height)
 {
@@ -1093,17 +1106,6 @@ void RenderDrawLists(ImDrawData* draw_data)
 #endif
 }
 
-unsigned int getConnectedJoystickId()
-{
-    for (unsigned int i = 0; i < sf::Joystick::Count; ++i)
-    {
-        if (sf::Joystick::isConnected(i))
-            return i;
-    }
-
-    return NULL_JOYSTICK_ID;
-}
-
 void initDefaultJoystickMapping()
 {
     ImGui::SFML::SetJoystickMapping(ImGuiKey_GamepadFaceDown, 0);
@@ -1235,18 +1237,6 @@ void updateJoystickAxisState(ImGuiIO& io)
                        s_currWindowCtx->rTriggerInfo.threshold,
                        100,
                        false);
-}
-
-void setClipboardText(void* /*userData*/, const char* text)
-{
-    sf::Clipboard::setString(sf::String::fromUtf8(text, text + std::strlen(text)));
-}
-
-const char* getClipboardText(void* /*userData*/)
-{
-    auto tmp = sf::Clipboard::getString().toUtf8();
-    s_clipboardText.assign(tmp.begin(), tmp.end());
-    return s_clipboardText.c_str();
 }
 
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
