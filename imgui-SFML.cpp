@@ -370,11 +370,12 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
     {
         if (const auto* resized = event.getIf<sf::Event::Resized>())
         {
-            io.DisplaySize = ImVec2(static_cast<float>(resized->size.x), static_cast<float>(resized->size.y));
+            io.DisplaySize = toImVec2(sf::Vector2f(resized->size));
         }
         else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>())
         {
-            io.AddMousePosEvent(static_cast<float>(mouseMoved->position.x), static_cast<float>(mouseMoved->position.y));
+            const auto [x, y] = sf::Vector2f(mouseMoved->position);
+            io.AddMousePosEvent(x, y);
             s_currWindowCtx->mouseMoved = true;
         }
         else if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>())
@@ -518,12 +519,11 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     {
         if (io.WantSetMousePos)
         {
-            const sf::Vector2i newMousePos(static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
-            sf::Mouse::setPosition(newMousePos);
+            sf::Mouse::setPosition(sf::Vector2i(toSfVector2f(io.MousePos)));
         }
         else
         {
-            io.MousePos = ImVec2(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+            io.MousePos = toImVec2(sf::Vector2f(mousePos));
         }
         for (unsigned int i = 0; i < 3; i++)
         {
@@ -637,7 +637,7 @@ bool UpdateFontTexture()
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     sf::Texture newTexture;
-    if (!newTexture.resize({static_cast<unsigned>(width), static_cast<unsigned>(height)}))
+    if (!newTexture.resize(sf::Vector2u(sf::Vector2(width, height))))
     {
         return false;
     }
