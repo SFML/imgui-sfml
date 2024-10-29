@@ -215,7 +215,6 @@ void setClipboardText(void* /*userData*/, const char* text)
 }
 
 // mouse cursors
-void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType);
 void updateMouseCursor(sf::Window& window);
 
 // Key mappings
@@ -327,6 +326,8 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.GetClipboardTextFn = getClipboardText;
 
     // load mouse cursors
+    const auto loadMouseCursor = [](ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
+    { s_currWindowCtx->mouseCursors[imguiCursorType] = sf::Cursor::createFromSystem(sfmlCursorType); };
     loadMouseCursor(ImGuiMouseCursor_Arrow, sf::Cursor::Type::Arrow);
     loadMouseCursor(ImGuiMouseCursor_TextInput, sf::Cursor::Type::Text);
     loadMouseCursor(ImGuiMouseCursor_ResizeAll, sf::Cursor::Type::SizeAll);
@@ -1237,11 +1238,6 @@ void updateJoystickAxisState(ImGuiIO& io)
                        s_currWindowCtx->rTriggerInfo.threshold,
                        100,
                        false);
-}
-
-void loadMouseCursor(ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
-{
-    s_currWindowCtx->mouseCursors[imguiCursorType] = sf::Cursor::createFromSystem(sfmlCursorType);
 }
 
 void updateMouseCursor(sf::Window& window)
