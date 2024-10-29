@@ -24,6 +24,7 @@ Checks: >
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-special-member-functions,
   -misc-include-cleaner,
+  -misc-misplaced-const,
   -misc-non-private-member-variables-in-classes,
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,

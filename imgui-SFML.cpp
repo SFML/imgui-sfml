@@ -209,7 +209,7 @@ void setClipboardText(ImGuiContext* /*ctx*/, const char* text)
 {
     static std::string s_clipboardText;
 
-    auto tmp = sf::Clipboard::getString().toUtf8();
+    const auto tmp = sf::Clipboard::getString().toUtf8();
     s_clipboardText.assign(tmp.begin(), tmp.end());
     return s_clipboardText.c_str();
 }
@@ -350,10 +350,10 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 
 void SetCurrentWindow(const sf::Window& window)
 {
-    auto found = std::find_if(s_windowContexts.begin(),
-                              s_windowContexts.end(),
-                              [&](std::unique_ptr<WindowContext>& ctx)
-                              { return ctx->window->getNativeHandle() == window.getNativeHandle(); });
+    const auto found = std::find_if(s_windowContexts.begin(),
+                                    s_windowContexts.end(),
+                                    [&](std::unique_ptr<WindowContext>& ctx)
+                                    { return ctx->window->getNativeHandle() == window.getNativeHandle(); });
     assert(found != s_windowContexts.end() &&
            "Failed to find the window. Forgot to call ImGui::SFML::Init for the window?");
     s_currWindowCtx = found->get();
@@ -590,10 +590,10 @@ void Shutdown(const sf::Window& window)
     const bool needReplacement = (s_currWindowCtx->window->getNativeHandle() == window.getNativeHandle());
 
     // remove window's context
-    auto found = std::find_if(s_windowContexts.begin(),
-                              s_windowContexts.end(),
-                              [&](std::unique_ptr<WindowContext>& ctx)
-                              { return ctx->window->getNativeHandle() == window.getNativeHandle(); });
+    const auto found = std::find_if(s_windowContexts.begin(),
+                                    s_windowContexts.end(),
+                                    [&](std::unique_ptr<WindowContext>& ctx)
+                                    { return ctx->window->getNativeHandle() == window.getNativeHandle(); });
     assert(found != s_windowContexts.end() &&
            "Window wasn't inited properly: forgot to call ImGui::SFML::Init(window)?");
     s_windowContexts.erase(found); // s_currWindowCtx can become invalid here!
@@ -601,7 +601,7 @@ void Shutdown(const sf::Window& window)
     // set current context to some window for convenience if needed
     if (needReplacement)
     {
-        auto it = s_windowContexts.begin();
+        const auto it = s_windowContexts.begin();
         if (it != s_windowContexts.end())
         {
             // set to some other window
@@ -809,7 +809,7 @@ void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color
 
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor, const sf::Color& borderColor)
 {
-    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
+    const auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
     ImGui::Image(textureID, toImVec2(size), uv0, uv1, toImColor(tintColor), toImColor(borderColor));
 }
 
@@ -850,7 +850,7 @@ bool ImageButton(const char*              id,
 
 bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& tintColor)
 {
-    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
+    const auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
     return ImGui::ImageButton(id, textureID, toImVec2(size), uv0, uv1, toImColor(bgColor), toImColor(tintColor));
 }
 
