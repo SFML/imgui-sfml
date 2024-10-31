@@ -92,6 +92,7 @@ jobs:
           -DIMGUI_SFML_BUILD_EXAMPLES=ON \
           -DIMGUI_SFML_BUILD_TESTING=ON \
           -DIMGUI_SFML_ENABLE_WARNINGS=ON \
+          -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 
