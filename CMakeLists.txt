@@ -4,6 +4,7 @@ project(imgui_sfml VERSION 2.6 LANGUAGES CXX)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
 option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
+option(IMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS "Disable obsolete ImGui functions" OFF)
 
 # If you want to use your own user config when compiling ImGui, please set the following variables
 # For example, if you have your config in /path/to/dir/with/config/myconfig.h, set the variables as follows:
@@ -83,6 +84,9 @@ if(BUILD_SHARED_LIBS)
   target_compile_definitions(ImGui-SFML PRIVATE IMGUI_SFML_SHARED_LIB)
   set_target_properties(ImGui-SFML PROPERTIES DEFINE_SYMBOL "IMGUI_SFML_EXPORTS")
   set_target_properties(ImGui-SFML PROPERTIES DEBUG_POSTFIX "_d")
+endif()
+if(IMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS)
+  target_compile_definitions(ImGui-SFML PUBLIC IMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 endif()
 
 # Add compiler warnings
