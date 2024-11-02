@@ -425,10 +425,10 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
             }
             else
             {
-                io.AddKeyEvent(ImGuiKey_ModCtrl, keyChanged.control);
-                io.AddKeyEvent(ImGuiKey_ModShift, keyChanged.shift);
-                io.AddKeyEvent(ImGuiKey_ModAlt, keyChanged.alt);
-                io.AddKeyEvent(ImGuiKey_ModSuper, keyChanged.system);
+                io.AddKeyEvent(ImGuiMod_Ctrl, keyChanged.control);
+                io.AddKeyEvent(ImGuiMod_Shift, keyChanged.shift);
+                io.AddKeyEvent(ImGuiMod_Alt, keyChanged.alt);
+                io.AddKeyEvent(ImGuiMod_Super, keyChanged.system);
             }
 
             const ImGuiKey key = keycodeToImGuiKey(keyChanged.code);
@@ -1481,16 +1481,16 @@ ImGuiKey keycodeToImGuiMod(sf::Keyboard::Key code)
     {
         case sf::Keyboard::Key::LControl:
         case sf::Keyboard::Key::RControl:
-            return ImGuiKey_ModCtrl;
+            return ImGuiMod_Ctrl;
         case sf::Keyboard::Key::LShift:
         case sf::Keyboard::Key::RShift:
-            return ImGuiKey_ModShift;
+            return ImGuiMod_Shift;
         case sf::Keyboard::Key::LAlt:
         case sf::Keyboard::Key::RAlt:
-            return ImGuiKey_ModAlt;
+            return ImGuiMod_Alt;
         case sf::Keyboard::Key::LSystem:
         case sf::Keyboard::Key::RSystem:
-            return ImGuiKey_ModSuper;
+            return ImGuiMod_Super;
         default:
             break;
     }
