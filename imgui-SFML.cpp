@@ -586,7 +586,8 @@ void SetJoystickRTriggerThreshold(float threshold) {
 
 void SetJoystickMapping(int key, unsigned int joystickButton) {
     assert(s_currWindowCtx);
-    assert(key >= ImGuiKey_NamedKey_BEGIN && key < ImGuiKey_NamedKey_END);
+    assert(key >= ImGuiKey_NamedKey_BEGIN);
+    assert(key < ImGuiKey_NamedKey_END);
     assert(joystickButton < sf::Joystick::ButtonCount);
     s_currWindowCtx->joystickMapping[joystickButton] = static_cast<ImGuiKey>(key);
 }
