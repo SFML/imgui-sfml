@@ -26,9 +26,9 @@ jobs:
         platform:
         - { name: Windows MSVC,    os: windows-2022 }
         - { name: Windows ClangCL, os: windows-2022, flags: -T ClangCL }
-        - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
-        - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: macOS Clang,     os: macos-13,     flags: -GNinja -DIMGUI_SFML_BUILD_TESTING=OFF }
         config:
         - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON -DIMGUI_SFML_BUILD_TESTING=OFF }
