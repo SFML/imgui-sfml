@@ -17,7 +17,7 @@ defaults:
 
 jobs:
   build:
-    name: ${{matrix.platform.name}} ${{matrix.config.name}} ${{matrix.type.name}}
+    name: ${{matrix.platform.name}} ${{matrix.config.name}} ${{matrix.type.name}} ImGui ${{matrix.imgui.version}}
     runs-on: ${{matrix.platform.os}}
 
     strategy:
@@ -36,6 +36,9 @@ jobs:
         type:
         - { name: Release }
         - { name: Debug }
+        imgui:
+        - { version: 1.89, flags: -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON }
+        - { version: 1.91.5 }
 
     steps:
     - name: Get CMake and Ninja
@@ -55,7 +58,7 @@ jobs:
       with:
         repository: ocornut/imgui
         path: imgui
-        ref: v1.89
+        ref: v${{matrix.imgui.version}}
 
     - name: Checkout SFML
       uses: actions/checkout@v4
@@ -95,9 +98,9 @@ jobs:
           -DIMGUI_SFML_BUILD_EXAMPLES=ON \
           -DIMGUI_SFML_BUILD_TESTING=ON \
           -DIMGUI_SFML_ENABLE_WARNINGS=ON \
-          -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON \
           ${{matrix.platform.flags}} \
-          ${{matrix.config.flags}}
+          ${{matrix.config.flags}} \
+          ${{matrix.imgui.flags}}
 
     - name: Build ImGui-SFML
       run: cmake --build imgui-sfml/build --config ${{matrix.type.name}} --target install
