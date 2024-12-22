@@ -65,7 +65,7 @@ jobs:
       with:
         repository: SFML/SFML
         path: sfml
-        ref: master
+        ref: 3.0.0
 
     - name: Configure SFML
       run: |
