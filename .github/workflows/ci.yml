@@ -37,8 +37,8 @@ jobs:
         - { name: Release }
         - { name: Debug }
         imgui:
-        - { version: 1.89, flags: -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON }
-        - { version: 1.91.5 }
+        - { version: 1.91.1 }
+        - { version: 1.91.6, flags: -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON }
 
     steps:
     - name: Get CMake and Ninja
