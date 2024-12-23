@@ -306,7 +306,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     s_currWindowCtx = s_windowContexts.emplace_back(std::make_unique<WindowContext>(&window)).get();
     ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO&         io          = ImGui::GetIO();
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
 
     // tell ImGui which features we support
