@@ -200,12 +200,12 @@ void updateJoystickDPadState(ImGuiIO& io);
 void updateJoystickAxisState(ImGuiIO& io);
 
 // clipboard functions
-void setClipboardText(void* /*userData*/, const char* text)
+void setClipboardText(ImGuiContext* /*ctx*/, const char* text)
 {
     sf::Clipboard::setString(sf::String::fromUtf8(text, text + std::strlen(text)));
 }
 
-[[nodiscard]] const char* getClipboardText(void* /*userData*/)
+[[nodiscard]] const char* getClipboardText(ImGuiContext* /*ctx*/)
 {
     static std::string s_clipboardText;
 
@@ -307,6 +307,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     ImGui::SetCurrentContext(s_currWindowCtx->imContext);
 
     ImGuiIO& io = ImGui::GetIO();
+    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
 
     // tell ImGui which features we support
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
@@ -322,8 +323,8 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.DisplaySize = toImVec2(displaySize);
 
     // clipboard
-    io.SetClipboardTextFn = setClipboardText;
-    io.GetClipboardTextFn = getClipboardText;
+    platform_io.Platform_SetClipboardTextFn = setClipboardText;
+    platform_io.Platform_GetClipboardTextFn = getClipboardText;
 
     // load mouse cursors
     const auto loadMouseCursor = [](ImGuiMouseCursor imguiCursorType, sf::Cursor::Type sfmlCursorType)
