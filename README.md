@@ -74,7 +74,7 @@ Using ImGui-SFML in your code
 
         ```cpp
         while (const auto event = window.pollEvent()) {
-            ImGui::SFML::ProcessEvent(window, event);
+            ImGui::SFML::ProcessEvent(window, *event);
             ...
         }
         ```
