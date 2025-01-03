@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "configurePresets":[
+    {
+      "name": "dev",
+      "binaryDir": "build",
+      "installDir": "build/install",
+      "cacheVariables": {
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "IMGUI_SFML_BUILD_EXAMPLES": "ON",
+        "IMGUI_SFML_BUILD_TESTING": "ON",
+        "IMGUI_SFML_ENABLE_WARNINGS": "ON"
+      }
+    }
+  ]
+}
