@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(imgui_sfml VERSION 2.6 LANGUAGES CXX)
+project(imgui_sfml VERSION 2.6.1 LANGUAGES CXX)
 
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
 option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
