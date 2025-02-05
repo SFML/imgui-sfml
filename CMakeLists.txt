@@ -15,7 +15,7 @@ option(IMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS "Disable obsolete ImGui functions" 
 # If you set IMGUI_SFML_CONFIG_INSTALL_DIR, ImGui-SFML won't install your custom config, because
 # you might want to do it yourself
 option(IMGUI_SFML_USE_DEFAULT_CONFIG "Use default imconfig-SFML.h" ON)
-set(IMGUI_SFML_CONFIG_DIR ${PROJECT_SOURCE_DIR} CACHE PATH "Path to a directory containing user ImGui config")
+set(IMGUI_SFML_CONFIG_DIR ${PROJECT_SOURCE_DIR}/include CACHE PATH "Path to a directory containing user ImGui config")
 set(IMGUI_SFML_CONFIG_NAME imconfig-SFML.h CACHE STRING "Name of a custom user ImGui config header")
 set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header will be installed")
 
@@ -63,11 +63,11 @@ find_package(OpenGL REQUIRED)
 include(GNUInstallDirs)
 
 # Define ImGui-SFML
-add_library(ImGui-SFML imgui-SFML.cpp ${IMGUI_SOURCES})
+add_library(ImGui-SFML src/imgui-SFML.cpp ${IMGUI_SOURCES})
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 target_include_directories(ImGui-SFML PUBLIC
   $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(ImGui-SFML PUBLIC SFML::Graphics OpenGL::GL)
@@ -92,7 +92,7 @@ if(IMGUI_SFML_ENABLE_WARNINGS)
   endif()
 endif()
 foreach(WARNING ${IMGUI_SFML_WARNINGS})
-  set_property(SOURCE imgui-SFML.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " ${WARNING}")
+  set_property(SOURCE src/imgui-SFML.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " ${WARNING}")
 endforeach()
 
 # Specify ImGui user config
@@ -111,8 +111,8 @@ target_compile_definitions(ImGui-SFML PUBLIC IMGUI_USER_CONFIG="${IMGUI_SFML_CON
 
 # Collect public headers
 set(IMGUI_SFML_PUBLIC_HEADERS
-  ${PROJECT_SOURCE_DIR}/imgui-SFML.h
-  ${PROJECT_SOURCE_DIR}/imgui-SFML_export.h
+  ${PROJECT_SOURCE_DIR}/include/imgui-SFML.h
+  ${PROJECT_SOURCE_DIR}/include/imgui-SFML_export.h
   ${IMGUI_PUBLIC_HEADERS}
 )
 if(IMGUI_SFML_USE_DEFAULT_CONFIG OR (NOT DEFINED "${IMGUI_SFML_CONFIG_INSTALL_DIR}"))
@@ -153,6 +153,6 @@ if(IMGUI_SFML_BUILD_TESTING)
 endif()
 
 add_custom_target(tidy
-  COMMAND run-clang-tidy -quiet -p ${CMAKE_BINARY_DIR} *.cpp examples/**/*.cpp tests/*.cpp
+  COMMAND run-clang-tidy -quiet -p ${CMAKE_BINARY_DIR} src/*.cpp examples/**/*.cpp tests/*.cpp
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
