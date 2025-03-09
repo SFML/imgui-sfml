@@ -334,11 +334,9 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Type::Hand);
 
     if (loadDefaultFont)
-    {
         // this will load default font automatically
         // No need to call AddDefaultFont
         return UpdateFontTexture();
-    }
 
     return true;
 }
@@ -403,13 +401,9 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
         {
             if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical ||
                 (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal && io.KeyShift))
-            {
                 io.AddMouseWheelEvent(0, mouseWheelScrolled->delta);
-            }
             else if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal)
-            {
                 io.AddMouseWheelEvent(mouseWheelScrolled->delta, 0);
-            }
         }
         const auto handleKeyChanged = [&io](const auto& keyChanged, bool down)
         {
@@ -513,13 +507,10 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
     if (s_currWindowCtx->windowHasFocus)
     {
         if (io.WantSetMousePos)
-        {
             sf::Mouse::setPosition(sf::Vector2i(toSfVector2f(io.MousePos)));
-        }
         else
-        {
             io.MousePos = toImVec2(sf::Vector2f(mousePos));
-        }
+
         for (unsigned int i = 0; i < 3; i++)
         {
             io.MouseDown[i] = s_currWindowCtx->touchDown[i] || sf::Touch::isDown(i) ||
@@ -633,9 +624,7 @@ bool UpdateFontTexture()
 
     sf::Texture newTexture;
     if (!newTexture.resize(sf::Vector2u(sf::Vector2(width, height))))
-    {
         return false;
-    }
 
     newTexture.update(pixels);
 
@@ -943,9 +932,7 @@ void RenderDrawLists(ImDrawData* draw_data)
 {
     ImGui::GetDrawData();
     if (draw_data->CmdListsCount == 0)
-    {
         return;
-    }
 
     const ImGuiIO& io = ImGui::GetIO();
     assert(io.Fonts->TexID != (ImTextureID) nullptr); // You forgot to create and set font texture
@@ -1115,9 +1102,7 @@ void updateJoystickButtonState(ImGuiIO& io)
             const bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId.value(),
                                                                  static_cast<unsigned>(i));
             if (s_currWindowCtx->windowHasFocus || !isPressed)
-            {
                 io.AddKeyEvent(key, isPressed);
-            }
         }
     }
 }
@@ -1126,18 +1111,12 @@ void updateJoystickAxis(ImGuiIO& io, ImGuiKey key, sf::Joystick::Axis axis, floa
 {
     float pos = sf::Joystick::getAxisPosition(s_currWindowCtx->joystickId.value(), axis);
     if (inverted)
-    {
         pos = -pos;
-    }
     const bool passedThreshold = (pos > threshold) == (maxThreshold > threshold);
     if (passedThreshold && s_currWindowCtx->windowHasFocus)
-    {
         io.AddKeyAnalogEvent(key, true, std::abs(pos / 100.f));
-    }
     else
-    {
         io.AddKeyAnalogEvent(key, false, 0);
-    }
 }
 
 void updateJoystickAxisPair(ImGuiIO& io, ImGuiKey key1, ImGuiKey key2, sf::Joystick::Axis axis, float threshold, bool inverted)
