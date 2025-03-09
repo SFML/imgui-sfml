@@ -180,19 +180,14 @@ void RenderDrawLists(ImDrawData* draw_data); // rendering callback function prot
 // Default mapping is XInput gamepad mapping
 void initDefaultJoystickMapping();
 
-// data
-constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
-
 // Returns first id of connected joystick
-[[nodiscard]] unsigned int getConnectedJoystickId()
+[[nodiscard]] std::optional<unsigned int> getConnectedJoystickId()
 {
     for (unsigned int i = 0; i < sf::Joystick::Count; ++i)
-    {
         if (sf::Joystick::isConnected(i))
             return i;
-    }
 
-    return NULL_JOYSTICK_ID;
+    return std::nullopt;
 }
 
 void updateJoystickButtonState(ImGuiIO& io);
@@ -254,13 +249,13 @@ struct WindowContext
     bool         touchDown[3] = {false};
     sf::Vector2i touchPos;
 
-    unsigned int joystickId{getConnectedJoystickId()};
-    ImGuiKey     joystickMapping[sf::Joystick::ButtonCount] = {ImGuiKey_None};
-    StickInfo    dPadInfo;
-    StickInfo    lStickInfo;
-    StickInfo    rStickInfo;
-    TriggerInfo  lTriggerInfo;
-    TriggerInfo  rTriggerInfo;
+    std::optional<unsigned int> joystickId{getConnectedJoystickId()};
+    ImGuiKey                    joystickMapping[sf::Joystick::ButtonCount] = {ImGuiKey_None};
+    StickInfo                   dPadInfo;
+    StickInfo                   lStickInfo;
+    StickInfo                   rStickInfo;
+    TriggerInfo                 lTriggerInfo;
+    TriggerInfo                 rTriggerInfo;
 
     std::optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
 
@@ -453,7 +448,7 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
         }
         else if (const auto* joystickConnected = event.getIf<sf::Event::JoystickConnected>())
         {
-            if (s_currWindowCtx->joystickId == NULL_JOYSTICK_ID)
+            if (!s_currWindowCtx->joystickId.has_value())
                 s_currWindowCtx->joystickId = joystickConnected->joystickId;
         }
         else if (const auto* joystickDisconnected = event.getIf<sf::Event::JoystickDisconnected>())
@@ -554,7 +549,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
                                       // atlas (see createFontTexture)
 
     // gamepad navigation
-    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) && s_currWindowCtx->joystickId != NULL_JOYSTICK_ID)
+    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) && s_currWindowCtx->joystickId.has_value())
     {
         updateJoystickButtonState(io);
         updateJoystickDPadState(io);
@@ -1117,7 +1112,8 @@ void updateJoystickButtonState(ImGuiIO& io)
         const ImGuiKey key = s_currWindowCtx->joystickMapping[i];
         if (key != ImGuiKey_None)
         {
-            const bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId, static_cast<unsigned>(i));
+            const bool isPressed = sf::Joystick::isButtonPressed(s_currWindowCtx->joystickId.value(),
+                                                                 static_cast<unsigned>(i));
             if (s_currWindowCtx->windowHasFocus || !isPressed)
             {
                 io.AddKeyEvent(key, isPressed);
@@ -1128,7 +1124,7 @@ void updateJoystickButtonState(ImGuiIO& io)
 
 void updateJoystickAxis(ImGuiIO& io, ImGuiKey key, sf::Joystick::Axis axis, float threshold, float maxThreshold, bool inverted)
 {
-    float pos = sf::Joystick::getAxisPosition(s_currWindowCtx->joystickId, axis);
+    float pos = sf::Joystick::getAxisPosition(s_currWindowCtx->joystickId.value(), axis);
     if (inverted)
     {
         pos = -pos;
