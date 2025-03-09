@@ -133,7 +133,10 @@ install(TARGETS ImGui-SFML
 install(EXPORT ImGui-SFML
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ImGui-SFML
   NAMESPACE ImGui-SFML::
-  FILE ImGui-SFMLConfig.cmake
+)
+
+install(FILES ${PROJECT_SOURCE_DIR}/cmake/ImGui-SFMLConfig.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ImGui-SFML
 )
 
 # Stop configuration if being consumed by a higher level project
