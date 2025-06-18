@@ -754,7 +754,7 @@ void SetRStickYAxis(sf::Joystick::Axis rStickYAxis, bool inverted)
 void SetLTriggerAxis(sf::Joystick::Axis lTriggerAxis)
 {
     assert(s_currWindowCtx);
-    s_currWindowCtx->rTriggerInfo.axis = lTriggerAxis;
+    s_currWindowCtx->lTriggerInfo.axis = lTriggerAxis;
 }
 
 void SetRTriggerAxis(sf::Joystick::Axis rTriggerAxis)
