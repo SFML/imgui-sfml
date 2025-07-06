@@ -66,9 +66,11 @@ include(GNUInstallDirs)
 add_library(ImGui-SFML imgui-SFML.cpp ${IMGUI_SOURCES})
 add_library(ImGui-SFML::ImGui-SFML ALIAS ImGui-SFML)
 target_include_directories(ImGui-SFML PUBLIC
-  $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+target_include_directories(ImGui-SFML SYSTEM PUBLIC
+  $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
 )
 target_link_libraries(ImGui-SFML PUBLIC SFML::Graphics OpenGL::GL)
 if(WIN32 AND MINGW)
