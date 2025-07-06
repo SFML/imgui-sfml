@@ -24,9 +24,9 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows MSVC,    os: windows-2022 }
-        - { name: Windows ClangCL, os: windows-2022, flags: -T ClangCL }
-        - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: Windows MSVC,    os: windows-2025 }
+        - { name: Windows ClangCL, os: windows-2025, flags: -T ClangCL }
+        - { name: Windows Clang,   os: windows-2025, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
         - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: macOS Clang,     os: macos-14,     flags: -GNinja }
