@@ -1,6 +1,6 @@
 # Get Catch2
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-find_package(Catch2 3.7.0 REQUIRED)
+find_package(Catch2 3.8.1 REQUIRED)
 include(Catch)
 
 # Test library
