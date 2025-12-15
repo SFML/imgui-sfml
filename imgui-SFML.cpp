@@ -27,7 +27,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#ifdef __ANDROID__
+#ifdef SFML_SYSTEM_ANDROID
 #ifdef USE_JNI
 
 #include <SFML/System/NativeActivity.hpp>
@@ -264,7 +264,7 @@ struct WindowContext
 
     std::optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
 
-#ifdef __ANDROID__
+#ifdef SFML_SYSTEM_ANDROID
 #ifdef USE_JNI
     bool wantTextInput{false};
 #endif
@@ -534,7 +534,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
         }
     }
 
-#ifdef __ANDROID__
+#ifdef SFML_SYSTEM_ANDROID
 #ifdef USE_JNI
     if (io.WantTextInput && !s_currWindowCtx->wantTextInput)
     {
