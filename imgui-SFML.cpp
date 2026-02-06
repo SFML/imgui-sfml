@@ -690,7 +690,8 @@ void UpdateTexture(ImTextureData* tex)
 void DestroyTexture(ImTextureData* tex) 
 {
     assert(tex->BackendUserData != nullptr);
-    delete tex->BackendUserData; 
+    auto* texture = static_cast<sf::Texture*>(tex->BackendUserData);
+    delete texture; 
     tex->BackendUserData = nullptr;
     tex->SetTexID(ImTextureID_Invalid);
     tex->SetStatus(ImTextureStatus_Destroyed);
