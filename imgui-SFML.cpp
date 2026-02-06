@@ -1081,7 +1081,7 @@ void RenderDrawLists(ImDrawData* draw_data)
                               (int)(clip_rect.w - clip_rect.y));
 
                     // Bind texture, Draw
-                    const GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->GetTexID());
+                    const GLuint textureHandle = convertImTextureIDToGLTextureHandle(pcmd->TexRef.GetTexID());
                     glBindTexture(GL_TEXTURE_2D, textureHandle);
                     glDrawElements(GL_TRIANGLES,
                                    (GLsizei)pcmd->ElemCount,
