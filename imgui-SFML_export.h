@@ -5,21 +5,17 @@
 #if _WIN32
 #ifdef IMGUI_SFML_EXPORTS
 #define IMGUI_SFML_API __declspec(dllexport)
-#define IMGUI_API      __declspec(dllexport)
 #else
 #define IMGUI_SFML_API __declspec(dllimport)
-#define IMGUI_API      __declspec(dllexport)
 #endif
-#elif __GNUC__ >= 4
+#elif __GNUC__
 #define IMGUI_SFML_API __attribute__((visibility("default")))
-#define IMGUI_API      __attribute__((visibility("default")))
 #else
 #define IMGUI_SFML_API
-#define IMGUI_API
 #endif
 #else
 #define IMGUI_SFML_API
-#define IMGUI_API
 #endif
 
+#define IMGUI_API IMGUI_SFML_API
 #endif

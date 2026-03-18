@@ -1031,7 +1031,7 @@ void RenderDrawLists(ImDrawData* draw_data)
                 clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
 
                 if (clip_rect.x < static_cast<float>(fb_width) && clip_rect.y < static_cast<float>(fb_height) &&
-                    clip_rect.z >= 0.0f && clip_rect.w >= 0.0f)
+                    clip_rect.z - clip_rect.x >= 0.0f && clip_rect.w - clip_rect.y >= 0.0f)
                 {
                     // Apply scissor/clipping rectangle
                     glScissor((int)clip_rect.x,
