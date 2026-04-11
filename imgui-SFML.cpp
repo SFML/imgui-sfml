@@ -911,7 +911,9 @@ void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height)
     glEnableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glEnable(GL_TEXTURE_2D);
+#ifndef GL_VERSION_ES_CL_1_1
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
     glShadeModel(GL_SMOOTH);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
@@ -967,8 +969,12 @@ void RenderDrawLists(ImDrawData* draw_data)
     // Backup GL state
     GLint last_texture = 0;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+
+#ifndef GL_VERSION_ES_CL_1_1
     GLint last_polygon_mode[2];
     glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
+#endif
+
     GLint last_viewport[4];
     glGetIntegerv(GL_VIEWPORT, last_viewport);
     GLint last_scissor_box[4];
@@ -1060,9 +1066,13 @@ void RenderDrawLists(ImDrawData* draw_data)
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
+
+#ifndef GL_VERSION_ES_CL_1_1
     glPopAttrib();
     glPolygonMode(GL_FRONT, (GLenum)last_polygon_mode[0]);
     glPolygonMode(GL_BACK, (GLenum)last_polygon_mode[1]);
+#endif
+
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
     glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
     glShadeModel((GLenum)last_shade_model);

@@ -58,8 +58,6 @@ if(NOT OpenGL_GL_PREFERENCE)
   set(OpenGL_GL_PREFERENCE "LEGACY")
 endif()
 
-find_package(OpenGL REQUIRED)
-
 include(GNUInstallDirs)
 
 # Define ImGui-SFML
@@ -72,7 +70,19 @@ target_include_directories(ImGui-SFML PUBLIC
 target_include_directories(ImGui-SFML SYSTEM PUBLIC
   $<BUILD_INTERFACE:${IMGUI_INCLUDE_DIR}>
 )
-target_link_libraries(ImGui-SFML PUBLIC SFML::Graphics OpenGL::GL)
+
+if(IOS)
+    target_link_libraries(ImGui-SFML PRIVATE "-framework OpenGLES")
+elseif(ANDROID)
+    find_package(EGL REQUIRED)
+    find_package(GLES REQUIRED)
+    target_link_libraries(ImGui-SFML PRIVATE EGL::EGL GLES::GLES)
+else()
+    find_package(OpenGL REQUIRED COMPONENTS OpenGL)
+    target_link_libraries(ImGui-SFML PRIVATE OpenGL::GL)
+endif()
+
+target_link_libraries(ImGui-SFML PUBLIC SFML::Graphics)
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
 endif()

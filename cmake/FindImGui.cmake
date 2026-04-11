@@ -12,12 +12,19 @@ list(APPEND IMGUI_SEARCH_PATH
   ${IMGUI_DIR}
 )
 
+
+unset(IMGUI_INCLUDE_DIR)
+
 find_path(IMGUI_INCLUDE_DIR
   NAMES imgui.h
-  PATHS ${IMGUI_SEARCH_PATH}
+  HINTS ${IMGUI_SEARCH_PATH}
   NO_DEFAULT_PATH
+  NO_CMAKE_FIND_ROOT_PATH
 )
 
+file(GLOB MY_FILES "${IMGUI_DIR}/imgui.h")
+
+message(WARNING "Found: ${IMGUI_DIR} ${IMGUI_SEARCH_PATH} ${IMGUI_INCLUDE_DIR} ${MY_FILES}")
 if(NOT IMGUI_INCLUDE_DIR)
   message(FATAL_ERROR "IMGUI imgui.cpp not found. Set IMGUI_DIR to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
