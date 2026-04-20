@@ -252,7 +252,7 @@ struct WindowContext
     ImGuiMouseCursor lastCursor{ImGuiMouseCursor_COUNT};
 
     bool         touchDown[3] = {false};
-    sf::Vector2i touchPos;
+    sf::Vector2i touchPos[3];  // Cache touch positions for each finger
 
     unsigned int joystickId{getConnectedJoystickId()};
     ImGuiKey     joystickMapping[sf::Joystick::ButtonCount] = {ImGuiKey_None};
@@ -396,13 +396,26 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
         else if (const auto* touchBegan = event.getIf<sf::Event::TouchBegan>())
         {
             s_currWindowCtx->mouseMoved = false;
-            const unsigned int button   = touchBegan->finger;
-            if (button < 3)
-                s_currWindowCtx->touchDown[touchBegan->finger] = true;
+            const unsigned int finger   = touchBegan->finger;
+            if (finger < 3)
+            {
+                s_currWindowCtx->touchDown[finger] = true;
+                s_currWindowCtx->touchPos[finger] = touchBegan->position;
+            }
         }
-        else if (event.is<sf::Event::TouchEnded>())
+        else if (const auto* touchMoved = event.getIf<sf::Event::TouchMoved>())
         {
             s_currWindowCtx->mouseMoved = false;
+            const unsigned int finger = touchMoved->finger;
+            if (finger < 3)
+                s_currWindowCtx->touchPos[finger] = touchMoved->position;
+        }
+        else if (const auto* touchEnded = event.getIf<sf::Event::TouchEnded>())
+        {
+            s_currWindowCtx->mouseMoved = false;
+            const unsigned int finger = touchEnded->finger;
+            if (finger < 3)
+                s_currWindowCtx->touchDown[finger] = false;
         }
         else if (const auto* mouseWheelScrolled = event.getIf<sf::Event::MouseWheelScrolled>())
         {
@@ -496,10 +509,11 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
 
     if (!s_currWindowCtx->mouseMoved)
     {
-        if (sf::Touch::isDown(0))
-            s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
-
-        Update(s_currWindowCtx->touchPos, sf::Vector2f(target.getSize()), dt);
+        // Use cached touch position for finger 0 if it's currently down
+        if (s_currWindowCtx->touchDown[0])
+            Update(s_currWindowCtx->touchPos[0], sf::Vector2f(target.getSize()), dt);
+        else
+            Update(sf::Mouse::getPosition(window), sf::Vector2f(target.getSize()), dt);
     }
     else
     {
@@ -527,8 +541,9 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::T
         }
         for (unsigned int i = 0; i < 3; i++)
         {
-            io.MouseDown[i] = s_currWindowCtx->touchDown[i] || sf::Touch::isDown(i) ||
-                              s_currWindowCtx->mousePressed[i] || sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
+            io.MouseDown[i] = s_currWindowCtx->touchDown[i] ||
+                              s_currWindowCtx->mousePressed[i] ||
+                              sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(i));
             s_currWindowCtx->mousePressed[i] = false;
             s_currWindowCtx->touchDown[i]    = false;
         }
