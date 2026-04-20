@@ -315,7 +315,7 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
             io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
             const auto [x, y] = sf::Vector2f(touchBegan->position);
             io.AddMousePosEvent(x, y);
-            io.AddMouseButtonEvent(touchBegan->finger, true);
+            io.AddMouseButtonEvent(0, true);
         }
     }
     else if (const auto* touchEnded = event.getIf<sf::Event::TouchEnded>())
@@ -325,7 +325,7 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
             io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
             const auto [x, y] = sf::Vector2f(touchEnded->position);
             io.AddMousePosEvent(x, y);
-            io.AddMouseButtonEvent(touchEnded->finger, false);
+            io.AddMouseButtonEvent(0, false);
         }
     }
     else if (const auto* mouseWheelScrolled = event.getIf<sf::Event::MouseWheelScrolled>())
