@@ -244,6 +244,19 @@ ImGuiIO& io = ImGui::GetIO();
 io.MouseDrawCursor = true;
 ```
 
+To hide the mouse cursor you'll need to set both the custor style to none and the imgui's drawn cursor to false (This also needs to be done every frame):
+
+```cpp
+ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+io.MouseDrawCursor = false;
+```
+
+You can also completely disable ImGui's control over the system cursor by setting the appropriate flag:
+
+```cpp
+io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+```
+
 Keyboard/Gamepad navigation
 ---
 Starting with [ImGui 1.60](https://github.com/ocornut/imgui/releases/tag/v1.60), there's a feature to control ImGui with keyboard and gamepad. To use keyboard navigation, you just need to do this:
