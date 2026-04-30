@@ -6,10 +6,14 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Joystick.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include <optional>
 
 #include "imgui-SFML_export.h"
+#include "imgui.h"      // IMGUI_IMPL_API
+#include <unordered_map>
+#include <memory>
 
 namespace sf
 {
@@ -26,6 +30,8 @@ namespace ImGui
 {
 namespace SFML
 {
+    inline std::unordered_map<ImTextureID, std::unique_ptr<sf::Texture>> textureMap;
+
 [[nodiscard]] IMGUI_SFML_API bool Init(sf::RenderWindow& window, bool loadDefaultFont = true);
 [[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont = true);
 [[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont = true);
@@ -45,7 +51,7 @@ IMGUI_SFML_API void Shutdown(const sf::Window& window);
 // Shuts down all ImGui contexts
 IMGUI_SFML_API void Shutdown();
 
-[[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture();
+IMGUI_SFML_API void UpdateFontTexture(ImTextureData* tex);
 IMGUI_SFML_API std::optional<sf::Texture>& GetFontTexture();
 
 // joystick functions

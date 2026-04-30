@@ -1,4 +1,5 @@
 #include "imgui-SFML.h"
+#include <cstdint>
 #include <imgui.h>
 
 #include <SFML/Config.hpp>
@@ -33,6 +34,8 @@
 #include <SFML/System/NativeActivity.hpp>
 #include <android/native_activity.h>
 #include <jni.h>
+
+
 
 int openKeyboardIME()
 {
@@ -313,6 +316,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
     io.BackendPlatformName = "imgui_impl_sfml";
 
     s_currWindowCtx->joystickId = getConnectedJoystickId();
@@ -337,13 +341,6 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     loadMouseCursor(ImGuiMouseCursor_ResizeNESW, sf::Cursor::Type::SizeBottomLeftTopRight);
     loadMouseCursor(ImGuiMouseCursor_ResizeNWSE, sf::Cursor::Type::SizeTopLeftBottomRight);
     loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Type::Hand);
-
-    if (loadDefaultFont)
-    {
-        // this will load default font automatically
-        // No need to call AddDefaultFont
-        return UpdateFontTexture();
-    }
 
     return true;
 }
@@ -589,6 +586,15 @@ void Shutdown(const sf::Window& window)
 {
     const bool needReplacement = (s_currWindowCtx->window->getNativeHandle() == window.getNativeHandle());
 
+    for (ImTextureData* tex : ImGui::GetPlatformIO().Textures)
+    {
+        if (tex->RefCount == 1)
+        {
+            tex->SetStatus(ImTextureStatus_WantDestroy);
+            UpdateFontTexture(tex);
+        }
+    }
+
     // remove window's context
     auto found = std::find_if(s_windowContexts.begin(),
                               s_windowContexts.end(),
@@ -619,37 +625,58 @@ void Shutdown(const sf::Window& window)
 
 void Shutdown()
 {
+    for (ImTextureData* tex : ImGui::GetPlatformIO().Textures)
+    {
+        if (tex->RefCount == 1)
+        {
+            tex->SetStatus(ImTextureStatus_WantDestroy);
+            UpdateFontTexture(tex);
+        }
+    }
     s_currWindowCtx = nullptr;
     ImGui::SetCurrentContext(nullptr);
 
     s_windowContexts.clear();
 }
 
-bool UpdateFontTexture()
+void UpdateFontTexture(ImTextureData* tex)
 {
     assert(s_currWindowCtx);
 
-    ImGuiIO&       io     = ImGui::GetIO();
-    unsigned char* pixels = nullptr;
-    int            width  = 0;
-    int            height = 0;
-
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-
-    sf::Texture newTexture;
-    if (!newTexture.resize(sf::Vector2u(sf::Vector2(width, height))))
+    if (tex->Status = ImTextureStatus_WantCreate)
     {
-        return false;
+        auto sfml_texture = std::make_unique<sf::Texture>();
+
+        [[maybe_unused]] auto res = sfml_texture->resize(sf::Vector2u(sf::Vector2(tex->Width, tex->Height)));
+
+        sfml_texture->update(reinterpret_cast<std::uint8_t*>(tex->GetPixels()));
+
+        ImTextureID id = convertGLTextureHandleToImTextureID(sfml_texture->getNativeHandle());
+        tex->SetTexID(id);
+        textureMap[id] = std::move(sfml_texture);
+        tex->SetStatus(ImTextureStatus_OK);
     }
+    else if (tex->Status = ImTextureStatus_WantUpdates)
+    {
+        auto it = textureMap.find(tex->GetTexID());
+        if (it != textureMap.end()) {
+            for (ImTextureRect& r : tex->Updates)
+            {
+                it->second->update(
+                    reinterpret_cast<std::uint8_t*>(tex->GetPixelsAt(r.x, r.y)),
+                    sf::Vector2u(sf::Vector2(r.w, r.h)),
+                    sf::Vector2u(sf::Vector2(r.x, r.y)));
+                tex->SetStatus(ImTextureStatus_OK);
+            }
 
-    newTexture.update(pixels);
-
-    ImTextureID texID = convertGLTextureHandleToImTextureID(newTexture.getNativeHandle());
-    io.Fonts->SetTexID(texID);
-
-    s_currWindowCtx->fontTexture = std::move(newTexture);
-
-    return true;
+        }
+    }
+    else
+    {
+        tex->SetTexID(ImTextureID_Invalid);
+        tex->SetStatus(ImTextureStatus_Destroyed);
+        textureMap.erase(tex->GetTexID());
+    }
 }
 
 std::optional<sf::Texture>& GetFontTexture()
@@ -776,7 +803,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Color
 {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 
-    ImGui::Image(textureID, toImVec2(size), ImVec2(0, 0), ImVec2(1, 1), toImColor(tintColor), toImColor(borderColor));
+    ImGui::ImageWithBg(textureID, toImVec2(size), ImVec2(0, 0), ImVec2(1, 1), toImColor(tintColor), toImColor(borderColor));
 }
 
 /////////////// Image Overloads for sf::RenderTexture
@@ -789,7 +816,7 @@ void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf:
 {
     ImTextureID textureID = convertGLTextureHandleToImTextureID(texture.getTexture().getNativeHandle());
 
-    ImGui::Image(textureID,
+    ImGui::ImageWithBg(textureID,
                  toImVec2(size),
                  ImVec2(0, 1),
                  ImVec2(1, 0), // flipped vertically,
@@ -810,7 +837,7 @@ void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color
 void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor, const sf::Color& borderColor)
 {
     auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
-    ImGui::Image(textureID, toImVec2(size), uv0, uv1, toImColor(tintColor), toImColor(borderColor));
+    ImGui::ImageWithBg(textureID, toImVec2(size), uv0, uv1, toImColor(tintColor), toImColor(borderColor));
 }
 
 /////////////// Image Button Overloads for sf::Texture
@@ -948,14 +975,12 @@ void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height)
 // Rendering callback
 void RenderDrawLists(ImDrawData* draw_data)
 {
-    ImGui::GetDrawData();
-    if (draw_data->CmdListsCount == 0)
-    {
-        return;
-    }
+    auto& io = ImGui::GetIO();
 
-    const ImGuiIO& io = ImGui::GetIO();
-    assert(io.Fonts->TexID != (ImTextureID) nullptr); // You forgot to create and set font texture
+    if (draw_data->Textures != nullptr)
+        for (ImTextureData* tex : *draw_data->Textures)
+            if (tex->Status != ImTextureStatus_OK)
+                ImGui::SFML::UpdateFontTexture(tex);
 
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates !=
     // framebuffer coordinates)
