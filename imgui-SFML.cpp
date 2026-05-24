@@ -964,9 +964,9 @@ void RenderDrawLists(ImDrawData* draw_data)
 
     // Backup GL state
 
-    GLint last_blend_src;
+    GLint last_blend_src{};
     glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
-    GLint last_blend_dst;
+    GLint last_blend_dst{};
     glGetIntegerv(GL_BLEND_SRC, &last_blend_dst);
 
     const bool last_blend          = glIsEnabled(GL_BLEND);
