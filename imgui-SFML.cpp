@@ -969,19 +969,19 @@ void RenderDrawLists(ImDrawData* draw_data)
     GLint last_blend_dst;
     glGetIntegerv(GL_BLEND_SRC, &last_blend_dst);
 
-    const auto last_blend          = glIsEnabled(GL_BLEND);
-    const auto last_cull_face      = glIsEnabled(GL_CULL_FACE);
-    const auto last_depth_test     = glIsEnabled(GL_DEPTH_TEST);
-    const auto last_stencil_test   = glIsEnabled(GL_STENCIL_TEST);
-    const auto last_lighting       = glIsEnabled(GL_LIGHTING);
-    const auto last_color_material = glIsEnabled(GL_COLOR_MATERIAL);
-    const auto last_scissor_test   = glIsEnabled(GL_SCISSOR_TEST);
-    const auto last_texture_2d     = glIsEnabled(GL_TEXTURE_2D);
+    const bool last_blend          = glIsEnabled(GL_BLEND);
+    const bool last_cull_face      = glIsEnabled(GL_CULL_FACE);
+    const bool last_depth_test     = glIsEnabled(GL_DEPTH_TEST);
+    const bool last_stencil_test   = glIsEnabled(GL_STENCIL_TEST);
+    const bool last_lighting       = glIsEnabled(GL_LIGHTING);
+    const bool last_color_material = glIsEnabled(GL_COLOR_MATERIAL);
+    const bool last_scissor_test   = glIsEnabled(GL_SCISSOR_TEST);
+    const bool last_texture_2d     = glIsEnabled(GL_TEXTURE_2D);
 
-    const auto last_vertex_array        = glIsEnabled(GL_VERTEX_ARRAY);
-    const auto last_texture_coord_array = glIsEnabled(GL_TEXTURE_COORD_ARRAY);
-    const auto last_color_array         = glIsEnabled(GL_COLOR_ARRAY);
-    const auto last_normal_array        = glIsEnabled(GL_NORMAL_ARRAY);
+    const bool last_vertex_array        = glIsEnabled(GL_VERTEX_ARRAY);
+    const bool last_texture_coord_array = glIsEnabled(GL_TEXTURE_COORD_ARRAY);
+    const bool last_color_array         = glIsEnabled(GL_COLOR_ARRAY);
+    const bool last_normal_array        = glIsEnabled(GL_NORMAL_ARRAY);
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -1080,27 +1080,27 @@ void RenderDrawLists(ImDrawData* draw_data)
 
     // Restore modified GL state
 
-    const auto setGlState = [](auto state, bool value)
+    const auto setGlState = [](GLint state, bool value)
     {
         if (value)
         {
-            glEnable(state);
+            glEnable(static_cast<GLenum>(state));
         }
         else
         {
-            glDisable(state);
+            glDisable(static_cast<GLenum>(state));
         }
     };
 
-    const auto setGlClientState = [](auto state, bool value)
+    const auto setGlClientState = [](GLint state, bool value)
     {
         if (value)
         {
-            glEnableClientState(state);
+            glEnableClientState(static_cast<GLenum>(state));
         }
         else
         {
-            glDisableClientState(state);
+            glDisableClientState(static_cast<GLenum>(state));
         }
     };
 
