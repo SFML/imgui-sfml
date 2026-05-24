@@ -1118,7 +1118,7 @@ void RenderDrawLists(ImDrawData* draw_data)
     setGlClientState(GL_COLOR_ARRAY, last_color_array);
     setGlClientState(GL_NORMAL_ARRAY, last_normal_array);
 
-    glBlendFunc(last_blend_src, last_blend_dst);
+    glBlendFunc(static_cast<GLenum>(last_blend_src), static_cast<GLenum>(last_blend_dst));
 
     glBindTexture(GL_TEXTURE_2D, (GLuint)last_texture);
     glMatrixMode(GL_MODELVIEW);
