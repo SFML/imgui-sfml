@@ -572,7 +572,6 @@ void Render(sf::RenderWindow& window)
 
 void Render(sf::RenderTarget& target)
 {
-    target.resetGLStates();
     target.pushGLStates();
     ImGui::Render();
     RenderDrawLists(ImGui::GetDrawData());
@@ -923,7 +922,6 @@ void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height)
     // viewport apps.
     glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
     glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
     glLoadIdentity();
 #ifdef GL_VERSION_ES_CL_1_1
     glOrthof(draw_data->DisplayPos.x,
@@ -941,7 +939,6 @@ void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height)
             +1.0f);
 #endif
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
     glLoadIdentity();
 }
 
@@ -966,7 +963,31 @@ void RenderDrawLists(ImDrawData* draw_data)
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
     // Backup GL state
-    // Backup GL state
+
+    GLint last_blend_src{};
+    glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+    GLint last_blend_dst{};
+    glGetIntegerv(GL_BLEND_SRC, &last_blend_dst);
+
+    const bool last_blend          = glIsEnabled(GL_BLEND);
+    const bool last_cull_face      = glIsEnabled(GL_CULL_FACE);
+    const bool last_depth_test     = glIsEnabled(GL_DEPTH_TEST);
+    const bool last_stencil_test   = glIsEnabled(GL_STENCIL_TEST);
+    const bool last_lighting       = glIsEnabled(GL_LIGHTING);
+    const bool last_color_material = glIsEnabled(GL_COLOR_MATERIAL);
+    const bool last_scissor_test   = glIsEnabled(GL_SCISSOR_TEST);
+    const bool last_texture_2d     = glIsEnabled(GL_TEXTURE_2D);
+
+    const bool last_vertex_array        = glIsEnabled(GL_VERTEX_ARRAY);
+    const bool last_texture_coord_array = glIsEnabled(GL_TEXTURE_COORD_ARRAY);
+    const bool last_color_array         = glIsEnabled(GL_COLOR_ARRAY);
+    const bool last_normal_array        = glIsEnabled(GL_NORMAL_ARRAY);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
     GLint last_texture = 0;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
 
@@ -1058,9 +1079,47 @@ void RenderDrawLists(ImDrawData* draw_data)
     }
 
     // Restore modified GL state
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+
+    const auto setGlState = [](GLint state, bool value)
+    {
+        if (value)
+        {
+            glEnable(static_cast<GLenum>(state));
+        }
+        else
+        {
+            glDisable(static_cast<GLenum>(state));
+        }
+    };
+
+    const auto setGlClientState = [](GLint state, bool value)
+    {
+        if (value)
+        {
+            glEnableClientState(static_cast<GLenum>(state));
+        }
+        else
+        {
+            glDisableClientState(static_cast<GLenum>(state));
+        }
+    };
+
+    setGlState(GL_BLEND, last_blend);
+    setGlState(GL_CULL_FACE, last_cull_face);
+    setGlState(GL_DEPTH_TEST, last_depth_test);
+    setGlState(GL_STENCIL_TEST, last_stencil_test);
+    setGlState(GL_LIGHTING, last_lighting);
+    setGlState(GL_COLOR_MATERIAL, last_color_material);
+    setGlState(GL_SCISSOR_TEST, last_scissor_test);
+    setGlState(GL_TEXTURE_2D, last_texture_2d);
+
+    setGlClientState(GL_VERTEX_ARRAY, last_vertex_array);
+    setGlClientState(GL_TEXTURE_COORD_ARRAY, last_texture_coord_array);
+    setGlClientState(GL_COLOR_ARRAY, last_color_array);
+    setGlClientState(GL_NORMAL_ARRAY, last_normal_array);
+
+    glBlendFunc(static_cast<GLenum>(last_blend_src), static_cast<GLenum>(last_blend_dst));
+
     glBindTexture(GL_TEXTURE_2D, (GLuint)last_texture);
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
