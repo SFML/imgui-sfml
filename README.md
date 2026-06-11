@@ -17,7 +17,7 @@ Dependencies
 -----
 
 * [SFML](https://github.com/SFML/SFML) >= 3.0.0
-* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.91.1, < 1.92.0
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.91.1
 
 Contributing
 -----
@@ -141,6 +141,18 @@ int main() {
 
 Fonts how-to
 ---
+
+Starting with ImGui v1.92.0, default font is automatically loaded.
+
+* You can load your fonts like this:
+
+```cpp
+IO.Fonts->Clear(); // clear fonts if you loaded some before (even if only default one was loaded)
+IO.Fonts->AddFontFromFileTTF("font1.ttf", 8.f);
+IO.Fonts->AddFontFromFileTTF("font2.ttf", 12.f);
+```
+
+**ImGui < v1.92.0** (deprecated)
 
 Default font is loaded if you don't pass `false` in `ImGui::SFML::Init`. Call `ImGui::SFML::Init(window, false);` if you don't want default font to be loaded.
 
