@@ -27,92 +27,6 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#ifdef ANDROID
-#ifdef USE_JNI
-
-#include <SFML/System/NativeActivity.hpp>
-#include <android/native_activity.h>
-#include <jni.h>
-
-int openKeyboardIME()
-{
-    ANativeActivity* activity = sf::getNativeActivity();
-    JavaVM*          vm       = activity->vm;
-    JNIEnv*          env      = activity->env;
-    JavaVMAttachArgs attachargs;
-    attachargs.version = JNI_VERSION_1_6;
-    attachargs.name    = "NativeThread";
-    attachargs.group   = nullptr;
-    jint res           = vm->AttachCurrentThread(&env, &attachargs);
-    if (res == JNI_ERR)
-        return EXIT_FAILURE;
-
-    jclass natact  = env->FindClass("android/app/NativeActivity");
-    jclass context = env->FindClass("android/content/Context");
-
-    jfieldID fid    = env->GetStaticFieldID(context, "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
-    jobject  svcstr = env->GetStaticObjectField(context, fid);
-
-    jmethodID getss   = env->GetMethodID(natact, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-    jobject   imm_obj = env->CallObjectMethod(activity->clazz, getss, svcstr);
-
-    jclass    imm_cls         = env->GetObjectClass(imm_obj);
-    jmethodID toggleSoftInput = env->GetMethodID(imm_cls, "toggleSoftInput", "(II)V");
-
-    env->CallVoidMethod(imm_obj, toggleSoftInput, 2, 0);
-
-    env->DeleteLocalRef(imm_obj);
-    env->DeleteLocalRef(imm_cls);
-    env->DeleteLocalRef(svcstr);
-    env->DeleteLocalRef(context);
-    env->DeleteLocalRef(natact);
-
-    vm->DetachCurrentThread();
-
-    return EXIT_SUCCESS;
-}
-
-int closeKeyboardIME()
-{
-    ANativeActivity* activity = sf::getNativeActivity();
-    JavaVM*          vm       = activity->vm;
-    JNIEnv*          env      = activity->env;
-    JavaVMAttachArgs attachargs;
-    attachargs.version = JNI_VERSION_1_6;
-    attachargs.name    = "NativeThread";
-    attachargs.group   = nullptr;
-    jint res           = vm->AttachCurrentThread(&env, &attachargs);
-    if (res == JNI_ERR)
-        return EXIT_FAILURE;
-
-    jclass natact  = env->FindClass("android/app/NativeActivity");
-    jclass context = env->FindClass("android/content/Context");
-
-    jfieldID fid    = env->GetStaticFieldID(context, "INPUT_METHOD_SERVICE", "Ljava/lang/String;");
-    jobject  svcstr = env->GetStaticObjectField(context, fid);
-
-    jmethodID getss   = env->GetMethodID(natact, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-    jobject   imm_obj = env->CallObjectMethod(activity->clazz, getss, svcstr);
-
-    jclass    imm_cls         = env->GetObjectClass(imm_obj);
-    jmethodID toggleSoftInput = env->GetMethodID(imm_cls, "toggleSoftInput", "(II)V");
-
-    env->CallVoidMethod(imm_obj, toggleSoftInput, 1, 0);
-
-    env->DeleteLocalRef(imm_obj);
-    env->DeleteLocalRef(imm_cls);
-    env->DeleteLocalRef(svcstr);
-    env->DeleteLocalRef(context);
-    env->DeleteLocalRef(natact);
-
-    vm->DetachCurrentThread();
-
-    return EXIT_SUCCESS;
-}
-
-#endif
-#endif
-
 static_assert(sizeof(GLuint) <= sizeof(ImTextureID), "ImTextureID is not large enough to fit GLuint.");
 
 namespace
@@ -247,12 +161,7 @@ struct WindowContext
                                             // a custom sf::Texture.
 
     bool             windowHasFocus;
-    bool             mouseMoved{false};
-    bool             mousePressed[3] = {false};
     ImGuiMouseCursor lastCursor{ImGuiMouseCursor_COUNT};
-
-    bool         touchDown[3] = {false};
-    sf::Vector2i touchPos;
 
     unsigned int joystickId{getConnectedJoystickId()};
     ImGuiKey     joystickMapping[sf::Joystick::ButtonCount] = {ImGuiKey_None};
@@ -264,11 +173,7 @@ struct WindowContext
 
     std::optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
 
-#ifdef ANDROID
-#ifdef USE_JNI
     bool wantTextInput{false};
-#endif
-#endif
 
     WindowContext(const sf::Window* w) : window(w), windowHasFocus(window->hasFocus())
     {
@@ -366,102 +271,120 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event)
     assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
     ImGuiIO& io = ImGui::GetIO();
 
-    if (s_currWindowCtx->windowHasFocus)
+    if (const auto* resized = event.getIf<sf::Event::Resized>())
     {
-        if (const auto* resized = event.getIf<sf::Event::Resized>())
+        io.DisplaySize = toImVec2(sf::Vector2f(resized->size));
+    }
+    else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>())
+    {
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+        const auto [x, y] = sf::Vector2f(mouseMoved->position);
+        io.AddMousePosEvent(x, y);
+    }
+    else if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>())
+    {
+        const int button = static_cast<int>(mouseButtonPressed->button);
+        if (button >= 0 && button < ImGuiMouseButton_COUNT)
         {
-            io.DisplaySize = toImVec2(sf::Vector2f(resized->size));
+            io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+            io.AddMouseButtonEvent(button, true);
         }
-        else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>())
+    }
+    else if (const auto* mouseButtonReleased = event.getIf<sf::Event::MouseButtonReleased>())
+    {
+        const int button = static_cast<int>(mouseButtonReleased->button);
+        if (button >= 0 && button < ImGuiMouseButton_COUNT)
         {
-            const auto [x, y] = sf::Vector2f(mouseMoved->position);
+            io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+            io.AddMouseButtonEvent(button, false);
+        }
+    }
+    else if (const auto* touchMoved = event.getIf<sf::Event::TouchMoved>())
+    {
+        if (touchMoved->finger == 0)
+        {
+            io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+            const auto [x, y] = sf::Vector2f(touchMoved->position);
             io.AddMousePosEvent(x, y);
-            s_currWindowCtx->mouseMoved = true;
         }
-        else if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>())
+    }
+    else if (const auto* touchBegan = event.getIf<sf::Event::TouchBegan>())
+    {
+        if (touchBegan->finger == 0)
         {
-            const int button = static_cast<int>(mouseButtonPressed->button);
-            if (button >= 0 && button < 3)
-            {
-                s_currWindowCtx->mousePressed[static_cast<int>(mouseButtonPressed->button)] = true;
-                io.AddMouseButtonEvent(button, true);
-            }
+            io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+            const auto [x, y] = sf::Vector2f(touchBegan->position);
+            io.AddMousePosEvent(x, y);
+            io.AddMouseButtonEvent(0, true);
         }
-        else if (const auto* mouseButtonReleased = event.getIf<sf::Event::MouseButtonReleased>())
+    }
+    else if (const auto* touchEnded = event.getIf<sf::Event::TouchEnded>())
+    {
+        if (touchEnded->finger == 0)
         {
-            const int button = static_cast<int>(mouseButtonReleased->button);
-            if (button >= 0 && button < 3)
-                io.AddMouseButtonEvent(button, false);
+            io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+            const auto [x, y] = sf::Vector2f(touchEnded->position);
+            io.AddMousePosEvent(x, y);
+            io.AddMouseButtonEvent(0, false);
         }
-        else if (const auto* touchBegan = event.getIf<sf::Event::TouchBegan>())
+    }
+    else if (const auto* mouseWheelScrolled = event.getIf<sf::Event::MouseWheelScrolled>())
+    {
+        if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical ||
+            (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal && io.KeyShift))
         {
-            s_currWindowCtx->mouseMoved = false;
-            const unsigned int button   = touchBegan->finger;
-            if (button < 3)
-                s_currWindowCtx->touchDown[touchBegan->finger] = true;
+            io.AddMouseWheelEvent(0, mouseWheelScrolled->delta);
         }
-        else if (event.is<sf::Event::TouchEnded>())
+        else if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal)
         {
-            s_currWindowCtx->mouseMoved = false;
+            io.AddMouseWheelEvent(mouseWheelScrolled->delta, 0);
         }
-        else if (const auto* mouseWheelScrolled = event.getIf<sf::Event::MouseWheelScrolled>())
+    }
+    const auto handleKeyChanged = [&io](const auto& keyChanged, bool down)
+    {
+        const ImGuiKey mod = keycodeToImGuiMod(keyChanged.code);
+        // The modifier booleans are not reliable when it's the modifier
+        // itself that's being pressed. Detect these presses directly.
+        if (mod != ImGuiKey_None)
         {
-            if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical ||
-                (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal && io.KeyShift))
-            {
-                io.AddMouseWheelEvent(0, mouseWheelScrolled->delta);
-            }
-            else if (mouseWheelScrolled->wheel == sf::Mouse::Wheel::Horizontal)
-            {
-                io.AddMouseWheelEvent(mouseWheelScrolled->delta, 0);
-            }
+            io.AddKeyEvent(mod, down);
         }
-        const auto handleKeyChanged = [&io](const auto& keyChanged, bool down)
+        else
         {
-            const ImGuiKey mod = keycodeToImGuiMod(keyChanged.code);
-            // The modifier booleans are not reliable when it's the modifier
-            // itself that's being pressed. Detect these presses directly.
-            if (mod != ImGuiKey_None)
-            {
-                io.AddKeyEvent(mod, down);
-            }
-            else
-            {
-                io.AddKeyEvent(ImGuiMod_Ctrl, keyChanged.control);
-                io.AddKeyEvent(ImGuiMod_Shift, keyChanged.shift);
-                io.AddKeyEvent(ImGuiMod_Alt, keyChanged.alt);
-                io.AddKeyEvent(ImGuiMod_Super, keyChanged.system);
-            }
+            io.AddKeyEvent(ImGuiMod_Ctrl, keyChanged.control);
+            io.AddKeyEvent(ImGuiMod_Shift, keyChanged.shift);
+            io.AddKeyEvent(ImGuiMod_Alt, keyChanged.alt);
+            io.AddKeyEvent(ImGuiMod_Super, keyChanged.system);
+        }
 
-            const ImGuiKey key = keycodeToImGuiKey(keyChanged.code);
-            io.AddKeyEvent(key, down);
-            io.SetKeyEventNativeData(key, static_cast<int>(keyChanged.code), -1);
-        };
-        if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>())
-        {
-            handleKeyChanged(*keyPressed, true);
-        }
-        else if (const auto* keyReleased = event.getIf<sf::Event::KeyReleased>())
-        {
-            handleKeyChanged(*keyReleased, false);
-        }
-        else if (const auto* textEntered = event.getIf<sf::Event::TextEntered>())
-        {
-            // Don't handle the event for unprintable characters
-            if (textEntered->unicode >= ' ' && textEntered->unicode != 127)
-                io.AddInputCharacter(textEntered->unicode);
-        }
-        else if (const auto* joystickConnected = event.getIf<sf::Event::JoystickConnected>())
-        {
-            if (s_currWindowCtx->joystickId == NULL_JOYSTICK_ID)
-                s_currWindowCtx->joystickId = joystickConnected->joystickId;
-        }
-        else if (const auto* joystickDisconnected = event.getIf<sf::Event::JoystickDisconnected>())
-        {
-            if (s_currWindowCtx->joystickId == joystickDisconnected->joystickId)
-                // used gamepad was disconnected
-                s_currWindowCtx->joystickId = getConnectedJoystickId();
-        }
+        const ImGuiKey key = keycodeToImGuiKey(keyChanged.code);
+        io.AddKeyEvent(key, down);
+        io.SetKeyEventNativeData(key, static_cast<int>(keyChanged.code), -1);
+    };
+    if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>())
+    {
+        handleKeyChanged(*keyPressed, true);
+    }
+    else if (const auto* keyReleased = event.getIf<sf::Event::KeyReleased>())
+    {
+        handleKeyChanged(*keyReleased, false);
+    }
+    else if (const auto* textEntered = event.getIf<sf::Event::TextEntered>())
+    {
+        // Don't handle the event for unprintable characters
+        if (textEntered->unicode >= ' ' && textEntered->unicode != 127)
+            io.AddInputCharacter(textEntered->unicode);
+    }
+    else if (const auto* joystickConnected = event.getIf<sf::Event::JoystickConnected>())
+    {
+        if (s_currWindowCtx->joystickId == NULL_JOYSTICK_ID)
+            s_currWindowCtx->joystickId = joystickConnected->joystickId;
+    }
+    else if (const auto* joystickDisconnected = event.getIf<sf::Event::JoystickDisconnected>())
+    {
+        if (s_currWindowCtx->joystickId == joystickDisconnected->joystickId)
+            // used gamepad was disconnected
+            s_currWindowCtx->joystickId = getConnectedJoystickId();
     }
 
     if (event.is<sf::Event::FocusLost>())
@@ -494,61 +417,25 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt)
         updateMouseCursor(window);
     }
 
-    if (!s_currWindowCtx->mouseMoved)
-    {
-        if (sf::Touch::isDown(0))
-            s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
-
-        Update(s_currWindowCtx->touchPos, sf::Vector2f(target.getSize()), dt);
-    }
-    else
-    {
-        Update(sf::Mouse::getPosition(window), sf::Vector2f(target.getSize()), dt);
-    }
-}
-
-void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize, sf::Time dt)
-{
-    assert(s_currWindowCtx && "No current window is set - forgot to call ImGui::SFML::Init?");
-
     ImGuiIO& io    = ImGui::GetIO();
-    io.DisplaySize = toImVec2(displaySize);
+    io.DisplaySize = toImVec2(sf::Vector2f(target.getSize()));
     io.DeltaTime   = dt.asSeconds();
 
-    if (s_currWindowCtx->windowHasFocus)
+    if (s_currWindowCtx->windowHasFocus && io.WantSetMousePos)
     {
-        if (io.WantSetMousePos)
-        {
-            sf::Mouse::setPosition(sf::Vector2i(toSfVector2f(io.MousePos)));
-        }
-        else
-        {
-            io.MousePos = toImVec2(sf::Vector2f(mousePos));
-        }
-        for (unsigned int i = 0; i < 3; i++)
-        {
-            io.MouseDown[i] = s_currWindowCtx->touchDown[i] || sf::Touch::isDown(i) ||
-                              s_currWindowCtx->mousePressed[i] || sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
-            s_currWindowCtx->mousePressed[i] = false;
-            s_currWindowCtx->touchDown[i]    = false;
-        }
+        sf::Mouse::setPosition(sf::Vector2i(toSfVector2f(io.MousePos)));
     }
 
-#ifdef ANDROID
-#ifdef USE_JNI
     if (io.WantTextInput && !s_currWindowCtx->wantTextInput)
     {
-        openKeyboardIME();
+        sf::Keyboard::setVirtualKeyboardVisible(true);
         s_currWindowCtx->wantTextInput = true;
     }
-
-    if (!io.WantTextInput && s_currWindowCtx->wantTextInput)
+    else if (!io.WantTextInput && s_currWindowCtx->wantTextInput)
     {
-        closeKeyboardIME();
+        sf::Keyboard::setVirtualKeyboardVisible(false);
         s_currWindowCtx->wantTextInput = false;
     }
-#endif
-#endif
 
     assert(io.Fonts->Fonts.Size > 0); // You forgot to create and set up font
                                       // atlas (see createFontTexture)
