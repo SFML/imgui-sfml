@@ -79,7 +79,7 @@ Using ImGui-SFML in your code
         }
         ```
 
-    - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`. You can also pass `mousePosition` and `displaySize` yourself instead of passing the window.
+    - Call `ImGui::SFML::Update(window, deltaTime)` where `deltaTime` is `sf::Time`.
     - Call ImGui functions (`ImGui::Begin()`, `ImGui::Button()`, etc.)
     - Call `ImGui::EndFrame` after the last `ImGui::End` in your update function, if you update more than once before rendering. (e.g. fixed delta game loops)
     - Call `ImGui::SFML::Render(window)`
