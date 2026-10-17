@@ -7,8 +7,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Joystick.hpp>
 
-#include <optional>
-
 #include "imgui-SFML_export.h"
 
 namespace sf
@@ -26,9 +24,10 @@ namespace ImGui
 {
 namespace SFML
 {
-[[nodiscard]] IMGUI_SFML_API bool Init(sf::RenderWindow& window, bool loadDefaultFont = true);
-[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont = true);
-[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont = true);
+
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::RenderWindow& window);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, sf::RenderTarget& target);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, const sf::Vector2f& displaySize);
 
 IMGUI_SFML_API void SetCurrentWindow(const sf::Window& window);
 IMGUI_SFML_API void ProcessEvent(const sf::Window& window, const sf::Event& event);
@@ -44,9 +43,6 @@ IMGUI_SFML_API void Render();
 IMGUI_SFML_API void Shutdown(const sf::Window& window);
 // Shuts down all ImGui contexts
 IMGUI_SFML_API void Shutdown();
-
-[[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture();
-IMGUI_SFML_API std::optional<sf::Texture>& GetFontTexture();
 
 // joystick functions
 IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);
