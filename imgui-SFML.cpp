@@ -21,13 +21,9 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <map>
 #include <memory>
 #include <vector>
-
-
-#if IMGUI_VERSION_NUM >= 19200
-#include <map> // store texture maps for ImGuiBackendFlags_RendererHasTextures
-#endif
 
 #if defined(__APPLE__)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -249,8 +245,6 @@ struct WindowContext
     const sf::Window* window;
     ImGuiContext*     imContext{ImGui::CreateContext()};
 
-    std::optional<sf::Texture> fontTexture;
-
     bool             windowHasFocus;
     bool             mouseMoved{false};
     bool             mousePressed[3] = {false};
@@ -268,6 +262,10 @@ struct WindowContext
     TriggerInfo  rTriggerInfo;
 
     std::optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
+
+#if IMGUI_VERSION_NUM < 19200
+    std::optional<sf::Texture> fontTexture;
+#endif
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -297,10 +295,12 @@ void UpdateImguiTexture(ImTextureData* tex)
 {
     if (tex->Status == ImTextureStatus_WantCreate)
     {
-        const auto  size = static_cast<sf::Vector2u>(sf::Vector2{tex->Width, tex->Height});
-        sf::Texture texture{size};
+        assert(tex->BytesPerPixel == 4); // Only supports RGBA for now
+
+        sf::Texture texture{sf::Vector2u(tex->Width, tex->Height)};
         texture.setRepeated(false);
         texture.update(static_cast<std::uint8_t*>(tex->GetPixels()));
+
         auto id = convertGLTextureHandleToImTextureID(texture.getNativeHandle());
         tex->SetTexID(id);
         tex->SetStatus(ImTextureStatus_OK);
@@ -315,11 +315,13 @@ void UpdateImguiTexture(ImTextureData* tex)
             for (ImTextureRect& r : tex->Updates)
             {
                 std::vector<uint8_t> block;
-                block.resize((size_t)r.w * r.h * tex->BytesPerPixel);
+                block.resize(static_cast<size_t>(r.w) * r.h * tex->BytesPerPixel);
                 const auto* pixels = static_cast<uint8_t*>(tex->GetPixelsAt(r.x, r.y));
                 for (size_t y = 0; y < r.h; ++y)
                 {
-                    memcpy(&block[y * r.w * 4], pixels + (y * pitch), (size_t)r.w * 4);
+                    memcpy(&block[y * r.w * tex->BytesPerPixel],
+                           pixels + (y * pitch),
+                           static_cast<size_t>(r.w) * tex->BytesPerPixel);
                 }
 
                 texture.update(block.data(), {r.w, r.h}, {r.x, r.y});
@@ -335,7 +337,6 @@ void UpdateImguiTexture(ImTextureData* tex)
         s_textureMap.erase(id);
     }
 }
-
 #else
 bool UpdateFontTexture()
 {
