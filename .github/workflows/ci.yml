@@ -44,7 +44,7 @@ jobs:
     - name: Get CMake and Ninja
       uses: lukka/get-cmake@latest
       with:
-        cmakeVersion: ${{ runner.os == 'Windows' && '3.24' || '3.22' }}
+        cmakeVersion: ${{ runner.os == 'Windows' && '4.2' || '3.22' }}
         ninjaVersion: latest
 
     - name: Install Linux Dependencies
@@ -65,7 +65,7 @@ jobs:
       with:
         repository: SFML/SFML
         path: sfml
-        ref: 3.0.0
+        ref: ${{ runner.os == 'Windows' && '3.1.0' || '3.0.0' }}
 
     - name: Configure SFML
       run: |
@@ -105,7 +105,7 @@ jobs:
       run: cmake --build imgui-sfml/build --target tidy
 
     - name: Test ImGui-SFML
-      run: ctest --test-dir imgui-sfml/build --config ${{matrix.type.name}} --output-on-failure
+      run: ctest --test-dir imgui-sfml/build --build-config ${{matrix.type.name}} --output-on-failure
 
   clang-format:
     runs-on: ubuntu-22.04
