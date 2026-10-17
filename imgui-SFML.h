@@ -7,8 +7,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Joystick.hpp>
 
-#include <imgui.h>
-
 #include "imgui-SFML_export.h"
 
 namespace sf
